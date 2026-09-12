@@ -72,6 +72,36 @@
           "detectionSummary": "UIDAI verified format detected"
         }
       ]
+    },
+    {
+      "id": "USR-1789227847816",
+      "name": "Sanjay",
+      "email": "sanjay@gmail.com",
+      "mobile": "987654321",
+      "password": "123456",
+      "createdAt": "2026-09-12T15:44:07.816Z",
+      "age": 28,
+      "gender": "Prefer not to say",
+      "category": "General",
+      "state": "Tamil Nadu",
+      "district": "Salem",
+      "pinCode": "",
+      "income": 0,
+      "monthlyExpenses": 0,
+      "existingLoans": false,
+      "existingEMI": 0,
+      "goal": "Start a business",
+      "projectType": "Micro Enterprise",
+      "purpose": "",
+      "projectCost": 0,
+      "loanRequirement": 0,
+      "ownContribution": 0,
+      "expectedBusinessIncome": 0,
+      "experienceYears": 0,
+      "preferredLanguage": "en",
+      "educationStatus": "12th Pass",
+      "role": "citizen",
+      "uploadedDocuments": []
     }
   ],
   "applications": [
