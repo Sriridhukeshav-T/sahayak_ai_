@@ -1,13 +1,19 @@
-// SAHAYAK AI — Real Persistent Backend Database Server
-// Supports MongoDB Atlas Cloud Database and Local Disk JSON Store
-import 'dotenv/config';
-import http from 'http';
-import { dbService } from './backend/db.js';
-
-const PORT = process.env.PORT || 5001;
+// SAHAYAK AI — Vercel Serverless API Handler
+// Connects to MongoDB Atlas Cloud in production on Vercel
+import { dbService } from '../backend/db.js';
 
 function parseBody(req) {
-  return new Promise((resolve, reject) => {
+  if (req.body && typeof req.body === 'object') {
+    return Promise.resolve(req.body);
+  }
+  if (typeof req.body === 'string') {
+    try {
+      return Promise.resolve(JSON.parse(req.body));
+    } catch {
+      return Promise.resolve({});
+    }
+  }
+  return new Promise((resolve) => {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
@@ -15,36 +21,40 @@ function parseBody(req) {
     req.on('end', () => {
       try {
         resolve(body ? JSON.parse(body) : {});
-      } catch (err) {
+      } catch {
         resolve({});
       }
     });
-    req.on('error', err => reject(err));
+    req.on('error', () => resolve({}));
   });
 }
 
-const server = http.createServer(async (req, res) => {
+export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    res.writeHead(204);
-    res.end();
+    res.status(204).end();
     return;
   }
 
-  const parsedUrl = new URL(req.url, `http://localhost:${PORT}`);
-  const pathname = parsedUrl.pathname;
+  // Handle URL path parsing (Vercel sets req.url)
+  const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+  let pathname = url.pathname;
+  
+  // Normalize pathname: ensure it has /api prefix or strip if needed
+  if (!pathname.startsWith('/api')) {
+    pathname = '/api' + (pathname.startsWith('/') ? pathname : '/' + pathname);
+  }
 
-  const sendJson = (statusCode, data) => {
-    res.writeHead(statusCode, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(data));
+  const sendJson = (status, data) => {
+    res.status(status).json(data);
   };
 
   try {
-    // 1. Health & Status
+    // 1. Health & Database Engine check
     if (pathname === '/api/health' && req.method === 'GET') {
       const health = await dbService.getHealth();
       return sendJson(200, health);
@@ -70,7 +80,7 @@ const server = http.createServer(async (req, res) => {
 
     // 3. Applications
     if (pathname === '/api/applications' && req.method === 'GET') {
-      const userId = parsedUrl.searchParams.get('userId');
+      const userId = url.searchParams.get('userId') || req.query?.userId;
       const apps = await dbService.getApplications(userId);
       return sendJson(200, apps);
     }
@@ -82,14 +92,14 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname.startsWith('/api/applications/') && req.method === 'PUT') {
-      const id = pathname.split('/')[3];
+      const id = pathname.split('/')[3] || req.query?.id;
       const body = await parseBody(req);
       const result = await dbService.updateApplication(id, body);
       return sendJson(result.success ? 200 : 404, result);
     }
 
     if (pathname.startsWith('/api/applications/') && req.method === 'DELETE') {
-      const id = pathname.split('/')[3];
+      const id = pathname.split('/')[3] || req.query?.id;
       const result = await dbService.deleteApplication(id);
       return sendJson(200, result);
     }
@@ -100,26 +110,15 @@ const server = http.createServer(async (req, res) => {
       return sendJson(200, notifs);
     }
 
-    // 5. Reset to clean defaults
+    // 5. Reset to initial seed
     if (pathname === '/api/reset' && req.method === 'POST') {
       const result = await dbService.resetDatabase();
       return sendJson(200, result);
     }
 
-    // 404
-    sendJson(404, { error: 'Endpoint not found' });
-  } catch (error) {
-    console.error('Server error:', error);
-    sendJson(500, { error: 'Internal server error', details: String(error) });
+    sendJson(404, { error: `Endpoint ${pathname} not found on Vercel Serverless Gateway` });
+  } catch (err) {
+    console.error('Vercel API error:', err);
+    sendJson(500, { error: 'Internal Server Error', details: String(err) });
   }
-});
-
-server.listen(PORT, async () => {
-  console.log(`[SAHAYAK DB SERVER] Real Database Server is running at http://localhost:${PORT}`);
-  try {
-    const health = await dbService.getHealth();
-    console.log(`[SAHAYAK DB SERVER] Active Storage Engine: ${health.databaseEngine}`);
-  } catch (e) {
-    console.log('[SAHAYAK DB SERVER] Storage Engine initialized.');
-  }
-});
+}

@@ -28,6 +28,7 @@ export const AdminDatabasePage: React.FC = () => {
   const { refreshAppData } = useAppData();
   const { t } = useLanguage();
   const [stats, setStats] = useState(DbService.getDbStats());
+  const [backendHealth, setBackendHealth] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'applications' | 'users' | 'schemes' | 'partners'>('applications');
   const [searchTerm, setSearchTerm] = useState('');
   const [inspectItem, setInspectItem] = useState<{ title: string; data: any } | null>(null);
@@ -45,6 +46,9 @@ export const AdminDatabasePage: React.FC = () => {
     setUsersList(DbService.getUsers());
     setSchemesList(DbService.getSchemes());
     setPartnersList(DbService.getPartners());
+    DbService.getBackendHealth().then(h => {
+      if (h) setBackendHealth(h);
+    });
   };
 
   useEffect(() => {
@@ -245,26 +249,38 @@ export const AdminDatabasePage: React.FC = () => {
       </div>
 
       {/* Real Database Server Status Banner */}
-      <div className="p-3.5 bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl shadow-sm border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className={`p-3.5 bg-gradient-to-r ${backendHealth?.mongodbConnected ? 'from-emerald-950 via-teal-900 to-cyan-950 border-emerald-400/40' : 'from-slate-900 via-slate-800 to-teal-950 border-slate-700'} text-white rounded-2xl shadow-sm border flex flex-col sm:flex-row sm:items-center justify-between gap-3`}>
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
             <HardDrive className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-xs text-white">Live Physical Disk Database: Active</span>
+              <span className="font-bold text-xs text-white">
+                {backendHealth?.mongodbConnected
+                  ? 'MongoDB Atlas Cloud Database: Connected'
+                  : 'Live Database Server: Active'}
+              </span>
               <span className="flex items-center gap-1 text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                <span>REST API: Port 5001</span>
+                <span>{backendHealth?.mongodbConnected ? 'Cloud Production' : 'Local + REST API'}</span>
               </span>
             </div>
             <p className="text-[11px] text-emerald-200/80 font-mono mt-0.5">
-              Storage File: <span className="text-white font-semibold">c:\SIH26092_PROTOTYPE\data\sahayak_db.json</span>
+              Engine: <span className="text-white font-semibold">{backendHealth?.databaseEngine || 'Physical JSON Disk Store (Node.js API)'}</span>
+              {backendHealth?.databaseFilePath && (
+                <span className="text-slate-400 ml-2">({backendHealth.databaseFilePath})</span>
+              )}
+              {backendHealth?.databaseName && (
+                <span className="text-emerald-300 ml-2">(DB: {backendHealth.databaseName})</span>
+              )}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-emerald-300 text-[11px]">Sync Mode: Real-time Disk Flush + Local Fallback</span>
+          <span className="text-emerald-300 text-[11px]">
+            {backendHealth?.mongodbConnected ? 'Atlas Cluster Sync: Realtime' : 'Sync: Real-time Disk Flush + Memory'}
+          </span>
         </div>
       </div>
 

@@ -17,7 +17,9 @@ const DB_KEYS = {
   ACTIVE_PARTNER_ID: 'sahayak_real_active_partner_v2'
 };
 
-const BACKEND_API_URL = 'http://localhost:5001/api';
+const BACKEND_API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+  ? '/api'
+  : (((import.meta as any).env?.VITE_API_URL) || 'http://localhost:5001/api');
 
 async function syncWithBackend(endpoint: string, method = 'GET', body?: any) {
   try {
@@ -478,6 +480,10 @@ export class DbService {
       backendStatus: 'Connected (Node.js REST API on Port 5001)',
       databaseFile: 'data/sahayak_db.json'
     };
+  }
+
+  static async getBackendHealth() {
+    return await syncWithBackend('/health', 'GET');
   }
 
   static exportFullDatabase() {
