@@ -146,6 +146,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 <button
                   onClick={() => {
                     selectDemoPersona('anjali');
+                    setLanguage('ml');
                     setShowPersonaMenu(false);
                   }}
                   className={`w-full text-left p-2 rounded-lg transition-colors flex items-start gap-2.5 ${
@@ -167,6 +168,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 <button
                   onClick={() => {
                     selectDemoPersona('ramesh');
+                    setLanguage('ta');
                     setShowPersonaMenu(false);
                   }}
                   className={`w-full text-left p-2 rounded-lg transition-colors flex items-start gap-2.5 mt-1 ${
@@ -188,6 +190,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 <button
                   onClick={() => {
                     selectDemoPersona('priya');
+                    setLanguage('en');
                     setShowPersonaMenu(false);
                   }}
                   className={`w-full text-left p-2 rounded-lg transition-colors flex items-start gap-2.5 mt-1 ${
@@ -213,11 +216,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg flex items-center gap-1 text-xs font-medium"
+              className="px-2.5 py-1.5 text-slate-700 hover:text-blue-700 hover:bg-slate-100 rounded-lg flex items-center gap-1.5 text-xs font-semibold border border-slate-200 shadow-2xs"
               title="Change Language"
             >
-              <Globe className="w-4 h-4 text-slate-500" />
-              <span className="uppercase font-semibold">{language}</span>
+              <Globe className="w-3.5 h-3.5 text-blue-600" />
+              <span>{availableLanguages.find(l => l.code === language)?.nativeName || 'English'}</span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
 
             {showLangMenu && (

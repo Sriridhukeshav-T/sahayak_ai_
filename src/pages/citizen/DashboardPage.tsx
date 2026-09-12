@@ -73,16 +73,16 @@ export const DashboardPage: React.FC = () => {
         <div className="relative z-10 space-y-2 max-w-2xl">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
-              Personalized Dashboard
+              {t('dashboard')}
             </span>
             <DemoBadge />
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Good morning, {user.name} 👋
+            {new Date().getHours() < 12 ? t('greetingMorning') : new Date().getHours() < 17 ? t('greetingAfternoon') : t('greetingEvening')}, {user.name} 👋
           </h1>
           <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal">
-            “Let's move your {user.projectType || 'business'} idea one step closer to reality. Here is your current financial profile readiness and top matched schemes.”
+            {t('dashboardSubtitle')}
           </p>
         </div>
 
@@ -93,14 +93,14 @@ export const DashboardPage: React.FC = () => {
             className="px-5 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-blue-50 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4 text-blue-600" />
-            <span>Find My Scheme (AI Match)</span>
+            <span>{t('findMyScheme')}</span>
           </Link>
           <Link
             to="/affordability"
             className="px-4 py-2.5 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all flex items-center gap-1.5"
           >
             <Calculator className="w-4 h-4" />
-            <span>Affordability Simulator</span>
+            <span>{t('affordability')}</span>
           </Link>
         </div>
       </div>

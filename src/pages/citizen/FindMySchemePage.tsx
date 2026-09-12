@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Send,
@@ -29,12 +29,29 @@ import { DemoBadge } from '../../components/common/DemoBadge';
 export const FindMySchemePage: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
   const { schemes, partners } = useAppData();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   const [inputMode, setInputMode] = useState<'text' | 'form'>('text');
-  const [naturalText, setNaturalText] = useState(
-    'I want to start a small tailoring shop. I need ₹1.2 lakh and my annual family income is ₹3.2 lakh.'
-  );
+  
+  const getDefaultPrompt = (lang: string) => {
+    switch (lang) {
+      case 'hi':
+        return 'मैं सिलाई और बुटीक की छोटी दुकान शुरू करना चाहती हूँ। मुझे ₹1.2 लाख ऋण चाहिए और पारिवारिक आय ₹3.2 लाख है।';
+      case 'ta':
+        return 'நான் ஒரு சிறிய தையல் கடை தொடங்க விரும்புகிறேன். எனக்கு ₹1.2 லட்சம் கடன் தேவை, எனது குடும்ப ஆண்டு வருமானம் ₹3.2 லட்சம்.';
+      case 'ml':
+        return 'എനിക്ക് ഒരു ചെറിയ തയ്യൽ കട തുടങ്ങാൻ ആഗ്രഹമുണ്ട്. ₹1.2 ലക്ഷം വായ്പ ആവശ്യമുണ്ട്, കുടുംബ വാർഷിക വരുമാനം ₹3.2 ലക്ഷമാണ്.';
+      default:
+        return 'I want to start a small tailoring shop. I need ₹1.2 lakh and my annual family income is ₹3.2 lakh.';
+    }
+  };
+
+  const [naturalText, setNaturalText] = useState(() => getDefaultPrompt(language));
+
+  // Sync sample text if user hasn't edited yet
+  useEffect(() => {
+    setNaturalText(getDefaultPrompt(language));
+  }, [language]);
 
   // Guided Form state
   const [formState, setFormState] = useState({
@@ -161,7 +178,7 @@ export const FindMySchemePage: React.FC = () => {
       <div className="text-center max-w-3xl mx-auto space-y-2">
         <div className="flex items-center justify-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-            Core Recommender Engine
+            {t('findMyScheme')}
           </span>
           <DemoBadge />
         </div>
@@ -169,7 +186,7 @@ export const FindMySchemePage: React.FC = () => {
           {t('whatAreYouAchieving')}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-xl mx-auto">
-          Don't search through dozens of complex government manuals. Tell us what you want to do, and Sahayak AI will match the right scheme for you.
+          {t('goalSubtitle')}
         </p>
       </div>
 
@@ -185,7 +202,7 @@ export const FindMySchemePage: React.FC = () => {
                 inputMode === 'text' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Natural Language & Voice
+              {t('freeTextTab')}
             </button>
             <button
               onClick={() => setInputMode('form')}
@@ -193,7 +210,7 @@ export const FindMySchemePage: React.FC = () => {
                 inputMode === 'form' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {t('guidedForm')}
+              {t('guidedFormTab')}
             </button>
           </div>
 
@@ -210,7 +227,7 @@ export const FindMySchemePage: React.FC = () => {
                 rows={3}
                 value={naturalText}
                 onChange={e => setNaturalText(e.target.value)}
-                placeholder="e.g. I want to start a small tailoring shop. I need ₹1.2 lakh and my annual family income is ₹3.2 lakh."
+                placeholder={t('typePrompt')}
                 className="w-full p-4 text-sm bg-slate-50/70 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800 leading-relaxed resize-none transition-all"
               />
             </div>
@@ -225,26 +242,38 @@ export const FindMySchemePage: React.FC = () => {
                   }}
                 />
 
-                {/* Example Prompts Dropdown / Chips */}
+                {/* Localized Example Prompts */}
                 <button
                   type="button"
                   onClick={() => {
-                    const sample = 'I want to purchase agricultural equipment for custom hiring in Thanjavur. I need ₹6 lakh loan and our annual income is ₹4.2 lakh.';
+                    const sample = language === 'hi'
+                      ? 'मुझे कृषि उपकरण के लिए ₹6 लाख का ऋण चाहिए, आय ₹4.2 लाख है।'
+                      : language === 'ta'
+                      ? 'விவசாய உபகரணங்களுக்காக ₹6 லட்சம் கடன் தேவை, குடும்ப வருமானம் ₹4.2 லட்சம்.'
+                      : language === 'ml'
+                      ? 'കാർഷിക ഉപകരണങ്ങൾക്ക് ₹6 ലക്ഷം വായ്പ വേണം, വാർഷിക വരുമാനം ₹4.2 ലക്ഷമാണ്.'
+                      : 'I want to purchase agricultural equipment. I need ₹6 lakh loan and income is ₹4.2 lakh.';
                     setNaturalText(sample);
                   }}
                   className="hidden sm:inline-block px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
                 >
-                  Try: Agri Implements (₹6L)
+                  Agri (₹6L)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    const sample = 'I need an education loan of ₹6 lakh for M.Tech Biotechnology. Annual family income is ₹2.8 lakh.';
+                    const sample = language === 'hi'
+                      ? 'एम.टेक उच्च शिक्षा के लिए ₹6 लाख का शिक्षा ऋण चाहिए, पारिवारिक आय ₹2.8 लाख है।'
+                      : language === 'ta'
+                      ? 'உயர்கல்விக்காக ₹6 லட்சம் கல்விக்கடன் தேவை, வருமானம் ₹2.8 லட்சம்.'
+                      : language === 'ml'
+                      ? 'ഉപരിപഠനത്തിനായി ₹6 ലക്ഷം വിദ്യാഭ്യാസ വായ്പ ആവശ്യമുണ്ട്, വരുമാനം ₹2.8 ലക്ഷമാണ്.'
+                      : 'I need an education loan of ₹6 lakh for M.Tech. Annual family income is ₹2.8 lakh.';
                     setNaturalText(sample);
                   }}
                   className="hidden lg:inline-block px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
                 >
-                  Try: Higher Education (₹6L)
+                  Higher Edu (₹6L)
                 </button>
               </div>
 
@@ -255,7 +284,7 @@ export const FindMySchemePage: React.FC = () => {
                 className="px-6 py-2.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 rounded-xl transition-all shadow-md shadow-blue-700/20 flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-blue-200" />
-                <span>Find My Matched Schemes</span>
+                <span>{t('generateAiMatch')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
