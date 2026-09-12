@@ -34,6 +34,7 @@ import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminSchemesPage } from './pages/admin/AdminSchemesPage';
 import { AdminPartnersPage } from './pages/admin/AdminPartnersPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
+import { AdminDatabasePage } from './pages/admin/AdminDatabasePage';
 
 // Protected Route wrapper for citizen portal
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -126,6 +127,7 @@ export function App() {
                   <Route path="/admin/schemes" element={<AdminRoute><AdminSchemesPage /></AdminRoute>} />
                   <Route path="/admin/partners" element={<AdminRoute><AdminPartnersPage /></AdminRoute>} />
                   <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
+                  <Route path="/admin/database" element={<AdminRoute><AdminDatabasePage /></AdminRoute>} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/" replace />} />

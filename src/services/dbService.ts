@@ -417,5 +417,75 @@ export class DbService {
   static setActivePartnerId(id: string): void {
     localStorage.setItem(DB_KEYS.ACTIVE_PARTNER_ID, id);
   }
+
+  // --- DATABASE ADMIN MANAGEMENT ---
+
+  static deleteApplication(id: string): void {
+    const list = this.getApplications().filter(a => a.id !== id);
+    localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(list));
+  }
+
+  static deleteUser(id: string): void {
+    const list = this.getUsers().filter(u => u.id !== id);
+    localStorage.setItem(DB_KEYS.USERS, JSON.stringify(list));
+  }
+
+  static getDbStats() {
+    this.init();
+    let totalBytes = 0;
+    Object.values(DB_KEYS).forEach(k => {
+      const val = localStorage.getItem(k);
+      if (val) totalBytes += val.length * 2;
+    });
+
+    return {
+      usersCount: this.getUsers().length,
+      applicationsCount: this.getApplications().length,
+      schemesCount: this.getSchemes().length,
+      partnersCount: this.getPartners().length,
+      notificationsCount: this.getNotifications().length,
+      storageSizeKb: Math.round((totalBytes / 1024) * 10) / 10,
+      activeSession: this.getCurrentUser()?.email || 'None'
+    };
+  }
+
+  static exportFullDatabase() {
+    this.init();
+    return {
+      version: '2.0',
+      exportedAt: new Date().toISOString(),
+      users: this.getUsers(),
+      applications: this.getApplications(),
+      schemes: this.getSchemes(),
+      partners: this.getPartners(),
+      notifications: this.getNotifications()
+    };
+  }
+
+  static importFullDatabase(data: any): boolean {
+    try {
+      if (data.users && Array.isArray(data.users)) {
+        localStorage.setItem(DB_KEYS.USERS, JSON.stringify(data.users));
+      }
+      if (data.applications && Array.isArray(data.applications)) {
+        localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(data.applications));
+      }
+      if (data.schemes && Array.isArray(data.schemes)) {
+        localStorage.setItem(DB_KEYS.SCHEMES, JSON.stringify(data.schemes));
+      }
+      if (data.partners && Array.isArray(data.partners)) {
+        localStorage.setItem(DB_KEYS.PARTNERS, JSON.stringify(data.partners));
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static resetDatabase(): void {
+    Object.values(DB_KEYS).forEach(k => localStorage.removeItem(k));
+    this.init();
+  }
 }
+
 

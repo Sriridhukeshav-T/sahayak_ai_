@@ -16,7 +16,8 @@ import {
   Briefcase,
   HelpCircle,
   PiggyBank,
-  CheckCircle2
+  CheckCircle2,
+  Database
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -55,8 +56,10 @@ export const Sidebar: React.FC = () => {
     { to: '/admin', label: 'Overview & Analytics', icon: BarChart3 },
     { to: '/admin/schemes', label: 'Scheme Management', icon: Layers },
     { to: '/admin/partners', label: 'Partner Management', icon: Building2 },
-    { to: '/admin/applications', label: 'Applications Oversight', icon: Briefcase }
+    { to: '/admin/applications', label: 'Applications Oversight', icon: Briefcase },
+    { to: '/admin/database', label: 'Database & Storage', icon: Database }
   ];
+
 
   return (
     <aside className="w-64 shrink-0 bg-white border-r border-slate-200/90 flex flex-col justify-between hidden md:flex min-h-[calc(100vh-61px)]">

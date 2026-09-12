@@ -22,6 +22,7 @@ interface AppDataContextType {
   deleteScheme: (id: string) => void;
   markNotificationsAsRead: () => void;
   resetDemoData: () => void;
+  refreshAppData: () => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -92,6 +93,13 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setNotifications(StorageService.getNotifications());
   };
 
+  const refreshAppData = () => {
+    setSchemes(StorageService.getSchemes());
+    setPartners(StorageService.getPartners());
+    setApplications(StorageService.getApplications());
+    setNotifications(StorageService.getNotifications());
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -110,12 +118,14 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateScheme,
         deleteScheme,
         markNotificationsAsRead,
-        resetDemoData
+        resetDemoData,
+        refreshAppData
       }}
     >
       {children}
     </AppDataContext.Provider>
   );
+
 };
 
 export const useAppData = (): AppDataContextType => {
