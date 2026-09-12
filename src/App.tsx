@@ -35,15 +35,43 @@ import { AdminSchemesPage } from './pages/admin/AdminSchemesPage';
 import { AdminPartnersPage } from './pages/admin/AdminPartnersPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
 
+// Protected Route wrapper for citizen portal
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Admin Route wrapper
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, userRole } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (userRole !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 // Layout wrapper for authenticated / portal routes
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
-  // Hide sidebar/header on landing or auth pages if desired, but here we provide consistent layout
-  const isAuthOrLanding = ['/', '/login', '/signup', '/onboarding'].includes(location.pathname);
+  const isAuthPage = ['/login', '/signup'].includes(location.pathname);
 
-  if (isAuthOrLanding) {
+  if (isAuthPage) {
     return <>{children}</>;
   }
 
@@ -52,7 +80,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div>
         <Header onOpenSearch={() => setIsSearchOpen(true)} />
         <div className="flex max-w-7xl mx-auto w-full">
-          <Sidebar />
+          {isAuthenticated && <Sidebar />}
           <main className="flex-1 w-full overflow-x-hidden min-h-[calc(100vh-130px)]">
             {children}
           </main>
@@ -74,30 +102,30 @@ export function App() {
             <Router>
               <AppLayout>
                 <Routes>
-                  {/* Public & Landing */}
+                  {/* Public Routes */}
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
-                  <Route path="/onboarding" element={<OnboardingWizard />} />
-
-                  {/* Citizen Portal Routes */}
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/find-scheme" element={<FindMySchemePage />} />
                   <Route path="/schemes" element={<SchemeExplorerPage />} />
-                  <Route path="/affordability" element={<AffordabilityPage />} />
-                  <Route path="/documents" element={<DocumentReadinessPage />} />
-                  <Route path="/partners" element={<FindPartnerPage />} />
-                  <Route path="/funding-planner" element={<FundingPlannerPage />} />
-                  <Route path="/apply" element={<ApplicationWorkflowPage />} />
-                  <Route path="/applications" element={<MyApplicationsPage />} />
-                  <Route path="/profile" element={<FinancialProfilePage />} />
                   <Route path="/literacy" element={<FinancialLiteracyPage />} />
 
-                  {/* Admin Console Routes */}
-                  <Route path="/admin" element={<AdminDashboardPage />} />
-                  <Route path="/admin/schemes" element={<AdminSchemesPage />} />
-                  <Route path="/admin/partners" element={<AdminPartnersPage />} />
-                  <Route path="/admin/applications" element={<AdminApplicationsPage />} />
+                  {/* Protected Citizen Portal Routes */}
+                  <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                  <Route path="/find-scheme" element={<ProtectedRoute><FindMySchemePage /></ProtectedRoute>} />
+                  <Route path="/affordability" element={<ProtectedRoute><AffordabilityPage /></ProtectedRoute>} />
+                  <Route path="/documents" element={<ProtectedRoute><DocumentReadinessPage /></ProtectedRoute>} />
+                  <Route path="/partners" element={<ProtectedRoute><FindPartnerPage /></ProtectedRoute>} />
+                  <Route path="/funding-planner" element={<ProtectedRoute><FundingPlannerPage /></ProtectedRoute>} />
+                  <Route path="/apply" element={<ProtectedRoute><ApplicationWorkflowPage /></ProtectedRoute>} />
+                  <Route path="/applications" element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><FinancialProfilePage /></ProtectedRoute>} />
+                  <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
+
+                  {/* Protected Admin Console Routes */}
+                  <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+                  <Route path="/admin/schemes" element={<AdminRoute><AdminSchemesPage /></AdminRoute>} />
+                  <Route path="/admin/partners" element={<AdminRoute><AdminPartnersPage /></AdminRoute>} />
+                  <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/" replace />} />

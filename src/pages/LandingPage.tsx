@@ -1,33 +1,22 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  CheckCircle2,
-  TrendingUp,
   MapPin,
-  FileCheck2,
   Calculator,
-  Compass,
-  Users,
-  Award,
   Globe2,
-  Volume2
+  Volume2,
+  UserPlus,
+  LogIn
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { DemoBadge } from '../components/common/DemoBadge';
 
 export const LandingPage: React.FC = () => {
-  const { selectDemoPersona } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
-  const navigate = useNavigate();
-
-  const handleStartDemo = (personaKey: 'anjali' | 'ramesh' | 'priya') => {
-    selectDemoPersona(personaKey);
-    navigate('/find-scheme');
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
@@ -38,9 +27,9 @@ export const LandingPage: React.FC = () => {
         
         <div className="max-w-6xl mx-auto relative z-10 text-center space-y-6">
           
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>Smart India Hackathon 2026 Prototype — Problem Statement SIH26092</span>
+            <span>National Credit Enablement Platform • Scheme Discovery & Concessional Lending</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
@@ -54,10 +43,10 @@ export const LandingPage: React.FC = () => {
           {/* Primary & Secondary Call to Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
-              to="/find-scheme"
+              to={isAuthenticated ? "/find-scheme" : "/signup"}
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group"
             >
-              <span>{t('findMyScheme')}</span>
+              <span>{isAuthenticated ? t('findMyScheme') : 'Register as Entrepreneur'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
@@ -67,6 +56,16 @@ export const LandingPage: React.FC = () => {
             >
               {t('exploreSchemes')}
             </Link>
+
+            {!isAuthenticated && (
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-4 h-4 text-slate-400" />
+                <span>Portal Login</span>
+              </Link>
+            )}
           </div>
 
           {/* Hero Visual Stepper */}
@@ -80,7 +79,7 @@ export const LandingPage: React.FC = () => {
                 { title: '2. AI Matching', desc: '100-pt Explainable Engine' },
                 { title: '3. Affordability', desc: 'Cashflow Simulator' },
                 { title: '4. Best Partner', desc: 'Geo-Spatial Routing' },
-                { title: '5. Application', desc: 'ID & Live Tracking' }
+                { title: '5. Application', desc: 'Live Real-Time Tracking' }
               ].map((step, idx) => (
                 <div
                   key={idx}
@@ -93,30 +92,31 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Demo Persona Quick Launchers for SIH Judges */}
-          <div className="pt-6 border-t border-slate-800/80 max-w-2xl mx-auto">
-            <p className="text-xs text-slate-400 font-medium mb-2.5">
-              Instant 3-Minute SIH Judge Demonstration Personas:
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <button
-                onClick={() => handleStartDemo('anjali')}
-                className="px-3.5 py-1.5 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/30 text-pink-200 text-xs font-semibold transition-all flex items-center gap-1.5"
+          {/* Account Onboarding Bar */}
+          <div className="pt-6 border-t border-slate-800/80 max-w-3xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
+              <span className="text-slate-400 font-medium">Quick Access:</span>
+              <Link
+                to="/find-scheme"
+                className="px-3.5 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-200 font-semibold transition-all flex items-center gap-1.5"
               >
-                <span>🧵 Anjali (Tailoring • ₹1.2L • Kerala)</span>
-              </button>
-              <button
-                onClick={() => handleStartDemo('ramesh')}
-                className="px-3.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 text-emerald-200 text-xs font-semibold transition-all flex items-center gap-1.5"
+                <Sparkles className="w-3.5 h-3.5 text-blue-300" />
+                <span>AI Scheme Eligibility Tool</span>
+              </Link>
+              <Link
+                to="/signup"
+                className="px-3.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-teal-200 font-semibold transition-all flex items-center gap-1.5"
               >
-                <span>🚜 Ramesh (Agri Implements • ₹6L • TN)</span>
-              </button>
-              <button
-                onClick={() => handleStartDemo('priya')}
-                className="px-3.5 py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 text-xs font-semibold transition-all flex items-center gap-1.5"
+                <UserPlus className="w-3.5 h-3.5 text-teal-300" />
+                <span>Create Citizen Account</span>
+              </Link>
+              <Link
+                to="/login"
+                className="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 font-semibold transition-all flex items-center gap-1.5"
               >
-                <span>🎓 Priya (M.Tech Biotech • ₹6L • KA)</span>
-              </button>
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                <span>Admin / Citizen Sign In</span>
+              </Link>
             </div>
           </div>
 

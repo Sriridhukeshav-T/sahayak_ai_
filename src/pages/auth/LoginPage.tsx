@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Sparkles,
   Eye,
@@ -8,44 +8,49 @@ import {
   Mail,
   ArrowRight,
   ShieldCheck,
-  UserCheck
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const LoginPage: React.FC = () => {
-  const [identifier, setIdentifier] = useState('anjali.nair@demo.sahayak.ai');
-  const [password, setPassword] = useState('demo123');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
 
-  const { login, selectDemoPersona } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier || !password) {
-      setError('Please enter your email or mobile and password.');
+    setError('');
+
+    if (!identifier.trim() || !password) {
+      setError('Please enter your registered email or mobile and password.');
       return;
     }
-    const success = login(identifier, password);
-    if (success) {
-      if (identifier.toLowerCase().includes('admin')) {
-        navigate('/admin');
+
+    setIsLoading(true);
+    const res = login(identifier, password);
+    setIsLoading(false);
+
+    if (res.success) {
+      const from = (location.state as any)?.from?.pathname;
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (res.user?.role === 'admin') {
+        navigate('/admin', { replace: true });
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     } else {
-      setError('Invalid credentials.');
+      setError(res.message || 'Invalid credentials. Please verify your email and password.');
     }
-  };
-
-  const handleQuickPersona = (key: 'anjali' | 'ramesh' | 'priya') => {
-    selectDemoPersona(key);
-    navigate('/dashboard');
   };
 
   return (
@@ -63,47 +68,8 @@ export const LoginPage: React.FC = () => {
             </span>
           </Link>
           <p className="text-xs text-slate-500">
-            Sign in to access your matched schemes, partner routing & applications
+            Sign in to access your concessional credit schemes, partner routing & applications
           </p>
-          <DemoBadge />
-        </div>
-
-        {/* Quick Demo One-Click Personas */}
-        <div className="p-3 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-blue-900 flex items-center gap-1">
-              <UserCheck className="w-3.5 h-3.5 text-blue-600" />
-              <span>Instant SIH Demo Login:</span>
-            </span>
-            <span className="text-[10px] text-blue-600 font-semibold">1-Click Access</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-1.5 text-center">
-            <button
-              type="button"
-              onClick={() => handleQuickPersona('anjali')}
-              className="px-2 py-1.5 rounded-lg bg-white hover:bg-blue-100/70 border border-blue-200 text-xs font-semibold text-slate-800 transition-colors shadow-2xs"
-            >
-              🧵 Anjali
-              <span className="block text-[9px] text-slate-400 font-normal">Tailoring</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickPersona('ramesh')}
-              className="px-2 py-1.5 rounded-lg bg-white hover:bg-blue-100/70 border border-blue-200 text-xs font-semibold text-slate-800 transition-colors shadow-2xs"
-            >
-              🚜 Ramesh
-              <span className="block text-[9px] text-slate-400 font-normal">Agriculture</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickPersona('priya')}
-              className="px-2 py-1.5 rounded-lg bg-white hover:bg-blue-100/70 border border-blue-200 text-xs font-semibold text-slate-800 transition-colors shadow-2xs"
-            >
-              🎓 Priya
-              <span className="block text-[9px] text-slate-400 font-normal">Education</span>
-            </button>
-          </div>
         </div>
 
         {/* Standard Form */}
