@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { rankPartnersForUser, getCoordinatesForUser } from '../../services/partnerRoutingService';
+import { useLanguage } from '../../context/LanguageContext';
 import { PartnerMap } from '../../components/partners/PartnerMap';
 import { PartnerCard } from '../../components/partners/PartnerCard';
 import { PartnerType } from '../../types/partner';
@@ -30,6 +31,7 @@ const PARTNER_TYPES: (PartnerType | 'ALL')[] = [
 export const FindPartnerPage: React.FC = () => {
   const { user } = useAuth();
   const { partners, activeScheme, activePartner, setActivePartnerId } = useAppData();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [selectedType, setSelectedType] = useState<PartnerType | 'ALL'>('ALL');
@@ -57,12 +59,12 @@ export const FindPartnerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Smart Channel Partner Routing
+              {t('Find a Partner')}
             </h1>
             <DemoBadge />
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Geo-spatial routing analyzes branch backlog, processing speed, and scheme authorization to navigate you to the optimal partner.
+            {t('Geo-spatial router avoids congested bank branches.')}
           </p>
         </div>
 

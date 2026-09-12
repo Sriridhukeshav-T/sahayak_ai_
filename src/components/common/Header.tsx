@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           >
             <span className="flex items-center gap-2 text-slate-500">
               <Search className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
-              <span>Search schemes, partners, applications...</span>
+              <span>{t('Search schemes, partners, applications...')}</span>
             </span>
             <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white border border-slate-300 rounded text-slate-500 shadow-2xs">
               Ctrl + K
@@ -86,7 +86,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <button
             onClick={onOpenSearch}
             className="md:hidden p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg"
-            title="Search"
+            title={t('Search schemes, partners, applications...')}
           >
             <Search className="w-5 h-5" />
           </button>
@@ -145,17 +145,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
               >
                 <LogIn className="w-3.5 h-3.5 text-slate-500" />
-                <span>Log In</span>
+                <span>{t('Log In')}</span>
               </Link>
               <Link
                 to="/signup"
                 className="flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>Register</span>
+                <span>{t('Register')}</span>
               </Link>
             </div>
           ) : (
+
             /* If Authenticated: Show Notifications Bell & User Menu */
             <>
               {/* Notifications Center Bell */}
@@ -181,15 +182,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 {showNotifMenu && (
                   <div className="absolute right-0 mt-1.5 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
-                      <span className="font-bold text-sm text-slate-900">Notifications</span>
+                      <span className="font-bold text-sm text-slate-900">{t('Notifications')}</span>
                       <span className="text-xs text-blue-600 font-medium cursor-pointer hover:underline" onClick={markNotificationsAsRead}>
-                        Mark all read
+                        {t('Mark all read')}
                       </span>
                     </div>
 
                     <div className="max-h-72 overflow-y-auto space-y-2">
                       {notifications.length === 0 ? (
-                        <p className="text-xs text-slate-400 text-center py-4">No notifications</p>
+                        <p className="text-xs text-slate-400 text-center py-4">{t('No notifications')}</p>
                       ) : (
                         notifications.map(n => (
                           <div
@@ -199,17 +200,17 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                             }`}
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <p className="text-xs font-bold text-slate-900">{n.title}</p>
+                              <p className="text-xs font-bold text-slate-900">{t(n.title)}</p>
                               <span className="text-[10px] text-slate-400 whitespace-nowrap">{n.timestamp}</span>
                             </div>
-                            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">{n.message}</p>
+                            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">{t(n.message)}</p>
                             {n.actionLink && (
                               <Link
                                 to={n.actionLink}
                                 onClick={() => setShowNotifMenu(false)}
                                 className="text-[11px] text-blue-600 font-semibold mt-1.5 inline-block hover:underline"
                               >
-                                View details →
+                                {t('View details →')}
                               </Link>
                             )}
                           </div>
@@ -241,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                       <p className="text-xs font-bold text-slate-900">{user.name}</p>
                       <p className="text-[11px] text-slate-500 truncate">{user.email || user.mobile}</p>
                       <span className="inline-block mt-1 text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">
-                        {userRole === 'admin' ? 'Administrator' : 'Citizen Applicant'}
+                        {userRole === 'admin' ? t('Administrator') : t('Citizen Applicant')}
                       </span>
                     </div>
 
@@ -251,7 +252,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                       className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 rounded-lg"
                     >
                       <User className="w-4 h-4 text-slate-400" />
-                      <span>My Financial Profile</span>
+                      <span>{t('My Financial Profile')}</span>
                     </Link>
 
                     <Link
@@ -260,7 +261,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                       className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 rounded-lg"
                     >
                       <CheckCircle2 className="w-4 h-4 text-slate-400" />
-                      <span>My Applications</span>
+                      <span>{t('My Applications')}</span>
                     </Link>
 
                     {userRole === 'admin' && (
@@ -270,7 +271,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                         className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-medium"
                       >
                         <Sliders className="w-4 h-4 text-blue-600" />
-                        <span>Admin Dashboard</span>
+                        <span>{t('Admin Dashboard')}</span>
                       </Link>
                     )}
 
@@ -284,9 +285,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                         className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg font-medium"
                       >
                         <LogOut className="w-4 h-4 text-red-500" />
-                        <span>Log Out</span>
+                        <span>{t('Log Out')}</span>
                       </button>
                     </div>
+
                   </div>
                 )}
               </div>

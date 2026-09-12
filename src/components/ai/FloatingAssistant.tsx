@@ -23,12 +23,30 @@ export const FloatingAssistant: React.FC = () => {
   const [inputQuery, setInputQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+  const [autoSpeak, setAutoSpeak] = useState(true);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   const { user } = useAuth();
   const { activeScheme, schemes } = useAppData();
   const { language, t } = useLanguage();
   const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load voices when component mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const updateVoices = () => {
+        try {
+          const v = window.speechSynthesis.getVoices();
+          if (v && v.length > 0) setVoices(v);
+        } catch {
+          // ignore
+        }
+      };
+      updateVoices();
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+  }, []);
 
   const getWelcomeMessage = (lang: string): AssistantMessage => {
     switch (lang) {
@@ -112,9 +130,40 @@ export const FloatingAssistant: React.FC = () => {
     return text
       .replace(/\*\*/g, '')
       .replace(/[#•*_`✓💡]/g, ' ')
-      .replace(/₹\s*/g, 'rupees ')
+      .replace(/₹\s*/g, ' rupees ')
       .replace(/\n+/g, '. ')
       .trim();
+  };
+
+  const getBestVoice = (lang: string) => {
+    if (!voices || voices.length === 0) return null;
+    if (lang === 'hi') {
+      return (
+        voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi')) ||
+        voices.find(v => v.name.toLowerCase().includes('hindi')) ||
+        null
+      );
+    }
+    if (lang === 'ta') {
+      return (
+        voices.find(v => v.lang === 'ta-IN' || v.lang.startsWith('ta')) ||
+        voices.find(v => v.name.toLowerCase().includes('tamil')) ||
+        null
+      );
+    }
+    if (lang === 'ml') {
+      return (
+        voices.find(v => v.lang === 'ml-IN' || v.lang.startsWith('ml')) ||
+        voices.find(v => v.name.toLowerCase().includes('malayalam')) ||
+        null
+      );
+    }
+    return (
+      voices.find(v => v.lang === 'en-IN') ||
+      voices.find(v => v.name.toLowerCase().includes('india')) ||
+      voices.find(v => v.lang.startsWith('en')) ||
+      null
+    );
   };
 
   const handleSpeak = (msgId: string, text: string) => {
@@ -129,10 +178,19 @@ export const FloatingAssistant: React.FC = () => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(cleanTextForSpeech(text));
 
-    if (language === 'hi') utterance.lang = 'hi-IN';
-    else if (language === 'ta') utterance.lang = 'ta-IN';
-    else if (language === 'ml') utterance.lang = 'ml-IN';
-    else utterance.lang = 'en-IN';
+    const selectedVoice = getBestVoice(language);
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      utterance.lang = selectedVoice.lang;
+    } else {
+      if (language === 'hi') utterance.lang = 'hi-IN';
+      else if (language === 'ta') utterance.lang = 'ta-IN';
+      else if (language === 'ml') utterance.lang = 'ml-IN';
+      else utterance.lang = 'en-IN';
+    }
+
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
 
     utterance.onend = () => setSpeakingMsgId(null);
     utterance.onerror = () => setSpeakingMsgId(null);
@@ -141,7 +199,7 @@ export const FloatingAssistant: React.FC = () => {
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = (textToSend?: string, wasSpoken: boolean = false) => {
     const query = (textToSend || inputQuery).trim();
     if (!query) return;
 
@@ -160,12 +218,17 @@ export const FloatingAssistant: React.FC = () => {
       const response = generateAssistantResponse(query, user, activeScheme, schemes, language);
       setMessages(prev => [...prev, response]);
       setIsTyping(false);
+
+      // Auto-read aloud if autoSpeak is ON or if user used voice input
+      if (autoSpeak || wasSpoken) {
+        handleSpeak(response.id, response.text);
+      }
     }, 600);
   };
 
   const handleVoiceTranscript = (transcript: string) => {
     setInputQuery(transcript);
-    handleSend(transcript);
+    handleSend(transcript, true);
   };
 
   const handleActionClick = (action: string) => {
@@ -233,18 +296,49 @@ export const FloatingAssistant: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                if (speakingMsgId && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                  window.speechSynthesis.cancel();
-                  setSpeakingMsgId(null);
-                }
-                setIsOpen(false);
-              }}
-              className="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              {/* Auto-Speak / Voice Mode Toggle */}
+              <button
+                onClick={() => {
+                  if (speakingMsgId && autoSpeak) {
+                    window.speechSynthesis.cancel();
+                    setSpeakingMsgId(null);
+                  }
+                  setAutoSpeak(!autoSpeak);
+                }}
+                className={`px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all ${
+                  autoSpeak
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-xs'
+                    : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                }`}
+                title={autoSpeak ? 'Voice Mode: ON (Sahayak speaks answers)' : 'Voice Mode: OFF (Silent)'}
+              >
+                {autoSpeak ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{t('Voice Mode')}</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Mute</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  if (speakingMsgId && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    setSpeakingMsgId(null);
+                  }
+                  setIsOpen(false);
+                }}
+                className="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Active Context Banner */}
@@ -284,21 +378,30 @@ export const FloatingAssistant: React.FC = () => {
                     
                     {/* Read Aloud Text-to-Speech Button */}
                     {msg.sender === 'sahayak' && (
-                      <button
-                        onClick={() => handleSpeak(msg.id, msg.text)}
-                        className={`p-1 rounded-md transition-colors shrink-0 mt-0.5 ${
-                          speakingMsgId === msg.id
-                            ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-400 animate-pulse'
-                            : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100'
-                        }`}
-                        title={speakingMsgId === msg.id ? t('stopSpeaking') : t('readAloud')}
-                      >
-                        {speakingMsgId === msg.id ? (
-                          <VolumeX className="w-3.5 h-3.5" />
-                        ) : (
-                          <Volume2 className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 shrink-0 mt-0.5">
+                        {speakingMsgId === msg.id && (
+                          <div className="flex items-center gap-0.5 h-3 px-1">
+                            <span className="w-0.5 h-3 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                            <span className="w-0.5 h-4 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                            <span className="w-0.5 h-2.5 bg-blue-600 rounded-full animate-bounce" />
+                          </div>
                         )}
-                      </button>
+                        <button
+                          onClick={() => handleSpeak(msg.id, msg.text)}
+                          className={`p-1 rounded-md transition-colors ${
+                            speakingMsgId === msg.id
+                              ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-400 animate-pulse'
+                              : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100'
+                          }`}
+                          title={speakingMsgId === msg.id ? t('Stop Speaking') : t('Read Aloud')}
+                        >
+                          {speakingMsgId === msg.id ? (
+                            <VolumeX className="w-3.5 h-3.5" />
+                          ) : (
+                            <Volume2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
                     )}
                   </div>
 

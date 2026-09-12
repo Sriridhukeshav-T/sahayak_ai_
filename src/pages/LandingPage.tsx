@@ -29,7 +29,7 @@ export const LandingPage: React.FC = () => {
           
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>National Credit Enablement Platform • Scheme Discovery & Concessional Lending</span>
+            <span>{t('National Credit Enablement Platform • Scheme Discovery & Concessional Lending')}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
@@ -46,7 +46,7 @@ export const LandingPage: React.FC = () => {
               to={isAuthenticated ? "/find-scheme" : "/signup"}
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group"
             >
-              <span>{isAuthenticated ? t('findMyScheme') : 'Register as Entrepreneur'}</span>
+              <span>{isAuthenticated ? t('findMyScheme') : t('Register as Entrepreneur')}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
@@ -63,7 +63,7 @@ export const LandingPage: React.FC = () => {
                 className="w-full sm:w-auto px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 <LogIn className="w-4 h-4 text-slate-400" />
-                <span>Portal Login</span>
+                <span>{t('Portal Login')}</span>
               </Link>
             )}
           </div>
@@ -71,15 +71,15 @@ export const LandingPage: React.FC = () => {
           {/* Hero Visual Stepper */}
           <div className="pt-10 max-w-4xl mx-auto">
             <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-3">
-              The Intelligent Citizen Journey
+              {t('The Intelligent Citizen Journey')}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
               {[
-                { title: '1. Your Goal', desc: 'Text or Voice Input' },
-                { title: '2. AI Matching', desc: '100-pt Explainable Engine' },
-                { title: '3. Affordability', desc: 'Cashflow Simulator' },
-                { title: '4. Best Partner', desc: 'Geo-Spatial Routing' },
-                { title: '5. Application', desc: 'Live Real-Time Tracking' }
+                { title: t('1. Your Goal'), desc: t('Text or Voice Input') },
+                { title: t('2. AI Matching'), desc: t('100-pt Explainable Engine') },
+                { title: t('3. Affordability'), desc: t('Cashflow Simulator') },
+                { title: t('4. Best Partner'), desc: t('Geo-Spatial Routing') },
+                { title: t('5. Application'), desc: t('Live Real-Time Tracking') }
               ].map((step, idx) => (
                 <div
                   key={idx}
@@ -95,30 +95,31 @@ export const LandingPage: React.FC = () => {
           {/* Account Onboarding Bar */}
           <div className="pt-6 border-t border-slate-800/80 max-w-3xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
-              <span className="text-slate-400 font-medium">Quick Access:</span>
+              <span className="text-slate-400 font-medium">{t('Quick Access:')}</span>
               <Link
                 to="/find-scheme"
                 className="px-3.5 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-200 font-semibold transition-all flex items-center gap-1.5"
               >
                 <Sparkles className="w-3.5 h-3.5 text-blue-300" />
-                <span>AI Scheme Eligibility Tool</span>
+                <span>{t('AI Scheme Eligibility Tool')}</span>
               </Link>
               <Link
                 to="/signup"
                 className="px-3.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-teal-200 font-semibold transition-all flex items-center gap-1.5"
               >
                 <UserPlus className="w-3.5 h-3.5 text-teal-300" />
-                <span>Create Citizen Account</span>
+                <span>{t('Create Citizen Account')}</span>
               </Link>
               <Link
                 to="/login"
                 className="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 font-semibold transition-all flex items-center gap-1.5"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                <span>Admin / Citizen Sign In</span>
+                <span>{t('Admin / Citizen Sign In')}</span>
               </Link>
             </div>
           </div>
+
 
         </div>
       </section>
@@ -127,13 +128,13 @@ export const LandingPage: React.FC = () => {
       <section className="py-16 px-4 sm:px-6 max-w-6xl mx-auto w-full">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-            End-to-End Workflow
+            {t('End-to-End Workflow')}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-            How Sahayak AI Guides You
+            {t('How Sahayak AI Guides You')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
-            From your business idea to loan disbursement, without complex jargon.
+            {t('From your business idea to loan disbursement, without complex jargon.')}
           </p>
         </div>
 
@@ -141,26 +142,26 @@ export const LandingPage: React.FC = () => {
           {[
             {
               step: '01',
-              title: 'Tell Us Your Goal',
-              desc: 'Speak or type in your language. Tell us what business you want to start or expand.',
+              title: t('Tell Us Your Goal'),
+              desc: t('Speak or type in your language. Tell us what business you want to start or expand.'),
               icon: Volume2
             },
             {
               step: '02',
-              title: 'AI Understands & Matches',
-              desc: 'Our transparent 100-point algorithm matches your income, loan size, and category against 50+ schemes.',
+              title: t('AI Understands & Matches'),
+              desc: t('Our transparent 100-point algorithm matches your income, loan size, and category against 50+ schemes.'),
               icon: Sparkles
             },
             {
               step: '03',
-              title: 'Simulate Affordability',
-              desc: 'Check your reducing-balance monthly EMI and verify if your remaining surplus keeps your family safe.',
+              title: t('Simulate Affordability'),
+              desc: t('Check your reducing-balance monthly EMI and verify if your remaining surplus keeps your family safe.'),
               icon: Calculator
             },
             {
               step: '04',
-              title: 'Smart Partner Routing',
-              desc: 'Our geo-spatial router navigates you to the nearest partner with verified spare processing capacity.',
+              title: t('Smart Partner Routing'),
+              desc: t('Our geo-spatial router navigates you to the nearest partner with verified spare processing capacity.'),
               icon: MapPin
             }
           ].map((item, idx) => {
@@ -189,13 +190,13 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto space-y-10">
           <div className="text-center max-w-2xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
-              Why Sahayak AI?
+              {t('Why Sahayak AI?')}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-              Designed for Marginalized Entrepreneurs
+              {t('Designed for Marginalized Entrepreneurs')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
-              Solving information asymmetry, bureaucratic confusion, and predatory informal lending.
+              {t('Solving information asymmetry, bureaucratic confusion, and predatory informal lending.')}
             </p>
           </div>
 
@@ -204,9 +205,9 @@ export const LandingPage: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-slate-900">Explainable Recommendations</h3>
+              <h3 className="font-bold text-sm text-slate-900">{t('Explainable Recommendations')}</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                No opaque decisions. Every match shows an itemized score across income, project, location, and tips to improve qualification.
+                {t('No opaque decisions. Every match shows an itemized score across income, project, location, and tips to improve qualification.')}
               </p>
             </div>
 
@@ -214,9 +215,9 @@ export const LandingPage: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
                 <Globe2 className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-slate-900">Voice & Regional Languages</h3>
+              <h3 className="font-bold text-sm text-slate-900">{t('Voice & Regional Languages')}</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Built-in speech input and full translations for English, Malayalam, Tamil, and Hindi, making institutional credit accessible to all.
+                {t('Built-in speech input and full translations for English, Malayalam, Tamil, and Hindi, making institutional credit accessible to all.')}
               </p>
             </div>
 
@@ -224,9 +225,9 @@ export const LandingPage: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
                 <MapPin className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-slate-900">Dynamic Partner Routing</h3>
+              <h3 className="font-bold text-sm text-slate-900">{t('Dynamic Partner Routing')}</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                If the closest bank has an 85% application backlog, Sahayak reroutes you to an authorized partner with faster processing speed.
+                {t('If the closest bank has an 85% application backlog, Sahayak reroutes you to an authorized partner with faster processing speed.')}
               </p>
             </div>
           </div>
@@ -239,10 +240,10 @@ export const LandingPage: React.FC = () => {
           <div className="absolute right-0 bottom-0 translate-x-10 translate-y-10 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
           
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Ready to Take Your Dream to Opportunity?
+            {t('Ready to Take Your Dream to Opportunity?')}
           </h2>
           <p className="text-xs sm:text-sm text-blue-100 max-w-xl mx-auto leading-relaxed">
-            Join thousands of small business owners, women artisans, and farmers navigating government concessional finance with clarity.
+            {t('Join thousands of small business owners, women artisans, and farmers navigating government concessional finance with clarity.')}
           </p>
 
           <div className="pt-3">
@@ -250,12 +251,13 @@ export const LandingPage: React.FC = () => {
               to="/find-scheme"
               className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-blue-900 hover:bg-blue-50 font-extrabold text-sm rounded-xl shadow-lg transition-all"
             >
-              <span>Start Your Financial Journey</span>
+              <span>{t('Start Your Financial Journey')}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </section>
+
 
     </div>
   );

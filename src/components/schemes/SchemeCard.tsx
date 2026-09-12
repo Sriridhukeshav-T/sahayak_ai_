@@ -16,7 +16,9 @@ import {
 import { Scheme } from '../../types/scheme';
 import { MatchBreakdown } from '../../types/common';
 import { useAppData } from '../../context/AppDataContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { calculateEMI } from '../../services/affordabilityService';
+
 
 interface SchemeCardProps {
   scheme: Scheme;
@@ -36,6 +38,8 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
   const navigate = useNavigate();
   const { setActiveSchemeId } = useAppData();
 
+  const { t } = useLanguage();
+
   const score = match ? match.totalScore : 90;
   const estimatedEmi = calculateEMI(scheme.maxLoan * 0.8, scheme.interestRate, scheme.tenureMonths);
 
@@ -53,21 +57,21 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
         <div>
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-              {scheme.category}
+              {t(scheme.category)}
             </span>
             {scheme.subsidyPercentage && scheme.subsidyPercentage > 0 && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                {scheme.subsidyPercentage}% Subsidy Support
+                {scheme.subsidyPercentage}% {t('Subsidy Available')}
               </span>
             )}
             {scheme.featured && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                Priority Scheme
+                {t('Priority Scheme')}
               </span>
             )}
           </div>
           <h3 className="font-bold text-base text-slate-900 group-hover:text-blue-700 transition-colors leading-snug">
-            {scheme.name}
+            {t(scheme.name)}
           </h3>
         </div>
 
@@ -81,37 +85,37 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
             title="Click to view transparent explainable scoring breakdown"
           >
             <span className="text-base font-extrabold leading-none">{score}%</span>
-            <span className="text-[9px] font-medium tracking-tight opacity-90">Match</span>
+            <span className="text-[9px] font-medium tracking-tight opacity-90">{t('matchScore')}</span>
           </div>
         )}
       </div>
 
       <p className="text-xs text-slate-600 line-clamp-2 mb-4 leading-relaxed">
-        {scheme.description}
+        {t(scheme.description)}
       </p>
 
       {/* Metric Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-50/80 border border-slate-100 text-xs mb-4">
         <div>
-          <span className="text-[10px] text-slate-400 block font-medium">Max Loan</span>
+          <span className="text-[10px] text-slate-400 block font-medium">{t('Max Loan')}</span>
           <span className="font-bold text-slate-800 text-sm">
             ₹{(scheme.maxLoan / 100000).toFixed(1)} Lakh
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 block font-medium">Interest Rate</span>
+          <span className="text-[10px] text-slate-400 block font-medium">{t('Interest Rate')}</span>
           <span className="font-bold text-emerald-700 text-sm flex items-center gap-0.5">
             {scheme.interestRate}% <span className="text-[9px] font-normal text-slate-500">p.a.</span>
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 block font-medium">Moratorium</span>
+          <span className="text-[10px] text-slate-400 block font-medium">{t('Moratorium')}</span>
           <span className="font-bold text-slate-800 text-sm">
-            {scheme.moratoriumMonths} Months
+            {scheme.moratoriumMonths} {t('Months')}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-slate-400 block font-medium">Est. EMI (~80% cap)</span>
+          <span className="text-[10px] text-slate-400 block font-medium">{t('Est. EMI (~80% cap)')}</span>
           <span className="font-bold text-blue-700 text-sm">
             ₹{estimatedEmi.toLocaleString('en-IN')}/mo
           </span>
@@ -123,12 +127,12 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
         <div className="mb-4 text-xs space-y-1 bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100">
           <div className="flex items-center gap-1.5 text-emerald-800 font-semibold text-[11px]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>{match.reasons[0]}</span>
+            <span>{t(match.reasons[0])}</span>
           </div>
           {match.warnings.length > 0 && (
             <div className="flex items-center gap-1.5 text-amber-800 text-[11px]">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-              <span className="truncate">{match.warnings[0]}</span>
+              <span className="truncate">{t(match.warnings[0])}</span>
             </div>
           )}
         </div>
@@ -143,7 +147,7 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
               className="flex-1 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
               <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-              <span>Why this match?</span>
+              <span>{t('whyRecommendation')}</span>
             </button>
           )}
 
@@ -156,7 +160,7 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
                   : 'text-slate-600 hover:bg-slate-50 border-slate-200'
               }`}
             >
-              {isCompared ? '✓ Selected' : 'Compare'}
+              {isCompared ? `✓ ${t('Selected')}` : t('Compare')}
             </button>
           )}
 
@@ -166,7 +170,7 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
               navigate(`/affordability?schemeId=${scheme.id}`);
             }}
             className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors border border-slate-200"
-            title="Check Affordability Simulator for this scheme"
+            title={t('checkAffordability')}
           >
             <Calculator className="w-4 h-4" />
           </button>
@@ -179,10 +183,11 @@ export const SchemeCard: React.FC<SchemeCardProps> = ({
           }}
           className="w-full px-4 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 group-hover:bg-blue-800"
         >
-          <span>Start Application</span>
+          <span>{t('startApplication')}</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
+
 
     </div>
   );

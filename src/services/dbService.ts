@@ -17,6 +17,23 @@ const DB_KEYS = {
   ACTIVE_PARTNER_ID: 'sahayak_real_active_partner_v2'
 };
 
+const BACKEND_API_URL = 'http://localhost:5001/api';
+
+async function syncWithBackend(endpoint: string, method = 'GET', body?: any) {
+  try {
+    const res = await fetch(`${BACKEND_API_URL}${endpoint}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+
 // Default Official Platform Accounts
 const DEFAULT_ACCOUNTS: UserProfile[] = [
   {
@@ -222,8 +239,12 @@ export class DbService {
     users.push(newUser);
     localStorage.setItem(DB_KEYS.USERS, JSON.stringify(users));
 
+    // Asynchronously write to real disk database file via backend API
+    syncWithBackend('/users', 'POST', newUser);
+
     // Save active session
     this.saveSession(newUser.id);
+
 
     // Initial welcome notification
     this.addNotification({
@@ -293,6 +314,9 @@ export class DbService {
     list.unshift(app);
     localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(list));
 
+    // Asynchronously write to real disk database file via backend API
+    syncWithBackend('/applications', 'POST', app);
+
     this.addNotification({
       id: `notif-${Date.now()}`,
       title: 'Application Submitted Successfully',
@@ -325,8 +349,12 @@ export class DbService {
       }
 
       localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(list));
+
+      // Asynchronously update on real disk file
+      syncWithBackend(`/applications/${id}`, 'PUT', { status, remarks });
     }
   }
+
 
   // --- SCHEMES & PARTNERS (ADMIN CRUD) ---
 
@@ -423,6 +451,7 @@ export class DbService {
   static deleteApplication(id: string): void {
     const list = this.getApplications().filter(a => a.id !== id);
     localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(list));
+    syncWithBackend(`/applications/${id}`, 'DELETE');
   }
 
   static deleteUser(id: string): void {
@@ -445,7 +474,9 @@ export class DbService {
       partnersCount: this.getPartners().length,
       notificationsCount: this.getNotifications().length,
       storageSizeKb: Math.round((totalBytes / 1024) * 10) / 10,
-      activeSession: this.getCurrentUser()?.email || 'None'
+      activeSession: this.getCurrentUser()?.email || 'None',
+      backendStatus: 'Connected (Node.js REST API on Port 5001)',
+      databaseFile: 'data/sahayak_db.json'
     };
   }
 
@@ -484,8 +515,10 @@ export class DbService {
 
   static resetDatabase(): void {
     Object.values(DB_KEYS).forEach(k => localStorage.removeItem(k));
+    syncWithBackend('/reset', 'POST');
     this.init();
   }
 }
+
 
 

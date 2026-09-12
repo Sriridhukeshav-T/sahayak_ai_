@@ -215,7 +215,7 @@ export const FindMySchemePage: React.FC = () => {
           </div>
 
           <span className="text-xs text-slate-400 font-medium hidden sm:inline">
-            Zero financial jargon required
+            {t('Zero financial jargon required')}
           </span>
         </div>
 
@@ -296,7 +296,7 @@ export const FindMySchemePage: React.FC = () => {
           <form onSubmit={handleFormSubmit} className="space-y-4 animate-in fade-in">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Project Trade / Activity</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Project Trade / Activity')}</label>
                 <input
                   type="text"
                   required
@@ -308,7 +308,7 @@ export const FindMySchemePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Desired Loan Amount (₹)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Desired Loan Amount (₹)')}</label>
                 <input
                   type="number"
                   required
@@ -319,7 +319,7 @@ export const FindMySchemePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Annual Household Income (₹)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Annual Household Income (₹)')}</label>
                 <input
                   type="number"
                   required
@@ -330,7 +330,7 @@ export const FindMySchemePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">State & District</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('State & District')}</label>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
@@ -355,7 +355,7 @@ export const FindMySchemePage: React.FC = () => {
                 className="px-6 py-2.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 rounded-xl transition-all shadow-md flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-blue-200" />
-                <span>Match Suitable Schemes</span>
+                <span>{t('Match Suitable Schemes')}</span>
               </button>
             </div>
           </form>
@@ -394,9 +394,9 @@ export const FindMySchemePage: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
               <Bot className="w-4 h-4 text-blue-600" />
-              <span>AI Extracted Parameters ({extractedTokens.confidenceScore}% parser confidence)</span>
+              <span>{t('AI Extracted Parameters')} ({extractedTokens.confidenceScore}% parser confidence)</span>
             </span>
-            <span className="text-[11px] text-slate-500">Auto-mapped into matching engine</span>
+            <span className="text-[11px] text-slate-500">{t('Auto-mapped into matching engine')}</span>
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
@@ -405,8 +405,8 @@ export const FindMySchemePage: React.FC = () => {
                 key={i}
                 className="bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs text-xs flex items-center gap-1.5"
               >
-                <span className="text-slate-400 font-medium">{f.label}:</span>
-                <span className="font-bold text-blue-900">{f.value}</span>
+                <span className="text-slate-400 font-medium">{t(f.label) || f.label}:</span>
+                <span className="font-bold text-blue-900">{t(f.value) || f.value}</span>
               </div>
             ))}
           </div>
@@ -420,14 +420,14 @@ export const FindMySchemePage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-slate-900">
-                  Top 3 Recommended Schemes
+                  {t('Top 3 Recommended Schemes')}
                 </h2>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  Dynamic Scores
+                  {t('Dynamic Scores')}
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Scores dynamically computed using multi-factor income, loan limit, and local partner presence.
+                {t('Scores dynamically computed using multi-factor income, loan limit, and local partner presence.')}
               </p>
             </div>
 
@@ -436,7 +436,7 @@ export const FindMySchemePage: React.FC = () => {
                 onClick={() => setShowCompareModal(true)}
                 className="px-4 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 transition-colors"
               >
-                Compare Selected ({comparedSchemes.length}/3)
+                {t('Compare Selected')} ({comparedSchemes.length}/3)
               </button>
             )}
           </div>

@@ -48,6 +48,17 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
     };
   }, []);
 
+  const [listeningStatus, setListeningStatus] = useState<string | null>(null);
+
+  const getLanguageName = (lang: string) => {
+    switch (lang) {
+      case 'hi': return 'हिन्दी (Hindi)';
+      case 'ta': return 'தமிழ் (Tamil)';
+      case 'ml': return 'മലയാളം (Malayalam)';
+      default: return 'English (India)';
+    }
+  };
+
   const toggleVoice = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -65,6 +76,7 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         }
       }
       setIsListening(false);
+      setListeningStatus(null);
       return;
     }
 
@@ -72,38 +84,50 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
       // Create fresh instance per session to avoid InvalidStateError
       const recog = new SpeechRecognition();
       recog.continuous = false;
-      recog.interimResults = false;
+      recog.interimResults = true;
       recog.maxAlternatives = 1;
       recog.lang = getLocaleCode(language);
 
       recog.onstart = () => {
         setIsListening(true);
+        setListeningStatus(`${t('Listening...')} (${getLanguageName(language)})`);
       };
 
       recog.onresult = (event: any) => {
-        const transcript = event.results?.[0]?.[0]?.transcript;
-        if (transcript) {
-          onTranscript(transcript);
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
         }
-        setIsListening(false);
+        const text = finalTranscript || event.results?.[0]?.[0]?.transcript;
+        if (text) {
+          onTranscript(text.trim());
+          setIsListening(false);
+          setListeningStatus(null);
+        }
       };
 
       recog.onerror = (event: any) => {
         setIsListening(false);
-        // Only open fallback modal if mic is not allowed or unsupported
+        setListeningStatus(null);
+        // Only open fallback modal if microphone access is explicitly blocked
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
           setShowFallbackModal(true);
         }
+        // no-speech or network: reset gracefully without intrusive modal
       };
 
       recog.onend = () => {
         setIsListening(false);
+        setListeningStatus(null);
       };
 
       recognitionRef.current = recog;
       recog.start();
     } catch (err) {
       setIsListening(false);
+      setListeningStatus(null);
       setShowFallbackModal(true);
     }
   };
@@ -112,34 +136,50 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={toggleVoice}
-        className={`relative flex items-center justify-center transition-all ${
-          isListening
-            ? 'bg-red-600 text-white animate-pulse ring-4 ring-red-200'
-            : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 shadow-xs'
-        } ${
-          size === 'icon'
-            ? 'p-2 rounded-xl'
-            : size === 'sm'
-            ? 'px-2.5 py-1.5 rounded-lg text-xs font-semibold gap-1.5'
-            : 'px-3 py-2 rounded-xl text-xs font-semibold gap-1.5'
-        } ${className}`}
-        title={title || (isListening ? t('listeningPrompt') : t('speakPrompt'))}
-      >
-        {isListening ? (
-          <>
-            <MicOff className={size === 'sm' || size === 'icon' ? 'w-3.5 h-3.5 text-white' : 'w-4 h-4 text-white'} />
-            {size !== 'icon' && <span>{t('speakNow')}</span>}
-          </>
-        ) : (
-          <>
-            <Mic className={size === 'sm' || size === 'icon' ? 'w-3.5 h-3.5 text-blue-600' : 'w-4 h-4 text-blue-600'} />
-            {size !== 'icon' && <span>{t('speakPrompt')}</span>}
-          </>
+      <div className="relative inline-flex items-center">
+        <button
+          type="button"
+          onClick={toggleVoice}
+          className={`relative flex items-center justify-center transition-all ${
+            isListening
+              ? 'bg-red-600 text-white shadow-md shadow-red-500/30 ring-4 ring-red-200 animate-pulse'
+              : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 shadow-xs'
+          } ${
+            size === 'icon'
+              ? 'p-2 rounded-xl'
+              : size === 'sm'
+              ? 'px-2.5 py-1.5 rounded-lg text-xs font-semibold gap-1.5'
+              : 'px-3 py-2 rounded-xl text-xs font-semibold gap-1.5'
+          } ${className}`}
+          title={title || (isListening ? t('listeningPrompt') : t('speakPrompt'))}
+        >
+          {isListening ? (
+            <>
+              {/* Soundwave animation bars */}
+              <div className="flex items-center gap-0.5 h-3.5 mr-1">
+                <span className="w-0.5 h-3 bg-white rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-0.5 h-4 bg-white rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-0.5 h-2.5 bg-white rounded-full animate-bounce" />
+              </div>
+              <MicOff className={size === 'sm' || size === 'icon' ? 'w-3.5 h-3.5 text-white' : 'w-4 h-4 text-white'} />
+              {size !== 'icon' && <span>{t('Listening...')}</span>}
+            </>
+          ) : (
+            <>
+              <Mic className={size === 'sm' || size === 'icon' ? 'w-3.5 h-3.5 text-blue-600' : 'w-4 h-4 text-blue-600'} />
+              {size !== 'icon' && <span>{t('speakPrompt')}</span>}
+            </>
+          )}
+        </button>
+
+        {/* Listening Floating Tooltip */}
+        {isListening && (
+          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap bg-slate-900 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg shadow-lg border border-slate-700 flex items-center gap-1.5 pointer-events-none animate-in fade-in slide-in-from-bottom-1">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+            <span>{listeningStatus || t('Listening...')}</span>
+          </div>
         )}
-      </button>
+      </div>
 
       {/* Voice Fallback / Demo Prompts Modal */}
       {showFallbackModal && (

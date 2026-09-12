@@ -1,0 +1,168 @@
+{
+  "version": "2.0-real-disk",
+  "created": "2026-09-12T14:24:15.385Z",
+  "users": [
+    {
+      "id": "USR-ADMIN-001",
+      "name": "National Portal Administrator",
+      "email": "admin@sahayak.gov.in",
+      "mobile": "+91 98765 43210",
+      "password": "Admin@Sahayak2026",
+      "createdAt": "2026-01-01T00:00:00Z",
+      "age": 40,
+      "gender": "Other",
+      "category": "General",
+      "state": "Delhi",
+      "district": "New Delhi",
+      "pinCode": "110001",
+      "income": 1200000,
+      "monthlyExpenses": 45000,
+      "existingLoans": false,
+      "existingEMI": 0,
+      "goal": "Platform Administration",
+      "projectType": "Administration",
+      "purpose": "National Concessional Scheme Management and Channel Partner Routing Oversight",
+      "projectCost": 0,
+      "loanRequirement": 0,
+      "ownContribution": 0,
+      "expectedBusinessIncome": 0,
+      "experienceYears": 15,
+      "preferredLanguage": "en",
+      "educationStatus": "Post Graduate",
+      "role": "admin",
+      "uploadedDocuments": []
+    },
+    {
+      "id": "USR-CITIZEN-001",
+      "name": "Sunita Sharma",
+      "email": "citizen@sahayak.gov.in",
+      "mobile": "+91 98123 45678",
+      "password": "Citizen@Sahayak2026",
+      "createdAt": "2026-02-15T10:30:00Z",
+      "age": 32,
+      "gender": "Female",
+      "category": "OBC",
+      "state": "Uttar Pradesh",
+      "district": "Varanasi",
+      "pinCode": "221001",
+      "income": 280000,
+      "monthlyExpenses": 12000,
+      "existingLoans": false,
+      "existingEMI": 0,
+      "goal": "Start a business",
+      "projectType": "Handloom Weaving",
+      "purpose": "Procurement of motorized handloom and organic raw silk yarns for Banarasi craft unit.",
+      "projectCost": 180000,
+      "loanRequirement": 140000,
+      "ownContribution": 40000,
+      "expectedBusinessIncome": 22000,
+      "experienceYears": 4,
+      "preferredLanguage": "hi",
+      "educationStatus": "10th Pass",
+      "role": "citizen",
+      "uploadedDocuments": [
+        {
+          "id": "DOC-SUN-01",
+          "name": "Aadhaar Card",
+          "type": "Aadhaar Card",
+          "fileName": "Aadhaar_Sunita_Sharma.pdf",
+          "fileSize": "1.1 MB",
+          "uploadedAt": "2026-02-16T11:00:00Z",
+          "status": "Detected",
+          "detectionSummary": "UIDAI verified format detected"
+        }
+      ]
+    }
+  ],
+  "applications": [
+    {
+      "id": "SAH-2026-92841",
+      "userId": "USR-CITIZEN-001",
+      "applicantName": "Sunita Sharma",
+      "applicantMobile": "+91 98123 45678",
+      "applicantState": "Uttar Pradesh",
+      "applicantDistrict": "Varanasi",
+      "schemeId": "SCH-MCR-001",
+      "schemeName": "National Micro-Credit Assistance for Women Artisans & Tailors",
+      "schemeCategory": "Micro Enterprise",
+      "partnerId": "PTR-UP-001",
+      "partnerName": "UP Backward Classes Welfare Corporation",
+      "partnerType": "State Channelizing Agency",
+      "partnerBranch": "Varanasi District Office",
+      "projectType": "Handloom & Weaving Workshop",
+      "projectCost": 180000,
+      "ownContribution": 40000,
+      "loanAmount": 140000,
+      "interestRate": 4.5,
+      "tenureMonths": 36,
+      "estimatedEMI": 4165,
+      "matchScore": 96,
+      "status": "PARTNER_REVIEW",
+      "submittedAt": "2026-08-22T09:30:00Z",
+      "updatedAt": "2026-09-02T14:20:00Z",
+      "documents": [
+        {
+          "name": "Aadhaar Card",
+          "status": "Verified"
+        },
+        {
+          "name": "Income Certificate",
+          "status": "Verified"
+        },
+        {
+          "name": "Bank Passbook / Cancelled Cheque",
+          "status": "Verified"
+        },
+        {
+          "name": "Handloom Machinery Quotation",
+          "status": "Verified"
+        }
+      ],
+      "timeline": [
+        {
+          "status": "SUBMITTED",
+          "title": "Application Submitted",
+          "description": "Application registered on gateway.",
+          "timestamp": "2026-08-22T09:30:00Z",
+          "completed": true
+        },
+        {
+          "status": "DOCUMENT_CHECK",
+          "title": "AI Document Readiness Check",
+          "description": "Mandatory certificates verified.",
+          "timestamp": "2026-08-25T11:00:00Z",
+          "completed": true
+        },
+        {
+          "status": "FORWARDED_TO_PARTNER",
+          "title": "Routed to Channel Partner",
+          "description": "Forwarded to Varanasi District Office.",
+          "timestamp": "2026-08-28T14:30:00Z",
+          "completed": true
+        },
+        {
+          "status": "PARTNER_REVIEW",
+          "title": "Channel Partner Appraisal",
+          "description": "Credit appraisal and field review in progress.",
+          "timestamp": "2026-09-02T14:20:00Z",
+          "completed": false,
+          "current": true
+        }
+      ],
+      "remarks": "Application verified by AI Readiness Engine. Field officer inspection scheduled."
+    }
+  ],
+  "schemes": [],
+  "partners": [],
+  "notifications": [
+    {
+      "id": "notif-seed-01",
+      "title": "Welcome to Sahayak AI",
+      "message": "Your official citizen account is ready with real persistent database storage.",
+      "type": "success",
+      "timestamp": "Today",
+      "read": false,
+      "actionLink": "/find-scheme"
+    }
+  ]
+}

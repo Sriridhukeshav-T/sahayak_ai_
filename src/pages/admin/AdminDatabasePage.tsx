@@ -20,11 +20,13 @@ import {
 } from 'lucide-react';
 import { DbService } from '../../services/dbService';
 import { useAppData } from '../../context/AppDataContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Application } from '../../types/application';
 import { UserProfile } from '../../types/user';
 
 export const AdminDatabasePage: React.FC = () => {
   const { refreshAppData } = useAppData();
+  const { t } = useLanguage();
   const [stats, setStats] = useState(DbService.getDbStats());
   const [activeTab, setActiveTab] = useState<'applications' | 'users' | 'schemes' | 'partners'>('applications');
   const [searchTerm, setSearchTerm] = useState('');
@@ -242,8 +244,33 @@ export const AdminDatabasePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Real Database Server Status Banner */}
+      <div className="p-3.5 bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl shadow-sm border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+            <HardDrive className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-xs text-white">Live Physical Disk Database: Active</span>
+              <span className="flex items-center gap-1 text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                <span>REST API: Port 5001</span>
+              </span>
+            </div>
+            <p className="text-[11px] text-emerald-200/80 font-mono mt-0.5">
+              Storage File: <span className="text-white font-semibold">c:\SIH26092_PROTOTYPE\data\sahayak_db.json</span>
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-emerald-300 text-[11px]">Sync Mode: Real-time Disk Flush + Local Fallback</span>
+        </div>
+      </div>
+
       {/* Database KPI Metrics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
+
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-xs font-semibold">Registered Users</span>

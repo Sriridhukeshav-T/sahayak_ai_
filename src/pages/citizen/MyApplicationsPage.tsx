@@ -13,12 +13,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Application, ApplicationStatus } from '../../types/application';
 import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const MyApplicationsPage: React.FC = () => {
   const { user } = useAuth();
   const { applications } = useAppData();
+  const { t } = useLanguage();
 
   const userApps = applications.filter(a => a.userId === user.id);
   const [selectedApp, setSelectedApp] = useState<Application | null>(userApps[0] || null);
@@ -51,24 +53,24 @@ export const MyApplicationsPage: React.FC = () => {
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            My Applications
+            {t('My Applications')}
           </h1>
           <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-            {userApps.length} Tracked Dossiers
+            {userApps.length} {t('Tracked Dossiers')}
           </span>
           <DemoBadge />
         </div>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Live lifecycle tracking for institutional concessional finance applications.
+          {t('Live lifecycle tracking for institutional concessional finance applications.')}
         </p>
       </div>
 
       {userApps.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
           <FileText className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="font-bold text-base text-slate-800">No applications submitted yet</h3>
+          <h3 className="font-bold text-base text-slate-800">{t('No applications submitted yet')}</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Find your matched scheme and submit your application to start tracking progress.
+            {t('Find your matched scheme and submit your application to start tracking progress.')}
           </p>
         </div>
       ) : (
@@ -77,7 +79,7 @@ export const MyApplicationsPage: React.FC = () => {
           {/* Left: Applications List (5 cols) */}
           <div className="lg:col-span-5 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block px-1">
-              Your Active Cases
+              {t('Your Active Cases')}
             </span>
 
             {userApps.map(app => {
@@ -95,7 +97,7 @@ export const MyApplicationsPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-bold text-blue-900">{app.id}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(app.status)}`}>
-                      {app.status.replace(/_/g, ' ')}
+                      {t(app.status) || app.status.replace(/_/g, ' ')}
                     </span>
                   </div>
 
@@ -124,7 +126,7 @@ export const MyApplicationsPage: React.FC = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-mono text-sm font-extrabold text-blue-900">{selectedApp.id}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(selectedApp.status)}`}>
-                      {selectedApp.status.replace(/_/g, ' ')}
+                      {t(selectedApp.status) || selectedApp.status.replace(/_/g, ' ')}
                     </span>
                   </div>
                   <h3 className="font-bold text-base text-slate-900 leading-snug">{selectedApp.schemeName}</h3>
@@ -132,7 +134,7 @@ export const MyApplicationsPage: React.FC = () => {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-slate-400 block">Sanction Target</span>
+                  <span className="text-xs font-bold text-slate-400 block">{t('Sanction Target')}</span>
                   <span className="text-base font-extrabold text-slate-900 font-mono">
                     ₹{selectedApp.loanAmount.toLocaleString('en-IN')}
                   </span>
@@ -142,7 +144,7 @@ export const MyApplicationsPage: React.FC = () => {
               {/* Status Timeline */}
               <div className="space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Application Lifecycle Progress
+                  {t('Application Lifecycle Progress')}
                 </h4>
 
                 <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
@@ -165,7 +167,7 @@ export const MyApplicationsPage: React.FC = () => {
                           <p className={`text-xs font-bold ${
                             item.current ? 'text-blue-700' : item.completed ? 'text-slate-900' : 'text-slate-400'
                           }`}>
-                            {item.title}
+                            {t(item.title) || item.title}
                           </p>
                           {item.timestamp && (
                             <span className="text-[10px] text-slate-400 font-mono">
@@ -174,7 +176,7 @@ export const MyApplicationsPage: React.FC = () => {
                           )}
                         </div>
                         <p className="text-[11px] text-slate-500 leading-relaxed">
-                          {item.description}
+                          {t(item.description) || item.description}
                         </p>
                       </div>
                     </div>
@@ -187,7 +189,7 @@ export const MyApplicationsPage: React.FC = () => {
                 <div className="p-3 bg-blue-50/70 rounded-2xl border border-blue-100 text-xs text-blue-900 space-y-1">
                   <span className="font-bold flex items-center gap-1 text-[11px]">
                     <Clock className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Officer Remarks & Appraiser Notes:</span>
+                    <span>{t('Officer Remarks & Appraiser Notes:')}</span>
                   </span>
                   <p className="text-[11px] text-blue-800 leading-relaxed pl-4">
                     {selectedApp.remarks}
@@ -198,15 +200,15 @@ export const MyApplicationsPage: React.FC = () => {
               {/* Key Specs Row */}
               <div className="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-2xl text-xs border border-slate-100">
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Interest Rate</span>
+                  <span className="text-slate-400 block text-[10px]">{t('Interest Rate')}</span>
                   <span className="font-bold text-emerald-700">{selectedApp.interestRate}% p.a.</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Repayment Tenure</span>
-                  <span className="font-bold text-slate-800">{selectedApp.tenureMonths} Months</span>
+                  <span className="text-slate-400 block text-[10px]">{t('Repayment Tenure')}</span>
+                  <span className="font-bold text-slate-800">{selectedApp.tenureMonths} {t('Months')}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Estimated EMI</span>
+                  <span className="text-slate-400 block text-[10px]">{t('Estimated EMI')}</span>
                   <span className="font-bold text-blue-700">₹{selectedApp.estimatedEMI.toLocaleString('en-IN')}/mo</span>
                 </div>
               </div>

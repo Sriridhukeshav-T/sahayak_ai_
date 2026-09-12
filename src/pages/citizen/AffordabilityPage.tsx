@@ -27,11 +27,13 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { calculateAffordability } from '../../services/affordabilityService';
+import { useLanguage } from '../../context/LanguageContext';
 import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const AffordabilityPage: React.FC = () => {
   const { user } = useAuth();
   const { schemes, activeScheme, setActiveSchemeId } = useAppData();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
 
   const schemeIdParam = searchParams.get('schemeId');
@@ -90,15 +92,15 @@ export const AffordabilityPage: React.FC = () => {
       <div className="text-center max-w-3xl mx-auto space-y-2">
         <div className="flex items-center justify-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-            Financial Affordability Engine
+            {t('Affordability Simulator')}
           </span>
           <DemoBadge />
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Can I Actually Afford This?
+          {t('Can I Afford This?')}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
-          Not just a basic EMI calculator. We test your reducing-balance repayment against your household budget to ensure you never face debt distress.
+          {t('Simulate your EMI and remaining disposable monthly cash surplus.')}
         </p>
       </div>
 
