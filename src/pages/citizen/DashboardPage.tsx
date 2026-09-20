@@ -73,16 +73,16 @@ export const DashboardPage: React.FC = () => {
         <div className="relative z-10 space-y-2 max-w-2xl">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
-              Personalized Dashboard
+              {t('dashboard')}
             </span>
             <DemoBadge />
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Good morning, {user.name} 👋
+            {new Date().getHours() < 12 ? t('greetingMorning') : new Date().getHours() < 17 ? t('greetingAfternoon') : t('greetingEvening')}, {user.name} 👋
           </h1>
           <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal">
-            “Let's move your {user.projectType || 'business'} idea one step closer to reality. Here is your current financial profile readiness and top matched schemes.”
+            {t('dashboardSubtitle')}
           </p>
         </div>
 
@@ -93,14 +93,14 @@ export const DashboardPage: React.FC = () => {
             className="px-5 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-blue-50 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4 text-blue-600" />
-            <span>Find My Scheme (AI Match)</span>
+            <span>{t('findMyScheme')}</span>
           </Link>
           <Link
             to="/affordability"
             className="px-4 py-2.5 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all flex items-center gap-1.5"
           >
             <Calculator className="w-4 h-4" />
-            <span>Affordability Simulator</span>
+            <span>{t('affordability')}</span>
           </Link>
         </div>
       </div>
@@ -110,10 +110,10 @@ export const DashboardPage: React.FC = () => {
         
         {/* Profile Readiness */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">Profile Completion</span>
+          <span className="text-[11px] font-semibold text-slate-500 block">{t('Profile Completion')}</span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-extrabold text-slate-900">85%</span>
-            <span className="text-[10px] text-teal-600 font-bold">Strong</span>
+            <span className="text-[10px] text-teal-600 font-bold">{t('Strong')}</span>
           </div>
           <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div className="h-full bg-teal-500 rounded-full w-[85%]" />
@@ -122,32 +122,32 @@ export const DashboardPage: React.FC = () => {
 
         {/* Recommended Schemes */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">Recommended Schemes</span>
+          <span className="text-[11px] font-semibold text-slate-500 block">{t('Recommended Schemes')}</span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-extrabold text-blue-700">{topSchemes.length}</span>
-            <span className="text-[10px] text-blue-600 font-bold">Matched</span>
+            <span className="text-[10px] text-blue-600 font-bold">{t('Matched')}</span>
           </div>
           <p className="text-[10px] text-slate-400 truncate">
-            Top: {topSchemes[0]?.match.totalScore}% compatibility
+            Top: {topSchemes[0]?.match.totalScore}% {t('compatibility') || 'compatibility'}
           </p>
         </div>
 
         {/* Application Status */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">Application Status</span>
+          <span className="text-[11px] font-semibold text-slate-500 block">{t('Application Status')}</span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-extrabold text-slate-900">
-              {activeApp ? '1 Active' : '0 Pending'}
+              {activeApp ? `1 ${t('Active') || 'Active'}` : `0 ${t('Pending')}`}
             </span>
           </div>
           <p className="text-[10px] text-slate-400 truncate">
-            {activeApp ? activeApp.status.replace(/_/g, ' ') : 'Ready to apply'}
+            {activeApp ? t(activeApp.status) || activeApp.status.replace(/_/g, ' ') : t('Ready to apply') || 'Ready to apply'}
           </p>
         </div>
 
         {/* Documents Ready */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">Documents Ready</span>
+          <span className="text-[11px] font-semibold text-slate-500 block">{t('Documents Ready')}</span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-extrabold text-emerald-700">
               {docReport.completedRequired} / {docReport.totalRequired}
@@ -155,18 +155,18 @@ export const DashboardPage: React.FC = () => {
             <span className="text-[10px] text-emerald-600 font-bold">{docReport.readinessPercentage}%</span>
           </div>
           <p className="text-[10px] text-slate-400 truncate">
-            {docReport.canSubmit ? '✓ Eligible to submit' : 'Upload missing docs'}
+            {docReport.canSubmit ? `✓ ${t('Eligible to submit')}` : t('Upload missing docs')}
           </p>
         </div>
 
         {/* Best Partner */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2 col-span-2 lg:col-span-1">
-          <span className="text-[11px] font-semibold text-slate-500 block">Best Channel Partner</span>
+          <span className="text-[11px] font-semibold text-slate-500 block">{t('Best Channel Partner')}</span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-extrabold text-purple-700">
               {bestPartner ? `${bestPartner.suitability.distanceKm} km` : 'Local'}
             </span>
-            <span className="text-[10px] text-purple-600 font-bold">Fastest</span>
+            <span className="text-[10px] text-purple-600 font-bold">{t('Fastest')}</span>
           </div>
           <p className="text-[10px] text-slate-400 truncate" title={bestPartner?.partner.name}>
             {bestPartner ? bestPartner.partner.name : 'Channelizing Agency'}
@@ -179,21 +179,21 @@ export const DashboardPage: React.FC = () => {
       <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Your Financial Journey</h3>
-            <p className="text-xs text-slate-500">Track your step-by-step path from dream to disbursement</p>
+            <h3 className="text-sm font-bold text-slate-900">{t('Your Financial Journey')}</h3>
+            <p className="text-xs text-slate-500">{t('Track your step-by-step path from dream to disbursement')}</p>
           </div>
-          <span className="text-xs font-bold text-blue-700">Step 4 of 7</span>
+          <span className="text-xs font-bold text-blue-700">{t('Step 4 of 7')}</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 text-xs">
           {[
-            { step: '1. Profile', status: 'done', link: '/profile' },
-            { step: '2. AI Match', status: 'done', link: '/find-scheme' },
-            { step: '3. Affordability', status: 'done', link: '/affordability' },
-            { step: '4. Documents', status: 'current', link: '/documents' },
-            { step: '5. Partner', status: 'upcoming', link: '/partners' },
-            { step: '6. Application', status: 'upcoming', link: '/apply' },
-            { step: '7. Tracking', status: 'upcoming', link: '/applications' }
+            { step: t('1. Profile') || '1. Profile', status: 'done', link: '/profile' },
+            { step: t('2. AI Match') || '2. AI Match', status: 'done', link: '/find-scheme' },
+            { step: t('3. Affordability') || '3. Affordability', status: 'done', link: '/affordability' },
+            { step: t('4. Documents') || '4. Documents', status: 'current', link: '/documents' },
+            { step: t('5. Partner') || '5. Partner', status: 'upcoming', link: '/partners' },
+            { step: t('6. Application') || '6. Application', status: 'upcoming', link: '/apply' },
+            { step: t('7. Tracking') || '7. Tracking', status: 'upcoming', link: '/applications' }
           ].map((item, i) => (
             <Link
               key={i}
@@ -208,7 +208,7 @@ export const DashboardPage: React.FC = () => {
             >
               <span className="block text-[11px] leading-tight">{item.step}</span>
               <span className="block text-[9px] uppercase tracking-wider opacity-80 mt-0.5">
-                {item.status === 'done' ? '✓ Completed' : item.status === 'current' ? 'In Progress' : 'Pending'}
+                {item.status === 'done' ? `✓ ${t('Verified')}` : item.status === 'current' ? t('Pending') : t('Pending')}
               </span>
             </Link>
           ))}
@@ -220,13 +220,13 @@ export const DashboardPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-slate-900">Top Matched Schemes for You</h2>
+              <h2 className="text-lg font-bold text-slate-900">{t('Top Matched Schemes for You')}</h2>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                AI Ranked
+                {t('AI Ranked')}
               </span>
             </div>
             <p className="text-xs text-slate-500">
-              Transparently matched based on your income (₹{(user.income / 100000).toFixed(1)}L), goal ({user.projectType}), and district ({user.district})
+              {t('Transparently matched based on your income') || 'Matched based on your profile'}: ₹{(user.income / 100000).toFixed(1)}L, {user.projectType}, {user.district}
             </p>
           </div>
 
@@ -236,14 +236,14 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => setShowCompareModal(true)}
                 className="px-3.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 transition-colors"
               >
-                Compare ({comparedSchemes.length}/3)
+                {t('Compare Selected')} ({comparedSchemes.length}/3)
               </button>
             )}
             <Link
               to="/schemes"
               className="text-xs font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 hover:underline"
             >
-              <span>View All 50+ Schemes</span>
+              <span>{t('View All 50+ Schemes')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -266,7 +266,7 @@ export const DashboardPage: React.FC = () => {
       {/* Quick Action Cards */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-          Quick Tools & Guidance
+          {t('Quick Tools & Guidance')}
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -279,10 +279,10 @@ export const DashboardPage: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-xs text-slate-900 group-hover:text-blue-700 transition-colors">
-                Can I Afford This?
+                {t('Can I Afford This?')}
               </h4>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Simulate your EMI and remaining disposable monthly cash surplus.
+                {t('Simulate your EMI and remaining disposable monthly cash surplus.')}
               </p>
             </div>
           </Link>
@@ -296,10 +296,10 @@ export const DashboardPage: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-xs text-slate-900 group-hover:text-teal-700 transition-colors">
-                Prepare Documents
+                {t('Prepare Documents')}
               </h4>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                AI readiness checklist tailored to your target scheme.
+                {t('AI readiness checklist tailored to your target scheme.')}
               </p>
             </div>
           </Link>
@@ -313,10 +313,10 @@ export const DashboardPage: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-xs text-slate-900 group-hover:text-purple-700 transition-colors">
-                Find a Partner
+                {t('Find a Partner')}
               </h4>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Geo-spatial router avoids congested bank branches.
+                {t('Geo-spatial router avoids congested bank branches.')}
               </p>
             </div>
           </Link>
@@ -330,10 +330,10 @@ export const DashboardPage: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-xs text-slate-900 group-hover:text-amber-700 transition-colors">
-                Learn Before Borrowing
+                {t('Learn Before Borrowing')}
               </h4>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Understand reducing interest, moratorium, and test your knowledge.
+                {t('Understand reducing interest, moratorium, and test your knowledge.')}
               </p>
             </div>
           </Link>

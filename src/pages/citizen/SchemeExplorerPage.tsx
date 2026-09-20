@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { SchemeCard } from '../../components/schemes/SchemeCard';
 import { ExplainableModal } from '../../components/schemes/ExplainableModal';
 import { SchemeCompareModal } from '../../components/schemes/SchemeCompareModal';
@@ -36,6 +37,7 @@ const CATEGORIES: (SchemeCategory | 'ALL')[] = [
 export const SchemeExplorerPage: React.FC = () => {
   const { schemes, partners } = useAppData();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<SchemeCategory | 'ALL'>('ALL');
@@ -99,15 +101,15 @@ export const SchemeExplorerPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Scheme Explorer
+              {t('Scheme Explorer')}
             </h1>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-              {filteredSchemes.length} Schemes Available
+              {filteredSchemes.length} {t('Schemes Available')}
             </span>
             <DemoBadge />
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Search, filter, and compare verified concessional credit facilities across central & state departments.
+            {t('Search, filter, and compare verified concessional credit facilities across central & state departments.')}
           </p>
         </div>
 
@@ -116,7 +118,7 @@ export const SchemeExplorerPage: React.FC = () => {
             onClick={() => setShowCompareModal(true)}
             className="px-4 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-xs transition-all flex items-center gap-2"
           >
-            <span>Compare Selected ({comparedSchemes.length}/3)</span>
+            <span>{t('Compare Selected')} ({comparedSchemes.length}/3)</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         )}
@@ -131,16 +133,16 @@ export const SchemeExplorerPage: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Search by scheme name, keyword (e.g. tailoring, tractor, solar, boutique, mudra)..."
+            placeholder={t('Search by scheme name, keyword (e.g. tailoring, tractor, solar, boutique, mudra)...')}
             className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs"
+              className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-semibold"
             >
-              Clear
+              {t('Clear')}
             </button>
           )}
         </div>
@@ -157,7 +159,7 @@ export const SchemeExplorerPage: React.FC = () => {
                   : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
               }`}
             >
-              {cat}
+              {t(cat)}
             </button>
           ))}
         </div>
@@ -168,7 +170,7 @@ export const SchemeExplorerPage: React.FC = () => {
           {/* Max Interest Slider */}
           <div>
             <div className="flex items-center justify-between mb-1 text-slate-700 font-medium">
-              <span>Max Interest Rate:</span>
+              <span>{t('Max Interest Rate:')}</span>
               <span className="font-bold text-emerald-700">{maxInterest}% p.a.</span>
             </div>
             <input
@@ -185,7 +187,7 @@ export const SchemeExplorerPage: React.FC = () => {
           {/* Min Loan Limit */}
           <div>
             <div className="flex items-center justify-between mb-1 text-slate-700 font-medium">
-              <span>Minimum Capacity Needed:</span>
+              <span>{t('Minimum Capacity Needed:')}</span>
               <span className="font-bold text-blue-700">₹{(minLoanCap / 100000).toFixed(1)}L+</span>
             </div>
             <input
@@ -201,13 +203,13 @@ export const SchemeExplorerPage: React.FC = () => {
 
           {/* State Filter */}
           <div>
-            <label className="block text-slate-700 font-medium mb-1">State Coverage</label>
+            <label className="block text-slate-700 font-medium mb-1">{t('State Coverage')}</label>
             <select
               value={selectedState}
               onChange={e => setSelectedState(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl"
             >
-              <option value="ALL">All States (Nationwide & State-specific)</option>
+              <option value="ALL">{t('All States (Nationwide & State-specific)')}</option>
               <option value="Kerala">Kerala</option>
               <option value="Tamil Nadu">Tamil Nadu</option>
               <option value="Karnataka">Karnataka</option>
@@ -233,9 +235,9 @@ export const SchemeExplorerPage: React.FC = () => {
       {filteredSchemes.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
           <Layers className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="font-bold text-base text-slate-800">No matching schemes found</h3>
+          <h3 className="font-bold text-base text-slate-800">{t('No matching schemes found')}</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Try broadening your interest rate cap or removing category filters.
+            {t('Try broadening your interest rate cap or removing category filters.')}
           </p>
           <button
             onClick={() => {
@@ -247,7 +249,7 @@ export const SchemeExplorerPage: React.FC = () => {
             }}
             className="px-4 py-2 text-xs font-bold text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
           >
-            Reset All Filters
+            {t('Reset All Filters')}
           </button>
         </div>
       ) : (
@@ -273,7 +275,7 @@ export const SchemeExplorerPage: React.FC = () => {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs font-bold">{comparedSchemes.length}/3 Schemes Selected</span>
+            <span className="text-xs font-bold">{comparedSchemes.length}/3 {t('Schemes Available')}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -281,12 +283,12 @@ export const SchemeExplorerPage: React.FC = () => {
               onClick={() => setShowCompareModal(true)}
               className="px-3.5 py-1.5 text-xs font-bold text-slate-900 bg-white hover:bg-blue-50 rounded-xl transition-colors"
             >
-              Compare Now
+              {t('Compare Now')}
             </button>
             <button
               onClick={() => setComparedSchemes([])}
               className="p-1.5 text-slate-400 hover:text-white rounded-lg"
-              title="Clear selection"
+              title={t('Clear')}
             >
               <X className="w-4 h-4" />
             </button>

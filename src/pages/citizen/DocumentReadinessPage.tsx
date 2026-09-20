@@ -16,11 +16,13 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { evaluateDocumentReadiness } from '../../services/documentService';
+import { useLanguage } from '../../context/LanguageContext';
 import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const DocumentReadinessPage: React.FC = () => {
   const { user, uploadUserDocument, updateUserProfile } = useAuth();
   const { schemes, activeScheme, setActiveSchemeId } = useAppData();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [selectedSchemeId, setSelectedSchemeId] = useState(activeScheme?.id || 'SCH-MCR-001');
@@ -61,12 +63,12 @@ export const DocumentReadinessPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Application Readiness & Document Engine
+              {t('Prepare Documents')}
             </h1>
             <DemoBadge />
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Dynamic document checklist tailored to your selected government scheme. Upload files for instant AI completeness verification.
+            {t('AI readiness checklist tailored to your target scheme.')}
           </p>
         </div>
 

@@ -14,6 +14,8 @@ export interface UserProfile {
   name: string;
   email: string;
   mobile: string;
+  password?: string;
+  createdAt?: string;
   age: number;
   gender: 'Female' | 'Male' | 'Other' | 'Prefer not to say';
   category?: 'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS';
@@ -38,5 +40,4 @@ export interface UserProfile {
   longitude?: number;
   role: 'citizen' | 'admin';
   uploadedDocuments: UploadedDocument[];
-  isDemo?: boolean;
 }

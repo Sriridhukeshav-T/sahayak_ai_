@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, User, Mail, Phone, Lock, MapPin, Globe } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const SignupPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -31,18 +30,25 @@ export const SignupPage: React.FC = () => {
       return;
     }
 
-    signup({
+    const res = signup({
       name: formData.name,
       email: formData.email,
       mobile: formData.mobile,
+      password: formData.password,
       state: formData.state,
       district: formData.district,
       preferredLanguage: formData.preferredLanguage
     });
 
+    if (!res.success) {
+      setError(res.message || 'Registration failed. Please try again.');
+      return;
+    }
+
     // After signup, direct to onboarding wizard
     navigate('/onboarding');
   };
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6">

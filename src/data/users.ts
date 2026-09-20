@@ -29,7 +29,6 @@ export const DEMO_PERSONAS: Record<string, UserProfile> = {
     latitude: 10.7867,
     longitude: 76.6548,
     role: 'citizen',
-    isDemo: true,
     uploadedDocuments: [
       {
         id: 'DOC-ANJ-01',
@@ -101,7 +100,6 @@ export const DEMO_PERSONAS: Record<string, UserProfile> = {
     latitude: 10.7870,
     longitude: 79.1378,
     role: 'citizen',
-    isDemo: true,
     uploadedDocuments: [
       {
         id: 'DOC-RAM-01',
@@ -163,7 +161,6 @@ export const DEMO_PERSONAS: Record<string, UserProfile> = {
     latitude: 12.3168,
     longitude: 76.6215,
     role: 'citizen',
-    isDemo: true,
     uploadedDocuments: [
       {
         id: 'DOC-PRI-01',

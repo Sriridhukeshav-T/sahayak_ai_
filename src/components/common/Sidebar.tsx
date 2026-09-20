@@ -16,7 +16,8 @@ import {
   Briefcase,
   HelpCircle,
   PiggyBank,
-  CheckCircle2
+  CheckCircle2,
+  Database
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -52,10 +53,11 @@ export const Sidebar: React.FC = () => {
   ];
 
   const adminNav = [
-    { to: '/admin', label: 'Overview & Analytics', icon: BarChart3 },
-    { to: '/admin/schemes', label: 'Scheme Management', icon: Layers },
-    { to: '/admin/partners', label: 'Partner Management', icon: Building2 },
-    { to: '/admin/applications', label: 'Applications Oversight', icon: Briefcase }
+    { to: '/admin', label: t('Overview & Analytics'), icon: BarChart3 },
+    { to: '/admin/schemes', label: t('Scheme Management'), icon: Layers },
+    { to: '/admin/partners', label: t('Partner Management'), icon: Building2 },
+    { to: '/admin/applications', label: t('Applications Oversight'), icon: Briefcase },
+    { to: '/admin/database', label: t('Database & Storage'), icon: Database }
   ];
 
   return (
@@ -65,12 +67,13 @@ export const Sidebar: React.FC = () => {
         {/* Active View Label */}
         <div className="px-3 py-1.5 flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            {userRole === 'admin' ? 'Administrative Suite' : 'Applicant Portal'}
+            {userRole === 'admin' ? t('Administrative Suite') : t('Applicant Portal')}
           </span>
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${userRole === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
-            {userRole === 'admin' ? 'Admin' : 'Citizen'}
+            {userRole === 'admin' ? t('Administrator') : t('Citizen Applicant')}
           </span>
         </div>
+
 
         {/* Navigation links */}
         <nav className="space-y-1">

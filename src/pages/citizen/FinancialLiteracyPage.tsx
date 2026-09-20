@@ -13,9 +13,11 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { LITERACY_ARTICLES, FINANCIAL_QUIZ_QUESTIONS, LiteracyArticle } from '../../data/literacy';
+import { useLanguage } from '../../context/LanguageContext';
 import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const FinancialLiteracyPage: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedArticle, setSelectedArticle] = useState<LiteracyArticle | null>(null);
 
   // Quiz State
@@ -52,15 +54,15 @@ export const FinancialLiteracyPage: React.FC = () => {
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <div className="flex items-center justify-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-            Financial Literacy & Capacity Building
+            {t('Learn Before Borrowing')}
           </span>
           <DemoBadge />
         </div>
         <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Learn Before You Borrow
+          {t('Learn Before Borrowing')}
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-          Master the fundamentals of institutional credit, reducing-balance interest, moratoriums, and protect your enterprise from debt distress.
+          {t('Understand reducing interest, moratorium, and test your knowledge.')}
         </p>
       </div>
 
