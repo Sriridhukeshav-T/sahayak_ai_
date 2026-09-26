@@ -1,168 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
-  Send,
-  Edit3,
+  ShieldCheck,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
-  Layers,
-  Calculator,
-  RefreshCw,
-  Sliders,
-  HelpCircle,
-  Bot
+  ArrowLeft,
+  FileText,
+  RotateCcw,
+  Building2,
+  Check,
+  X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { extractGoalFromNaturalLanguage, ExtractedGoalTokens } from '../../services/naturalLanguageService';
 import { rankSchemesForUser } from '../../services/schemeMatcherService';
-import { VoiceInputButton } from '../../components/ai/VoiceInputButton';
+import { evaluateStructuredEligibility, SchemeEligibilityEvaluation } from '../../services/structuredEligibilityEngine';
 import { SchemeCard } from '../../components/schemes/SchemeCard';
-import { ExplainableModal } from '../../components/schemes/ExplainableModal';
 import { SchemeCompareModal } from '../../components/schemes/SchemeCompareModal';
 import { Scheme } from '../../types/scheme';
-import { MatchBreakdown } from '../../types/common';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const FindMySchemePage: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
   const { schemes, partners } = useAppData();
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
 
-  const [inputMode, setInputMode] = useState<'text' | 'form'>('text');
-  
-  const getDefaultPrompt = (lang: string) => {
-    switch (lang) {
-      case 'hi':
-        return 'मैं सिलाई और बुटीक की छोटी दुकान शुरू करना चाहती हूँ। मुझे ₹1.2 लाख ऋण चाहिए और पारिवारिक आय ₹3.2 लाख है।';
-      case 'ta':
-        return 'நான் ஒரு சிறிய தையல் கடை தொடங்க விரும்புகிறேன். எனக்கு ₹1.2 லட்சம் கடன் தேவை, எனது குடும்ப ஆண்டு வருமானம் ₹3.2 லட்சம்.';
-      case 'ml':
-        return 'എനിക്ക് ഒരു ചെറിയ തയ്യൽ കട തുടങ്ങാൻ ആഗ്രഹമുണ്ട്. ₹1.2 ലക്ഷം വായ്പ ആവശ്യമുണ്ട്, കുടുംബ വാർഷിക വരുമാനം ₹3.2 ലക്ഷമാണ്.';
-      default:
-        return 'I want to start a small tailoring shop. I need ₹1.2 lakh and my annual family income is ₹3.2 lakh.';
-    }
-  };
+  // 3-step sequence: 1 = About You, 2 = Circumstances, 3 = Results
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
-  const [naturalText, setNaturalText] = useState(() => getDefaultPrompt(language));
-
-  // Sync sample text if user hasn't edited yet
-  useEffect(() => {
-    setNaturalText(getDefaultPrompt(language));
-  }, [language]);
-
-  // Guided Form state
-  const [formState, setFormState] = useState({
-    projectType: user.projectType || 'Tailoring',
-    goal: user.goal || 'Start a business',
-    loanRequirement: user.loanRequirement || 120000,
-    income: user.income || 320000,
-    state: user.state || 'Kerala',
-    district: user.district || 'Palakkad'
+  // Form State
+  const [formData, setFormData] = useState({
+    projectType: user.projectType || 'Micro Manufacturing / Tailoring',
+    state: user.state || 'Tamil Nadu',
+    district: user.district || 'Chennai',
+    age: user.age || 28,
+    category: user.category || 'General',
+    income: user.income || 300000,
+    loanRequirement: user.loanRequirement || 200000,
+    educationStatus: user.educationStatus || '10th Pass',
+    hasDefault: false,
+    ownsLand: false
   });
 
-  // Processing state machine
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStage, setProcessingStage] = useState(0);
-  const processingMessages = [
-    t('understandingGoal'),
-    t('analyzingProfile'),
-    t('matchingSchemes'),
-    t('findingPartners')
-  ];
-
-  // Extracted tokens & Match Results
-  const [extractedTokens, setExtractedTokens] = useState<ExtractedGoalTokens | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [explainScheme, setExplainScheme] = useState<{ scheme: Scheme; match: MatchBreakdown } | null>(null);
   const [comparedSchemes, setComparedSchemes] = useState<Scheme[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
 
-  // Handle Natural Language or Voice Submission
-  const handleProcessGoal = (inputTextToParse?: string) => {
-    const textToUse = inputTextToParse || naturalText;
-    if (!textToUse.trim()) return;
-
-    setIsProcessing(true);
-    setProcessingStage(0);
-
-    // Progressive 4-stage AI loader
-    setTimeout(() => setProcessingStage(1), 450);
-    setTimeout(() => setProcessingStage(2), 900);
-    setTimeout(() => setProcessingStage(3), 1350);
-
-    setTimeout(() => {
-      const tokens = extractGoalFromNaturalLanguage(textToUse);
-      setExtractedTokens(tokens);
-
-      // Update current user profile with extracted parameters
-      updateUserProfile({
-        projectType: tokens.projectType,
-        goal: tokens.purpose,
-        loanRequirement: tokens.loanRequirement,
-        projectCost: tokens.projectCost,
-        income: tokens.income
-      });
-
-      setIsProcessing(false);
-      setHasSearched(true);
-    }, 1800);
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
-    setProcessingStage(0);
-
-    setTimeout(() => setProcessingStage(1), 400);
-    setTimeout(() => setProcessingStage(2), 800);
-    setTimeout(() => setProcessingStage(3), 1200);
-
-    setTimeout(() => {
-      updateUserProfile({
-        projectType: formState.projectType,
-        goal: formState.goal,
-        loanRequirement: Number(formState.loanRequirement),
-        projectCost: Math.round(Number(formState.loanRequirement) * 1.25),
-        income: Number(formState.income),
-        state: formState.state,
-        district: formState.district
-      });
-
-      setExtractedTokens({
-        rawInput: 'Guided form entry',
-        projectType: formState.projectType,
-        purpose: formState.goal,
-        loanRequirement: Number(formState.loanRequirement),
-        projectCost: Math.round(Number(formState.loanRequirement) * 1.25),
-        income: Number(formState.income),
-        confidenceScore: 99,
-        extractedFields: [
-          { label: 'Project Type', value: formState.projectType, key: 'projectType' },
-          { label: 'Primary Goal', value: formState.goal, key: 'purpose' },
-          { label: 'Loan Requirement', value: `₹${Number(formState.loanRequirement).toLocaleString('en-IN')}`, key: 'loanRequirement' },
-          { label: 'Estimated Project Cost', value: `₹${Math.round(Number(formState.loanRequirement) * 1.25).toLocaleString('en-IN')}`, key: 'projectCost' },
-          { label: 'Annual Income', value: `₹${Number(formState.income).toLocaleString('en-IN')}`, key: 'income' }
-        ]
-      });
-
-      setIsProcessing(false);
-      setHasSearched(true);
-    }, 1600);
+    updateUserProfile({
+      projectType: formData.projectType,
+      state: formData.state,
+      district: formData.district,
+      age: Number(formData.age),
+      category: formData.category as any
+    });
+    setCurrentStep(2);
   };
 
-  // Rank schemes dynamically
-  const rankedSchemes = rankSchemesForUser(user, schemes, partners);
-  const topSchemes = rankedSchemes.slice(0, 3);
+  const handleStep2Submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateUserProfile({
+      income: Number(formData.income),
+      loanRequirement: Number(formData.loanRequirement),
+      projectCost: Math.round(Number(formData.loanRequirement) * 1.25),
+      educationStatus: formData.educationStatus as any
+    });
+    setCurrentStep(3);
+  };
+
+  // Evaluate the primary target scheme (e.g. PMEGP or first scheme)
+  const targetScheme = schemes.find(s => s.id === 'SCH-PMEGP-001') || schemes[0];
+  const targetEvaluation: SchemeEligibilityEvaluation | null = targetScheme
+    ? evaluateStructuredEligibility(
+        {
+          ...user,
+          age: Number(formData.age),
+          state: formData.state,
+          district: formData.district,
+          income: Number(formData.income),
+          projectType: formData.projectType,
+          educationStatus: formData.educationStatus as any,
+          category: formData.category as any
+        },
+        targetScheme
+      )
+    : null;
+
+  // Ranked recommended schemes
+  const rankedSchemes = rankSchemesForUser(
+    {
+      ...user,
+      age: Number(formData.age),
+      state: formData.state,
+      district: formData.district,
+      income: Number(formData.income),
+      projectType: formData.projectType,
+      educationStatus: formData.educationStatus as any,
+      category: formData.category as any
+    },
+    schemes,
+    partners
+  );
 
   const handleToggleCompare = (scheme: Scheme) => {
     if (comparedSchemes.find(s => s.id === scheme.id)) {
       setComparedSchemes(comparedSchemes.filter(s => s.id !== scheme.id));
     } else {
       if (comparedSchemes.length >= 3) {
-        alert('You can compare a maximum of 3 schemes simultaneously.');
+        alert('You can compare a maximum of 3 schemes.');
         return;
       }
       const updated = [...comparedSchemes, scheme];
@@ -172,308 +119,339 @@ export const FindMySchemePage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-6xl mx-auto">
-      
-      {/* Header Title */}
-      <div className="text-center max-w-3xl mx-auto space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-            {t('findMyScheme')}
-          </span>
-          <DemoBadge />
-        </div>
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          {t('whatAreYouAchieving')}
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-xl mx-auto">
-          {t('goalSubtitle')}
-        </p>
-      </div>
-
-      {/* Input Methods Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+    <div className="bg-[#F8FAFC] min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* Toggle between Natural Language & Guided Form */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
-            <button
-              onClick={() => setInputMode('text')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                inputMode === 'text' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {t('freeTextTab')}
-            </button>
-            <button
-              onClick={() => setInputMode('form')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                inputMode === 'form' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {t('guidedFormTab')}
-            </button>
-          </div>
-
-          <span className="text-xs text-slate-400 font-medium hidden sm:inline">
-            {t('Zero financial jargon required')}
+        {/* Page Header */}
+        <div className="border-b border-slate-200 pb-5 space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Eligibility Assessment
           </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Check your eligibility
+          </h1>
+          <p className="text-xs text-slate-600 max-w-xl">
+            Answer a few questions about yourself and your activity to evaluate your eligibility against verified Government of India scheme criteria.
+          </p>
         </div>
 
-        {/* MODE 1: NATURAL LANGUAGE & VOICE */}
-        {inputMode === 'text' && (
-          <div className="space-y-4 animate-in fade-in">
-            <div className="relative">
-              <textarea
-                rows={3}
-                value={naturalText}
-                onChange={e => setNaturalText(e.target.value)}
-                placeholder={t('typePrompt')}
-                className="w-full p-4 text-sm bg-slate-50/70 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white text-slate-800 leading-relaxed resize-none transition-all"
-              />
-            </div>
-
-            {/* Quick Actions Bar below input */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <VoiceInputButton
-                  onTranscript={transcript => {
-                    setNaturalText(transcript);
-                    handleProcessGoal(transcript);
-                  }}
-                />
-
-                {/* Localized Example Prompts */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const sample = language === 'hi'
-                      ? 'मुझे कृषि उपकरण के लिए ₹6 लाख का ऋण चाहिए, आय ₹4.2 लाख है।'
-                      : language === 'ta'
-                      ? 'விவசாய உபகரணங்களுக்காக ₹6 லட்சம் கடன் தேவை, குடும்ப வருமானம் ₹4.2 லட்சம்.'
-                      : language === 'ml'
-                      ? 'കാർഷിക ഉപകരണങ്ങൾക്ക് ₹6 ലക്ഷം വായ്പ വേണം, വാർഷിക വരുമാനം ₹4.2 ലക്ഷമാണ്.'
-                      : 'I want to purchase agricultural equipment. I need ₹6 lakh loan and income is ₹4.2 lakh.';
-                    setNaturalText(sample);
-                  }}
-                  className="hidden sm:inline-block px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-                >
-                  Agri (₹6L)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const sample = language === 'hi'
-                      ? 'एम.टेक उच्च शिक्षा के लिए ₹6 लाख का शिक्षा ऋण चाहिए, पारिवारिक आय ₹2.8 लाख है।'
-                      : language === 'ta'
-                      ? 'உயர்கல்விக்காக ₹6 லட்சம் கல்விக்கடன் தேவை, வருமானம் ₹2.8 லட்சம்.'
-                      : language === 'ml'
-                      ? 'ഉപരിപഠനത്തിനായി ₹6 ലക്ഷം വിദ്യാഭ്യാസ വായ്പ ആവശ്യമുണ്ട്, വരുമാനം ₹2.8 ലക്ഷമാണ്.'
-                      : 'I need an education loan of ₹6 lakh for M.Tech. Annual family income is ₹2.8 lakh.';
-                    setNaturalText(sample);
-                  }}
-                  className="hidden lg:inline-block px-2.5 py-1.5 text-[11px] font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-                >
-                  Higher Edu (₹6L)
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleProcessGoal()}
-                disabled={isProcessing || !naturalText.trim()}
-                className="px-6 py-2.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 rounded-xl transition-all shadow-md shadow-blue-700/20 flex items-center gap-2"
+        {/* Restrained Step Indicator */}
+        <div className="grid grid-cols-3 gap-2 text-xs border-b border-slate-200 pb-4">
+          {[
+            { num: '01', title: 'About you', step: 1 },
+            { num: '02', title: 'Your circumstances', step: 2 },
+            { num: '03', title: 'Eligibility result', step: 3 }
+          ].map(s => {
+            const isCurrent = currentStep === s.step;
+            const isCompleted = currentStep > s.step;
+            return (
+              <div
+                key={s.step}
+                className={`p-2.5 rounded border transition-colors ${
+                  isCurrent
+                    ? 'bg-white border-[#065F46] text-[#065F46]'
+                    : isCompleted
+                    ? 'bg-emerald-50/50 border-emerald-200 text-[#065F46]'
+                    : 'bg-slate-50 border-slate-200 text-slate-400'
+                }`}
               >
-                <Sparkles className="w-4 h-4 text-blue-200" />
-                <span>{t('generateAiMatch')}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+                <span className="font-mono text-[10px] font-bold block">{s.num}</span>
+                <span className="font-semibold text-xs text-slate-800 block">{s.title}</span>
+              </div>
+            );
+          })}
+        </div>
 
-        {/* MODE 2: GUIDED FORM */}
-        {inputMode === 'form' && (
-          <form onSubmit={handleFormSubmit} className="space-y-4 animate-in fade-in">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* STEP 1: ABOUT YOU */}
+        {currentStep === 1 && (
+          <form onSubmit={handleStep1Submit} className="bg-white rounded-lg border border-slate-200 p-6 sm:p-8 space-y-6">
+            <div className="border-b border-slate-100 pb-3">
+              <h2 className="text-sm font-bold text-slate-900">01. Citizen & Location Information</h2>
+              <p className="text-xs text-slate-500">Provide your basic profile details for regional scheme mapping.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Project Trade / Activity')}</label>
+                <label className="block font-semibold text-slate-700 mb-1">Trade / Sector of Activity *</label>
                 <input
                   type="text"
                   required
-                  value={formState.projectType}
-                  onChange={e => setFormState({ ...formState, projectType: e.target.value })}
-                  placeholder="e.g. Tailoring, Dairy, Pottery, Common Service Center"
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                  value={formData.projectType}
+                  onChange={e => setFormData({ ...formData, projectType: e.target.value })}
+                  placeholder="e.g. Tailoring, Dairy, Pottery, Handloom, Trading"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Desired Loan Amount (₹)')}</label>
+                <label className="block font-semibold text-slate-700 mb-1">Applicant Age (Years) *</label>
                 <input
                   type="number"
+                  min={16}
+                  max={85}
                   required
-                  value={formState.loanRequirement}
-                  onChange={e => setFormState({ ...formState, loanRequirement: Number(e.target.value) })}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                  value={formData.age}
+                  onChange={e => setFormData({ ...formData, age: Number(e.target.value) })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Annual Household Income (₹)')}</label>
+                <label className="block font-semibold text-slate-700 mb-1">State / Union Territory *</label>
+                <select
+                  value={formData.state}
+                  onChange={e => setFormData({ ...formData, state: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
+                >
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">District / Town *</label>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  value={formState.income}
-                  onChange={e => setFormState({ ...formState, income: Number(e.target.value) })}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                  value={formData.district}
+                  onChange={e => setFormData({ ...formData, district: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">{t('State & District')}</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={formState.state}
-                    onChange={e => setFormState({ ...formState, state: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
-                  />
-                  <input
-                    type="text"
-                    value={formState.district}
-                    onChange={e => setFormState({ ...formState, district: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
-                  />
-                </div>
               </div>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="pt-4 border-t border-slate-100 flex justify-end">
               <button
                 type="submit"
-                disabled={isProcessing}
-                className="px-6 py-2.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 rounded-xl transition-all shadow-md flex items-center gap-2"
+                className="px-5 py-2.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs flex items-center gap-1.5"
               >
-                <Sparkles className="w-4 h-4 text-blue-200" />
-                <span>{t('Match Suitable Schemes')}</span>
+                <span>Continue to Circumstances</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </form>
         )}
 
-      </div>
-
-      {/* AI Processing Animation Stage Overlay */}
-      {isProcessing && (
-        <div className="p-8 rounded-3xl bg-white border border-blue-200 shadow-xl text-center space-y-4 animate-in fade-in">
-          <div className="w-16 h-16 rounded-3xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto text-blue-700 relative">
-            <Sparkles className="w-8 h-8 animate-spin text-blue-600" />
-          </div>
-
-          <div className="space-y-1">
-            <h3 className="text-base font-bold text-slate-900 animate-pulse">
-              {processingMessages[processingStage]}
-            </h3>
-            <p className="text-xs text-slate-400">
-              Evaluating 50+ central and state schemes against 5-factor compatibility criteria
-            </p>
-          </div>
-
-          <div className="max-w-xs mx-auto w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-600 rounded-full transition-all duration-300"
-              style={{ width: `${((processingStage + 1) / 4) * 100}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Extracted Tokens Feedback Panel */}
-      {!isProcessing && extractedTokens && (
-        <div className="bg-slate-100/80 rounded-2xl p-4 border border-slate-200 space-y-2 animate-in fade-in">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <Bot className="w-4 h-4 text-blue-600" />
-              <span>{t('AI Extracted Parameters')} ({extractedTokens.confidenceScore}% parser confidence)</span>
-            </span>
-            <span className="text-[11px] text-slate-500">{t('Auto-mapped into matching engine')}</span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pt-1">
-            {extractedTokens.extractedFields.map((f, i) => (
-              <div
-                key={i}
-                className="bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs text-xs flex items-center gap-1.5"
-              >
-                <span className="text-slate-400 font-medium">{t(f.label) || f.label}:</span>
-                <span className="font-bold text-blue-900">{t(f.value) || f.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Results Header & Recommendations Grid */}
-      {!isProcessing && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-slate-900">
-                  {t('Top 3 Recommended Schemes')}
-                </h2>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  {t('Dynamic Scores')}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">
-                {t('Scores dynamically computed using multi-factor income, loan limit, and local partner presence.')}
-              </p>
+        {/* STEP 2: YOUR CIRCUMSTANCES */}
+        {currentStep === 2 && (
+          <form onSubmit={handleStep2Submit} className="bg-white rounded-lg border border-slate-200 p-6 sm:p-8 space-y-6">
+            <div className="border-b border-slate-100 pb-3">
+              <h2 className="text-sm font-bold text-slate-900">02. Financial & Household Circumstances</h2>
+              <p className="text-xs text-slate-500">Government schemes use income slabs and loan caps to determine subsidy brackets.</p>
             </div>
 
-            {comparedSchemes.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Annual Household Income (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  value={formData.income}
+                  onChange={e => setFormData({ ...formData, income: Number(e.target.value) })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Required Loan / Assistance Amount (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  value={formData.loanRequirement}
+                  onChange={e => setFormData({ ...formData, loanRequirement: Number(e.target.value) })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Highest Educational Level</label>
+                <select
+                  value={formData.educationStatus}
+                  onChange={e => setFormData({ ...formData, educationStatus: e.target.value as any })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
+                >
+                  <option value="Below 10th">Below 10th Standard</option>
+                  <option value="10th Pass">10th Pass (SSLC)</option>
+                  <option value="12th Pass">12th Pass (Higher Secondary)</option>
+                  <option value="Graduate">Graduate / Diploma</option>
+                  <option value="Post Graduate">Post Graduate</option>
+                  <option value="Vocational/ITI">Vocational / ITI</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Banking Default History</label>
+                <select
+                  value={formData.hasDefault ? 'yes' : 'no'}
+                  onChange={e => setFormData({ ...formData, hasDefault: e.target.value === 'yes' })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
+                >
+                  <option value="no">No past defaults with banking institutions</option>
+                  <option value="yes">Has unresolved past default</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <button
-                onClick={() => setShowCompareModal(true)}
-                className="px-4 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 transition-colors"
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="px-4 py-2 text-slate-600 hover:text-slate-900 text-xs font-semibold flex items-center gap-1"
               >
-                {t('Compare Selected')} ({comparedSchemes.length}/3)
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back</span>
               </button>
-            )}
+
+              <button
+                type="submit"
+                className="px-5 py-2.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs flex items-center gap-1.5"
+              >
+                <span>Calculate Eligibility Result</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* STEP 3: ELIGIBILITY RESULT — EVIDENCE FIRST */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            
+            {/* Status Banner */}
+            <div className={`p-5 rounded-lg border flex items-start gap-3.5 ${
+              targetEvaluation?.result === 'ELIGIBLE'
+                ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950'
+                : targetEvaluation?.result === 'POTENTIALLY_ELIGIBLE'
+                ? 'bg-amber-50/80 border-amber-300 text-amber-950'
+                : 'bg-rose-50/80 border-rose-300 text-rose-950'
+            }`}>
+              <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider block">
+                  Eligibility Evaluation Result
+                </span>
+                <h3 className="text-base sm:text-lg font-bold leading-tight">
+                  {targetEvaluation?.result === 'ELIGIBLE'
+                    ? 'You appear eligible based on your entered profile'
+                    : targetEvaluation?.result === 'POTENTIALLY_ELIGIBLE'
+                    ? 'More information is required to confirm full eligibility'
+                    : 'You do not meet one or more mandatory requirements'}
+                </h3>
+                <p className="text-xs leading-relaxed max-w-2xl opacity-90">
+                  {targetEvaluation?.result === 'ELIGIBLE'
+                    ? 'All mandatory conditions evaluated against official guidelines passed. You may proceed to prepare documentation for official submission.'
+                    : targetEvaluation?.result === 'POTENTIALLY_ELIGIBLE'
+                    ? 'Evaluated criteria pass, but certain scheme rules require supporting documents (e.g. land records or category certificates).'
+                    : 'One or more non-negotiable rules were not satisfied. Review the table below for exact statutory criteria.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Requirements Checked Evidence Table */}
+            <div className="bg-white rounded-lg border border-slate-200 p-5 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Requirements Checked ({targetScheme.officialName})
+                  </h4>
+                  <p className="text-[11px] text-slate-500">Evaluated deterministically against official scheme rules</p>
+                </div>
+                <button
+                  onClick={() => setCurrentStep(1)}
+                  className="text-xs text-[#065F46] hover:underline font-semibold flex items-center gap-1"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Edit Profile</span>
+                </button>
+              </div>
+
+              {targetEvaluation && (
+                <div className="overflow-x-auto border border-slate-200 rounded">
+                  <table className="civic-table">
+                    <thead>
+                      <tr>
+                        <th>Requirement</th>
+                        <th>Your Information</th>
+                        <th>Result</th>
+                        <th>Detailed Assessment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {targetEvaluation.ruleEvaluations.map((ev, i) => (
+                        <tr key={i}>
+                          <td className="font-semibold text-slate-900 max-w-xs">{ev.rule.label || ev.rule.field}</td>
+                          <td className="font-mono text-slate-700">
+                            {ev.actualValue !== null && ev.actualValue !== undefined ? String(ev.actualValue) : 'Not specified'}
+                          </td>
+                          <td>
+                            <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded ${
+                              ev.passed
+                                ? 'bg-emerald-50 text-emerald-800'
+                                : ev.missingData
+                                ? 'bg-amber-50 text-amber-800'
+                                : 'bg-rose-50 text-rose-800'
+                            }`}>
+                              {ev.passed ? 'Satisfied' : ev.missingData ? 'Info Required' : 'Not Satisfied'}
+                            </span>
+                          </td>
+                          <td className="text-slate-600 text-xs">{ev.reason}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Recommended Schemes */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Recommended Schemes for Your Circumstances</h3>
+                  <p className="text-xs text-slate-500">Ranked by category compatibility and financial limits</p>
+                </div>
+                {comparedSchemes.length > 0 && (
+                  <button
+                    onClick={() => setShowCompareModal(true)}
+                    className="px-3 py-1 bg-slate-900 text-white rounded text-xs font-semibold"
+                  >
+                    Compare Selected ({comparedSchemes.length}/3)
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {rankedSchemes.slice(0, 4).map(({ scheme, match }) => (
+                  <SchemeCard
+                    key={scheme.id}
+                    scheme={scheme}
+                    match={match}
+                    onSelectForCompare={handleToggleCompare}
+                    isCompared={Boolean(comparedSchemes.find(s => s.id === scheme.id))}
+                  />
+                ))}
+              </div>
+            </div>
+
           </div>
+        )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {topSchemes.map(({ scheme, match }) => (
-              <SchemeCard
-                key={scheme.id}
-                scheme={scheme}
-                match={match}
-                onOpenExplain={(s, m) => setExplainScheme({ scheme: s, match: m })}
-                onSelectForCompare={handleToggleCompare}
-                isCompared={Boolean(comparedSchemes.find(c => c.id === scheme.id))}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
 
-      {/* Explainable Modal */}
-      {explainScheme && (
-        <ExplainableModal
-          scheme={explainScheme.scheme}
-          match={explainScheme.match}
-          onClose={() => setExplainScheme(null)}
-        />
-      )}
-
-      {/* Scheme Comparison Modal */}
+      {/* Compare Modal */}
       {showCompareModal && (
         <SchemeCompareModal
           schemes={comparedSchemes}
           onClose={() => setShowCompareModal(false)}
-          onRemoveScheme={id => setComparedSchemes(comparedSchemes.filter(s => s.id !== id))}
+          onRemoveScheme={id => setComparedSchemes(prev => prev.filter(s => s.id !== id))}
         />
       )}
-
     </div>
   );
 };
+
+export default FindMySchemePage;

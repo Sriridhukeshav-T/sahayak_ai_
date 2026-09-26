@@ -178,25 +178,25 @@ export const AdminDatabasePage: React.FC = () => {
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-md shadow-2xl text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Header & Quick Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-700 text-white flex items-center justify-center shadow-sm">
-              <Database className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-sm bg-slate-900 text-white flex items-center justify-center shadow-xs">
+              <Database className="w-4 h-4" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
                 Database & Backend Storage
               </h1>
-              <p className="text-xs text-slate-500">
-                Inspect, export, and manage persistent browser database tables & real citizen dossiers
+              <p className="text-xs text-slate-600">
+                Inspect, export, and manage persistent database tables & real citizen dossiers
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ export const AdminDatabasePage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleCreateTestApplication}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-800 hover:bg-emerald-900 text-white rounded-md shadow-xs transition-colors"
             title="Create a sample application to test real storage"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -214,7 +214,7 @@ export const AdminDatabasePage: React.FC = () => {
 
           <button
             onClick={handleExportBackup}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-md shadow-xs transition-colors"
             title="Download full database as JSON"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -231,7 +231,7 @@ export const AdminDatabasePage: React.FC = () => {
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-md shadow-xs transition-colors"
             title="Restore database from JSON file"
           >
             <Upload className="w-3.5 h-3.5 text-slate-500" />
@@ -240,7 +240,7 @@ export const AdminDatabasePage: React.FC = () => {
 
           <button
             onClick={handleResetDatabase}
-            className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 rounded-xl transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 rounded-md transition-colors"
             title="Reset database to default seed state"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -250,9 +250,9 @@ export const AdminDatabasePage: React.FC = () => {
       </div>
 
       {/* Real Database Server Status Banner */}
-      <div className={`p-3.5 bg-gradient-to-r ${backendHealth?.mongodbConnected ? 'from-emerald-950 via-teal-900 to-cyan-950 border-emerald-400/40' : 'from-slate-900 via-slate-800 to-teal-950 border-slate-700'} text-white rounded-2xl shadow-sm border flex flex-col sm:flex-row sm:items-center justify-between gap-3`}>
+      <div className={`p-3.5 ${backendHealth?.mongodbConnected ? 'bg-slate-900 border-slate-800' : 'bg-slate-900 border-slate-800'} text-white rounded-lg shadow-xs border flex flex-col sm:flex-row sm:items-center justify-between gap-3`}>
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-md bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
             <HardDrive className="w-4 h-4" />
           </div>
           <div>
@@ -288,61 +288,61 @@ export const AdminDatabasePage: React.FC = () => {
       {/* Database KPI Metrics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-xs font-semibold">Registered Users</span>
-            <Users className="w-4 h-4 text-blue-600" />
+            <Users className="w-4 h-4 text-slate-500" />
           </div>
-          <p className="text-2xl font-black text-slate-900">{stats.usersCount}</p>
-          <span className="text-[10px] text-slate-400">table: sahayak_real_users_v2</span>
+          <p className="text-2xl font-bold font-mono text-slate-900">{stats.usersCount}</p>
+          <span className="text-[10px] text-slate-500 font-mono">table: sahayak_real_users_v2</span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-xs font-semibold">Applications</span>
-            <Briefcase className="w-4 h-4 text-emerald-600" />
+            <Briefcase className="w-4 h-4 text-emerald-800" />
           </div>
-          <p className="text-2xl font-black text-slate-900">{stats.applicationsCount}</p>
-          <span className="text-[10px] text-slate-400">table: sahayak_real_applications_v2</span>
+          <p className="text-2xl font-bold font-mono text-slate-900">{stats.applicationsCount}</p>
+          <span className="text-[10px] text-slate-500 font-mono">table: sahayak_real_applications_v2</span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-xs font-semibold">Active Schemes</span>
-            <Layers className="w-4 h-4 text-purple-600" />
+            <Layers className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-black text-slate-900">{stats.schemesCount}</p>
-          <span className="text-[10px] text-slate-400">table: sahayak_real_schemes_v2</span>
+          <p className="text-2xl font-bold font-mono text-slate-900">{stats.schemesCount}</p>
+          <span className="text-[10px] text-slate-500 font-mono">table: sahayak_real_schemes_v2</span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-xs font-semibold">Channel Partners</span>
-            <Building2 className="w-4 h-4 text-amber-600" />
+            <Building2 className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-black text-slate-900">{stats.partnersCount}</p>
-          <span className="text-[10px] text-slate-400">table: sahayak_real_partners_v2</span>
+          <p className="text-2xl font-bold font-mono text-slate-900">{stats.partnersCount}</p>
+          <span className="text-[10px] text-slate-500 font-mono">table: sahayak_real_partners_v2</span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs col-span-2 sm:col-span-1">
+        <div className="bg-white p-4 rounded-md border border-slate-200 shadow-xs col-span-2 sm:col-span-1">
           <div className="flex items-center justify-between text-slate-500 mb-1">
             <span className="text-xs font-semibold">Storage Used</span>
-            <HardDrive className="w-4 h-4 text-teal-600" />
+            <HardDrive className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-black text-slate-900">{stats.storageSizeKb} <span className="text-xs font-medium text-slate-500">KB</span></p>
-          <span className="text-[10px] text-emerald-600 font-medium">Persistent LocalStorage</span>
+          <p className="text-2xl font-bold font-mono text-slate-900">{stats.storageSizeKb} <span className="text-xs font-medium text-slate-500">KB</span></p>
+          <span className="text-[10px] text-emerald-800 font-medium">Persistent Storage</span>
         </div>
       </div>
 
       {/* Table Selector & Search */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
           
           {/* Table Tab Buttons */}
-          <div className="flex items-center gap-1.5 bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
+          <div className="flex items-center gap-1.5 bg-slate-200/80 p-1 rounded-md text-xs font-semibold">
             <button
               onClick={() => { setActiveTab('applications'); setSearchTerm(''); }}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-1.5 rounded-sm transition-all ${
                 activeTab === 'applications' ? 'bg-white text-blue-700 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -381,7 +381,7 @@ export const AdminDatabasePage: React.FC = () => {
               placeholder={`Search ${activeTab}...`}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700"
             />
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
           </div>
@@ -613,7 +613,7 @@ export const AdminDatabasePage: React.FC = () => {
       {/* JSON Inspection Modal */}
       {inspectItem && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+          <div className="bg-white w-full max-w-2xl rounded-lg shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
             <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2">
                 <FileCode className="w-4 h-4 text-blue-600" />

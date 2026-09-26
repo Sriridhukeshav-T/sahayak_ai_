@@ -75,6 +75,38 @@
   ],
   "applications": [
     {
+      "id": "APP-2026-901",
+      "userId": "USR-CITIZEN-001",
+      "schemeId": "SCH-PMEGP-001",
+      "schemeName": "Prime Minister’s Employment Generation Programme (PMEGP)",
+      "schemeCategory": "Micro Enterprise",
+      "officialApplicationRefNumber": "APP-2026-901",
+      "status": "APPROVED",
+      "statusOrigin": "USER_REPORTED",
+      "waitingPeriodStart": "2026-09-26T18:27:32.094Z",
+      "expectedDecisionDate": "2026-10-26T18:27:32.095Z",
+      "waitingPeriodStatus": "WAITING_PERIOD",
+      "documents": [
+        {
+          "name": "Aadhaar Card",
+          "status": "Verified"
+        }
+      ],
+      "timeline": [
+        {
+          "status": "SUBMITTED",
+          "title": "Submitted",
+          "description": "User recorded",
+          "timestamp": "2026-09-26T18:27:32.095Z",
+          "completed": true,
+          "statusOrigin": "USER_REPORTED"
+        }
+      ],
+      "createdAt": "2026-09-26T18:27:32.095Z",
+      "submittedAt": "2026-09-26T18:27:32.095Z",
+      "updatedAt": "2026-09-26T18:27:32.102Z"
+    },
+    {
       "id": "SAH-2026-92841",
       "userId": "USR-CITIZEN-001",
       "applicantName": "Sunita Sharma",
@@ -102,7 +134,7 @@
       "expectedDecisionDate": "2026-10-15T00:00:00Z",
       "waitingPeriodStatus": "WAITING_PERIOD",
       "officialApplicationRefNumber": "PMEGP-UP-2026-92841",
-      "officialPortalUrl": "https://www.kviconline.gov.in/pmegpeportal/",
+      "officialPortalUrl": "https://pmegp.msme.gov.in/",
       "submittedAt": "2026-08-22T09:30:00Z",
       "updatedAt": "2026-09-02T14:20:00Z",
       "documents": [
@@ -122,14 +154,14 @@
       "timeline": [
         {
           "status": "SUBMITTED",
-          "title": "Application Recorded in SSahayaka",
+          "title": "Application Recorded in Sahayak AI",
           "description": "Application details recorded as user-reported on platform.",
           "timestamp": "2026-08-22T09:30:00Z",
           "completed": true,
           "statusOrigin": "USER_REPORTED"
         }
       ],
-      "remarks": "Application tracked on official portal kviconline.gov.in."
+      "remarks": "Application tracked on official portal pmegp.msme.gov.in."
     }
   ],
   "schemes": [
@@ -147,7 +179,7 @@
       "description": "Credit-linked subsidy programme to generate self-employment opportunities through establishment of micro-enterprises in non-farm sector.",
       "benefits": {
         "summary": "15% to 35% margin money subsidy on project cost up to ₹50 Lakh for manufacturing and ₹20 Lakh for service units.",
-        "subsidyPercentage": 35,
+        "subsidyPercentage": 40,
         "maxSubsidyAmount": 1750000,
         "minLoanAmount": 50000,
         "maxLoanAmount": 5000000,
@@ -201,7 +233,7 @@
         "EDP Training Certificate (can be completed post-sanction online)"
       ],
       "applicationProcess": [
-        "Submit online application through KVIC official portal (kviconline.gov.in/pmegpeportal)",
+        "Submit online application through official PMEGP e-Portal (pmegp.msme.gov.in)",
         "Application is routed to District Industries Centre (DIC) or KVIC Nodal Agency for primary document verification",
         "District Level Task Force Committee (DLTFC) reviews proposal and forwards to financing bank branch",
         "Financing bank conducts credit appraisal, sanctions loan, and uploads sanction letter on the portal",
@@ -215,10 +247,10 @@
       "processingPeriodDays": null,
       "renewalPeriod": "Not specified in the available official source.",
       "officialWebsite": "https://msme.gov.in",
-      "officialApplicationUrl": "https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp",
-      "sourceUrl": "https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp",
-      "sourceName": "Khadi and Village Industries Commission / Ministry of MSME",
-      "verificationStatus": "VERIFIED",
+      "officialApplicationUrl": "https://pmegp.msme.gov.in/",
+      "sourceUrl": "https://msme.gov.in/our-programmes/prime-ministers-employment-generation-programme-pmegp",
+      "sourceName": "Ministry of Micro, Small & Medium Enterprises / KVIC",
+      "verificationStatus": "NEEDS_REVIEW",
       "schemeStatus": "ONGOING",
       "fieldVerificationStatus": {
         "officialName": true,
@@ -232,8 +264,8 @@
         "applicationDates": false
       },
       "lastVerifiedAt": "2026-09-26T12:00:00Z",
-      "lastUpdatedAt": "2026-09-26T12:00:00Z",
-      "version": "2026.1",
+      "lastUpdatedAt": "2026-09-26T18:27:32.144Z",
+      "version": "2026.2",
       "minIncome": 0,
       "maxIncome": 10000000,
       "minLoan": 50000,
@@ -276,7 +308,7 @@
       "benefits": {
         "summary": "Tranche-based collateral-free loan: 1st tranche up to ₹10,000, 2nd tranche up to ₹20,000, 3rd tranche up to ₹50,000 with 7% interest subsidy.",
         "minLoanAmount": 10000,
-        "maxLoanAmount": 50000,
+        "maxLoanAmount": 100000,
         "interestRateAnnual": 7,
         "interestSubventionPercent": 7,
         "moratoriumMonths": 0,
@@ -335,7 +367,7 @@
       "officialApplicationUrl": "https://pmsvanidhi.mohua.gov.in/",
       "sourceUrl": "https://pmsvanidhi.mohua.gov.in/",
       "sourceName": "Ministry of Housing and Urban Affairs",
-      "verificationStatus": "VERIFIED",
+      "verificationStatus": "NEEDS_REVIEW",
       "schemeStatus": "ONGOING",
       "fieldVerificationStatus": {
         "officialName": true,
@@ -349,8 +381,8 @@
         "applicationDates": false
       },
       "lastVerifiedAt": "2026-09-26T12:00:00Z",
-      "lastUpdatedAt": "2026-09-26T12:00:00Z",
-      "version": "2026.1",
+      "lastUpdatedAt": "2026-09-26T18:27:32.169Z",
+      "version": "2026.2",
       "minIncome": 0,
       "maxIncome": 300000,
       "minLoan": 10000,
@@ -441,10 +473,10 @@
       "processingPeriod": "Not specified in the available official source.",
       "processingPeriodDays": null,
       "renewalPeriod": "Annual review for working capital facilities",
-      "officialWebsite": "https://www.mudra.org.in",
+      "officialWebsite": "https://financialservices.gov.in",
       "officialApplicationUrl": "https://www.udyamimitra.in/",
-      "sourceUrl": "https://www.mudra.org.in/",
-      "sourceName": "Department of Financial Services / MUDRA",
+      "sourceUrl": "https://www.myscheme.gov.in/schemes/pmmy",
+      "sourceName": "Department of Financial Services / PMMY",
       "verificationStatus": "VERIFIED",
       "schemeStatus": "ONGOING",
       "fieldVerificationStatus": {
@@ -666,7 +698,7 @@
       "processingPeriod": "Not specified in the available official source.",
       "processingPeriodDays": null,
       "renewalPeriod": "Periodic eKYC verification",
-      "officialWebsite": "https://agricoop.nic.in",
+      "officialWebsite": "https://agriwelfare.gov.in",
       "officialApplicationUrl": "https://pmkisan.gov.in/RegistrationFormNew.aspx",
       "sourceUrl": "https://pmkisan.gov.in/",
       "sourceName": "Ministry of Agriculture and Farmers Welfare",
@@ -1011,7 +1043,7 @@
       "processingPeriod": "Not specified in the available official source.",
       "processingPeriodDays": null,
       "renewalPeriod": "Annual audit review",
-      "officialWebsite": "https://dahd.nic.in",
+      "officialWebsite": "https://dahd.gov.in",
       "officialApplicationUrl": "https://ahidf.udyamimitra.in/",
       "sourceUrl": "https://ahidf.udyamimitra.in/",
       "sourceName": "Department of Animal Husbandry and Dairying",
@@ -1476,9 +1508,9 @@
       "processingPeriod": "Not specified in the available official source.",
       "processingPeriodDays": null,
       "renewalPeriod": "Not specified in the available official source.",
-      "officialWebsite": "https://diupmsme.upsdc.gov.in",
-      "officialApplicationUrl": "https://diupmsme.upsdc.gov.in/",
-      "sourceUrl": "https://diupmsme.upsdc.gov.in/",
+      "officialWebsite": "https://msme.up.gov.in",
+      "officialApplicationUrl": "https://odopup.in/",
+      "sourceUrl": "https://www.myscheme.gov.in/schemes/odop",
       "sourceName": "Department of MSME & Export Promotion, Government of Uttar Pradesh",
       "verificationStatus": "VERIFIED",
       "schemeStatus": "ONGOING",
@@ -1611,9 +1643,9 @@
       "processingPeriod": "Not specified in the available official source.",
       "processingPeriodDays": null,
       "renewalPeriod": "Not specified in the available official source.",
-      "officialWebsite": "https://diupmsme.upsdc.gov.in",
-      "officialApplicationUrl": "https://diupmsme.upsdc.gov.in/",
-      "sourceUrl": "https://diupmsme.upsdc.gov.in/",
+      "officialWebsite": "https://msme.up.gov.in",
+      "officialApplicationUrl": "https://msme.up.gov.in/",
+      "sourceUrl": "https://www.myscheme.gov.in/schemes/up-mmysy",
       "sourceName": "Directorate of Industries, Government of Uttar Pradesh",
       "verificationStatus": "VERIFIED",
       "schemeStatus": "ONGOING",
@@ -1863,11 +1895,186 @@
       "featured": true,
       "verified": true,
       "sourceType": "verified_reference"
+    },
+    {
+      "id": "SCH-TEST-WINDOW-001",
+      "schemeId": "SCH-TEST-WINDOW-001",
+      "code": "TEST-WINDOW-2026",
+      "name": "Ongoing Mission with Closed Window",
+      "officialName": "Ongoing Mission with Closed Window",
+      "isOngoing": true,
+      "applicationEndDate": "2025-01-01",
+      "schemeExpiryDate": null,
+      "verificationStatus": "VERIFIED",
+      "schemeStatus": "APPLICATION_WINDOW_CLOSED",
+      "lastUpdatedAt": "2026-09-26T18:27:32.176Z"
+    },
+    {
+      "id": "SCH-TEST-DEADLINE-001",
+      "schemeId": "SCH-TEST-DEADLINE-001",
+      "code": "TEST-DEADLINE-2026",
+      "name": "Approaching Deadline Grant",
+      "officialName": "Approaching Deadline Grant",
+      "shortName": "Deadline Grant",
+      "isOngoing": false,
+      "applicationEndDate": "2026-10-01",
+      "verificationStatus": "VERIFIED",
+      "schemeStatus": "CLOSING_SOON",
+      "lastUpdatedAt": "2026-09-26T18:27:32.119Z"
     }
   ],
   "partners": [],
-  "audit_history": [],
+  "audit_history": [
+    {
+      "auditId": "AUD-1790447252169-j9hu",
+      "schemeId": "SCH-SVANIDHI-002",
+      "schemeName": "PM Street Vendor’s AtmaNirbhar Nidhi (PM SVANidhi)",
+      "previousVersion": "2026.1",
+      "newVersion": "2026.2",
+      "changedFields": [
+        "benefits"
+      ],
+      "previousData": {
+        "benefits": {
+          "summary": "Tranche-based collateral-free loan: 1st tranche up to ₹10,000, 2nd tranche up to ₹20,000, 3rd tranche up to ₹50,000 with 7% interest subsidy.",
+          "minLoanAmount": 10000,
+          "maxLoanAmount": 50000,
+          "interestRateAnnual": 7,
+          "interestSubventionPercent": 7,
+          "moratoriumMonths": 0,
+          "tenureMonths": 12,
+          "financialAssistanceDetails": "7% per annum interest subsidy credited directly to bank account quarterly. Cashback up to ₹1,200 per year on digital transactions."
+        }
+      },
+      "updatedData": {
+        "benefits": {
+          "summary": "Tranche-based collateral-free loan: 1st tranche up to ₹10,000, 2nd tranche up to ₹20,000, 3rd tranche up to ₹50,000 with 7% interest subsidy.",
+          "minLoanAmount": 10000,
+          "maxLoanAmount": 100000,
+          "interestRateAnnual": 7,
+          "interestSubventionPercent": 7,
+          "moratoriumMonths": 0,
+          "tenureMonths": 12,
+          "financialAssistanceDetails": "7% per annum interest subsidy credited directly to bank account quarterly. Cashback up to ₹1,200 per year on digital transactions."
+        }
+      },
+      "source": "MoHUA 3rd Tranche Enhancement Notification",
+      "detectedAt": "2026-09-26T18:27:32.169Z",
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "auditId": "AUD-1790447252144-v100",
+      "schemeId": "SCH-PMEGP-001",
+      "schemeName": "Prime Minister’s Employment Generation Programme (PMEGP)",
+      "previousVersion": "2026.1",
+      "newVersion": "2026.2",
+      "changedFields": [
+        "benefits"
+      ],
+      "previousData": {
+        "benefits": {
+          "summary": "15% to 35% margin money subsidy on project cost up to ₹50 Lakh for manufacturing and ₹20 Lakh for service units.",
+          "subsidyPercentage": 35,
+          "maxSubsidyAmount": 1750000,
+          "minLoanAmount": 50000,
+          "maxLoanAmount": 5000000,
+          "interestRateAnnual": 8.5,
+          "moratoriumMonths": 6,
+          "tenureMonths": 60,
+          "financialAssistanceDetails": "Subsidy rate: General category rural 25%, urban 15%. Special category (SC/ST/OBC/Women/Ex-servicemen/PwD) rural 35%, urban 25%."
+        }
+      },
+      "updatedData": {
+        "benefits": {
+          "summary": "15% to 35% margin money subsidy on project cost up to ₹50 Lakh for manufacturing and ₹20 Lakh for service units.",
+          "subsidyPercentage": 40,
+          "maxSubsidyAmount": 1750000,
+          "minLoanAmount": 50000,
+          "maxLoanAmount": 5000000,
+          "interestRateAnnual": 8.5,
+          "moratoriumMonths": 6,
+          "tenureMonths": 60,
+          "financialAssistanceDetails": "Subsidy rate: General category rural 25%, urban 15%. Special category (SC/ST/OBC/Women/Ex-servicemen/PwD) rural 35%, urban 25%."
+        }
+      },
+      "source": "Official Gazette Notification 2026-MSME",
+      "detectedAt": "2026-09-26T18:27:32.144Z",
+      "status": "NEEDS_REVIEW"
+    }
+  ],
   "notifications": [
+    {
+      "notificationId": "NOTIF-1790447252172-d0qr",
+      "id": "notif-1790447252172",
+      "idempotencyKey": "all_SCH-SVANIDHI-002_none_SCHEME_UPDATED_2026-09-26_2026.2",
+      "userId": "all",
+      "schemeId": "SCH-SVANIDHI-002",
+      "type": "SCHEME_UPDATED",
+      "title": "Scheme Updated: PM SVANidhi",
+      "message": "Official parameters (benefits) modified. Version updated to 2026.2. Under administrative review.",
+      "priority": "HIGH",
+      "actionLink": "/schemes/SCH-SVANIDHI-002",
+      "createdAt": "2026-09-26T18:27:32.172Z",
+      "read": false
+    },
+    {
+      "notificationId": "NOTIF-1790447252149-3o7d",
+      "id": "notif-1790447252149",
+      "idempotencyKey": "all_SCH-PMEGP-001_none_SCHEME_UPDATED_2026-09-26_2026.2",
+      "userId": "all",
+      "schemeId": "SCH-PMEGP-001",
+      "type": "SCHEME_UPDATED",
+      "title": "Scheme Updated: PMEGP",
+      "message": "Official parameters (benefits) modified. Version updated to 2026.2. Under administrative review.",
+      "priority": "HIGH",
+      "actionLink": "/schemes/SCH-PMEGP-001",
+      "createdAt": "2026-09-26T18:27:32.149Z",
+      "read": false
+    },
+    {
+      "notificationId": "NOTIF-1790447252117-77z9",
+      "id": "notif-1790447252117",
+      "idempotencyKey": "all_SCH-TEST-DEADLINE-001_none_SCHEME_DEADLINE_APPROACHING_2026-09-26",
+      "userId": "all",
+      "schemeId": "SCH-TEST-DEADLINE-001",
+      "type": "SCHEME_DEADLINE_APPROACHING",
+      "title": "Deadline Approaching: Deadline Grant",
+      "message": "The application window for Approaching Deadline Grant closes in 5 day(s) on 2026-10-01. Verify documents and apply through the official portal.",
+      "priority": "HIGH",
+      "actionLink": "/schemes/SCH-TEST-DEADLINE-001",
+      "createdAt": "2026-09-26T18:27:32.117Z",
+      "read": false
+    },
+    {
+      "notificationId": "NOTIF-1790447252104-is58",
+      "id": "notif-1790447252104",
+      "idempotencyKey": "USR-CITIZEN-001_SCH-PMEGP-001_APP-2026-901_APPLICATION_APPROVED_2026-09-26",
+      "userId": "USR-CITIZEN-001",
+      "schemeId": "SCH-PMEGP-001",
+      "applicationId": "APP-2026-901",
+      "type": "APPLICATION_APPROVED",
+      "title": "Status Updated: Approved (User-reported)",
+      "message": "You reported that your application for Prime Minister’s Employment Generation Programme (PMEGP) was approved. Please verify the approval through the official government portal.",
+      "priority": "HIGH",
+      "actionLink": "/applications",
+      "createdAt": "2026-09-26T18:27:32.104Z",
+      "read": false
+    },
+    {
+      "notificationId": "NOTIF-1790447252097-m4zy",
+      "id": "notif-1790447252097",
+      "idempotencyKey": "USR-CITIZEN-001_SCH-PMEGP-001_APP-2026-901_APPLICATION_SUBMITTED_2026-09-26",
+      "userId": "USR-CITIZEN-001",
+      "schemeId": "SCH-PMEGP-001",
+      "applicationId": "APP-2026-901",
+      "type": "APPLICATION_SUBMITTED",
+      "title": "Application Recorded in Sahayak AI",
+      "message": "Application APP-2026-901 for Prime Minister’s Employment Generation Programme (PMEGP) was recorded as user-reported. Check the official portal for status.",
+      "priority": "NORMAL",
+      "actionLink": "/applications",
+      "createdAt": "2026-09-26T18:27:32.097Z",
+      "read": false
+    },
     {
       "id": "notif-seed-01",
       "idempotencyKey": "all_none_none_SYSTEM_INITIALIZED_2026-01-01",

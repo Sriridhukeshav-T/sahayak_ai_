@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { Application, ApplicationStatus } from '../../types/application';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 const STATUS_FILTERS: (ApplicationStatus | 'ALL')[] = [
   'ALL',
@@ -50,12 +49,12 @@ export const AdminApplicationsPage: React.FC = () => {
 
   const getStatusBadge = (status: ApplicationStatus) => {
     switch (status) {
-      case 'SUBMITTED': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'DOCUMENT_CHECK': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'FORWARDED_TO_PARTNER': return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+      case 'SUBMITTED': return 'bg-slate-100 text-slate-800 border-slate-300';
+      case 'DOCUMENT_CHECK': return 'bg-teal-50 text-teal-800 border-teal-200';
+      case 'FORWARDED_TO_PARTNER': return 'bg-slate-100 text-slate-700 border-slate-200';
       case 'PARTNER_REVIEW': return 'bg-amber-50 text-amber-800 border-amber-200';
       case 'SANCTIONED': return 'bg-emerald-50 text-emerald-800 border-emerald-200';
-      case 'DISBURSED': return 'bg-teal-50 text-teal-800 border-teal-200';
+      case 'DISBURSED': return 'bg-emerald-100 text-emerald-900 border-emerald-300';
       case 'REJECTED': return 'bg-red-50 text-red-800 border-red-200';
       default: return 'bg-slate-50 text-slate-700 border-slate-200';
     }
@@ -65,32 +64,31 @@ export const AdminApplicationsPage: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
               Applications Lifecycle Oversight
             </h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-              {applications.length} Seeded Dossiers
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-sm bg-slate-100 text-slate-700 border border-slate-200">
+              {applications.length} Records
             </span>
-            <DemoBadge />
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Monitor state transitions, inspect credit appraisals, and manually advance sanction stages during evaluations.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            Monitor state transitions, inspect credit appraisals, and manage sanction stages.
           </p>
         </div>
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs space-y-3">
         <div className="relative">
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search by application ID (e.g. SAH-2026-92841), applicant name, scheme, partner..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-md focus:outline-hidden focus:border-emerald-800"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
         </div>
@@ -100,10 +98,10 @@ export const AdminApplicationsPage: React.FC = () => {
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
-              className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
                 selectedStatus === st
-                  ? 'bg-blue-700 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300'
               }`}
             >
               {st === 'ALL' ? 'All Statuses' : st.replace(/_/g, ' ')}
@@ -113,11 +111,11 @@ export const AdminApplicationsPage: React.FC = () => {
       </div>
 
       {/* Applications Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
                 <th className="py-3 px-4">Application ID</th>
                 <th className="py-3 px-4">Applicant & Location</th>
                 <th className="py-3 px-4">Scheme & Target Amount</th>
@@ -181,7 +179,7 @@ export const AdminApplicationsPage: React.FC = () => {
       {/* Inspect Application Modal */}
       {inspectApp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <span className="font-mono text-xs font-extrabold text-blue-900">{inspectApp.id}</span>
@@ -193,27 +191,27 @@ export const AdminApplicationsPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl">
+              <div className="p-3 bg-slate-50 rounded-md">
                 <span className="text-slate-400 block text-[10px]">Applicant Name</span>
                 <span className="font-bold text-slate-900">{inspectApp.applicantName}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl">
+              <div className="p-3 bg-slate-50 rounded-md">
                 <span className="text-slate-400 block text-[10px]">Mobile</span>
                 <span className="font-bold text-slate-900">{inspectApp.applicantMobile}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl">
+              <div className="p-3 bg-slate-50 rounded-md">
                 <span className="text-slate-400 block text-[10px]">Scheme</span>
                 <span className="font-bold text-slate-900">{inspectApp.schemeName}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl">
+              <div className="p-3 bg-slate-50 rounded-md">
                 <span className="text-slate-400 block text-[10px]">Sanction Amount</span>
                 <span className="font-bold text-emerald-700 font-mono">₹{inspectApp.loanAmount.toLocaleString('en-IN')}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl">
+              <div className="p-3 bg-slate-50 rounded-md">
                 <span className="text-slate-400 block text-[10px]">Channel Partner</span>
                 <span className="font-bold text-slate-900">{inspectApp.partnerName}</span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl">
+              <div className="p-3 bg-slate-50 rounded-md">
                 <span className="text-slate-400 block text-[10px]">Match Compatibility</span>
                 <span className="font-bold text-blue-700">{inspectApp.matchScore}%</span>
               </div>
@@ -244,7 +242,7 @@ export const AdminApplicationsPage: React.FC = () => {
             <div className="pt-3 border-t border-slate-100 flex justify-end">
               <button
                 onClick={() => setInspectApp(null)}
-                className="px-5 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl"
+                className="px-5 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-md"
               >
                 Close Inspector
               </button>

@@ -1,5 +1,5 @@
 // Comprehensive Verification Test Suite: Tests 1 through 22
-// Evaluates the complete SSahayaka production platform deterministically
+// Evaluates the complete Sahayak AI production platform deterministically
 
 import { dbService } from './backend/db.js';
 import { runScheduledAutomation } from './backend/automationService.js';
@@ -20,7 +20,7 @@ function recordTest(id, name, category, passed, expected, actual, notes = '') {
 
 async function runAll22Tests() {
   console.log('===============================================================');
-  console.log('SSahayaka — Running All 22 Verification Test Protocols');
+  console.log('Sahayak AI — Running All 22 Verification Test Protocols');
   console.log('===============================================================\n');
 
   // Reset database to ensure clean baseline
@@ -130,13 +130,13 @@ async function runAll22Tests() {
   try {
     const pmegp = await dbService.getSchemeById('SCH-PMEGP-001');
     const portalUrl = pmegp.officialApplicationUrl;
-    const isDirectOfficialKvic = portalUrl.startsWith('https://www.kviconline.gov.in/pmegpeportal/');
+    const isDirectOfficialPortal = portalUrl.startsWith('https://pmegp.msme.gov.in') || portalUrl.startsWith('https://www.kviconline.gov.in/pmegpeportal/');
     recordTest(
       5,
       'Real Application Portal',
       'Portals',
-      isDirectOfficialKvic,
-      'Direct link to https://www.kviconline.gov.in/pmegpeportal/...',
+      isDirectOfficialPortal,
+      'Direct link to official government portal (pmegp.msme.gov.in)',
       `Portal URL: ${portalUrl}`
     );
   } catch (e) {

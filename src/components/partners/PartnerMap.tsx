@@ -94,7 +94,7 @@ export const PartnerMap: React.FC<PartnerMapProps> = ({
   };
 
   return (
-    <div className="w-full h-full min-h-[420px] rounded-2xl overflow-hidden shadow-inner border border-slate-200 relative">
+    <div className="w-full h-full min-h-[420px] rounded-md overflow-hidden shadow-inner border border-slate-200 relative">
       <MapContainer
         center={center}
         zoom={12}
@@ -186,7 +186,7 @@ export const PartnerMap: React.FC<PartnerMapProps> = ({
       </MapContainer>
 
       {/* Map Legend Floating Overlay */}
-      <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-xs p-2.5 rounded-xl border border-slate-200 shadow-md text-[10px] space-y-1 hidden sm:block">
+      <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-xs p-2.5 rounded-md border border-slate-200 shadow-xs text-[10px] space-y-1 hidden sm:block">
         <p className="font-bold text-slate-700 uppercase tracking-wider mb-1">Partner Types</p>
         <div className="flex items-center gap-1.5 text-slate-600">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-700" />

@@ -18,7 +18,6 @@ import { useLanguage } from '../../context/LanguageContext';
 import { PartnerMap } from '../../components/partners/PartnerMap';
 import { PartnerCard } from '../../components/partners/PartnerCard';
 import { PartnerType } from '../../types/partner';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 const PARTNER_TYPES: (PartnerType | 'ALL')[] = [
   'ALL',
@@ -55,14 +54,11 @@ export const FindPartnerPage: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {t('Find a Partner')}
-            </h1>
-            <DemoBadge />
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
+            {t('Find a Partner')}
+          </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             {t('Geo-spatial router avoids congested bank branches.')}
           </p>
@@ -70,17 +66,17 @@ export const FindPartnerPage: React.FC = () => {
 
         {/* Selected Partner Status Box */}
         {activePartner && (
-          <div className="bg-white p-3 rounded-2xl border border-blue-200 shadow-xs flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+          <div className="bg-white p-3 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+            <div className="w-8 h-8 rounded-sm bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-xs border border-slate-200">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase">Selected Partner:</span>
-              <span className="text-xs font-bold text-slate-900 block truncate max-w-[200px]">{activePartner.name}</span>
+              <span className="text-[10px] text-slate-500 font-medium block uppercase tracking-wider">Selected Partner</span>
+              <span className="text-xs font-semibold text-slate-900 block truncate max-w-[200px]">{activePartner.name}</span>
             </div>
             <button
               onClick={() => navigate('/apply')}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-xs transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-emerald-800 hover:bg-emerald-900 rounded-md shadow-xs transition-colors flex items-center gap-1"
             >
               <span>Apply</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -95,10 +91,10 @@ export const FindPartnerPage: React.FC = () => {
           <button
             key={type}
             onClick={() => setSelectedType(type)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
               selectedType === type
-                ? 'bg-blue-700 text-white shadow-xs'
-                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300'
             }`}
           >
             {type === 'ALL' ? 'All Partner Categories' : type}
@@ -110,20 +106,20 @@ export const FindPartnerPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Map Container (7 cols) */}
-        <div className="lg:col-span-7 bg-white p-4 rounded-3xl border border-slate-200/90 shadow-xs flex flex-col h-[520px]">
-          <div className="flex items-center justify-between pb-3 px-1">
+        <div className="lg:col-span-7 bg-white p-4 rounded-lg border border-slate-200 shadow-xs flex flex-col h-[520px]">
+          <div className="flex items-center justify-between pb-3 px-1 border-b border-slate-100 mb-2">
             <div className="flex items-center gap-2">
-              <Compass className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-bold text-slate-900">
-                Geo-Spatial Map — {user.district}, {user.state}
+              <Compass className="w-4 h-4 text-emerald-800" />
+              <span className="text-xs font-semibold text-slate-900">
+                District Network — {user.district}, {user.state}
               </span>
             </div>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-[11px] text-slate-500">
               Showing {rankedPartners.length} partner branches
             </span>
           </div>
 
-          <div className="flex-1 w-full rounded-2xl overflow-hidden">
+          <div className="flex-1 w-full rounded-md overflow-hidden border border-slate-200">
             <PartnerMap
               userLocation={{
                 lat: userCoords.lat,
@@ -140,10 +136,10 @@ export const FindPartnerPage: React.FC = () => {
         {/* Ranked Partner Cards List (5 cols) */}
         <div className="lg:col-span-5 flex flex-col h-[520px]">
           <div className="pb-3 px-1 flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-600">
               Suitability Ranking (Top to Bottom)
             </span>
-            <span className="text-[11px] text-blue-700 font-semibold">
+            <span className="text-[11px] text-emerald-800 font-semibold">
               5-Factor Score
             </span>
           </div>

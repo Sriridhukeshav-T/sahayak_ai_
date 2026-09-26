@@ -9,6 +9,7 @@ export interface AssistantMessage {
   text: string;
   timestamp: string;
   suggestedActions?: { label: string; action: string }[];
+  sourceMinistry?: string;
 }
 
 // Known fictional / adversarial keywords or patterns
@@ -60,7 +61,7 @@ export function generateAssistantResponse(
     !q.includes('all scheme');
 
   if (isAdversarial || isAskingAboutUnknownScheme) {
-    text = `I couldn't verify this scheme from the available authoritative Government of India or State scheme records.\n\nTo prevent misinformation, SSahayaka only provides information verified against official government portals.\n\nYou can verify active and approved government schemes directly through the national repository at [myScheme (www.myscheme.gov.in)](https://www.myscheme.gov.in).`;
+    text = `I couldn't verify this scheme from the available authoritative Government of India or State scheme records.\n\nTo prevent misinformation, Sahayak AI only provides information verified against official government portals.\n\nYou can verify active and approved government schemes directly through the national repository at [myScheme (www.myscheme.gov.in)](https://www.myscheme.gov.in).`;
     suggestedActions.push({ label: 'Explore Verified Schemes', action: 'find_scheme' });
     return {
       id: `MSG-${Date.now()}`,
@@ -84,7 +85,7 @@ export function generateAssistantResponse(
 
   if (isAppStatusQuery) {
     const portalUrl = targetScheme?.officialApplicationUrl || 'https://www.myscheme.gov.in';
-    text = `Your application status in SSahayaka is recorded as **user-reported**.\n\nSSahayaka assists with eligibility discovery and record keeping, but does **not** claim direct access to internal government processing gateways. Please verify your official status directly through the designated official government portal at [Official Application Portal](${portalUrl}).`;
+    text = `Your application status in Sahayak AI is recorded as **user-reported**.\n\nSahayak AI assists with eligibility discovery and record keeping, but does **not** claim direct access to internal government processing gateways. Please verify your official status directly through the designated official government portal at [Official Application Portal](${portalUrl}).`;
     suggestedActions.push({ label: 'View Tracked Applications', action: 'applications' });
     return {
       id: `MSG-${Date.now()}`,
@@ -232,7 +233,7 @@ export function generateAssistantResponse(
   }
 
   // 7. General Fallback
-  text = `Hello ${user.name ? user.name.split(' ')[0] : 'Citizen'}! I am **SSahayaka**, your authoritative government scheme assistant.\n\nI provide verified details from official Government of India and State portals, calculate deterministic eligibility, and help track application waiting periods.\n\nHow can I help you today?`;
+  text = `Hello ${user.name ? user.name.split(' ')[0] : 'Citizen'}! I am **Sahayak AI**, your authoritative government scheme assistant.\n\nI provide verified details from official Government of India and State portals, calculate deterministic eligibility, and help track application waiting periods.\n\nHow can I help you today?`;
   suggestedActions.push({ label: 'Which scheme is best for me?', action: 'best_scheme' });
   suggestedActions.push({ label: 'What documents do I need?', action: 'documents' });
   suggestedActions.push({ label: 'Can I afford an EMI?', action: 'affordability' });

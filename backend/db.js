@@ -122,7 +122,7 @@ export function getInitialSeedData() {
         expectedDecisionDate: '2026-10-15T00:00:00Z',
         waitingPeriodStatus: 'WAITING_PERIOD',
         officialApplicationRefNumber: 'PMEGP-UP-2026-92841',
-        officialPortalUrl: 'https://www.kviconline.gov.in/pmegpeportal/',
+        officialPortalUrl: 'https://pmegp.msme.gov.in/',
         submittedAt: '2026-08-22T09:30:00Z',
         updatedAt: '2026-09-02T14:20:00Z',
         documents: [
@@ -133,14 +133,14 @@ export function getInitialSeedData() {
         timeline: [
           {
             status: 'SUBMITTED',
-            title: 'Application Recorded in SSahayaka',
+            title: 'Application Recorded in Sahayak AI',
             description: 'Application details recorded as user-reported on platform.',
             timestamp: '2026-08-22T09:30:00Z',
             completed: true,
             statusOrigin: 'USER_REPORTED'
           }
         ],
-        remarks: 'Application tracked on official portal kviconline.gov.in.'
+        remarks: 'Application tracked on official portal pmegp.msme.gov.in.'
       }
     ],
     schemes: AUTHORITATIVE_SCHEMES_DATA,
@@ -644,7 +644,7 @@ export const dbService = {
         schemeId: fullApp.schemeId,
         applicationId: fullApp.id,
         type: 'APPLICATION_SUBMITTED',
-        title: 'Application Recorded in SSahayaka',
+        title: 'Application Recorded in Sahayak AI',
         message: `Application ${fullApp.id} for ${fullApp.schemeName} was recorded as user-reported. Check the official portal for status.`,
         priority: 'NORMAL',
         actionLink: '/applications'
@@ -663,7 +663,7 @@ export const dbService = {
       schemeId: fullApp.schemeId,
       applicationId: fullApp.id,
       type: 'APPLICATION_SUBMITTED',
-      title: 'Application Recorded in SSahayaka',
+      title: 'Application Recorded in Sahayak AI',
       message: `Application ${fullApp.id} for ${fullApp.schemeName} was recorded as user-reported. Check the official portal for status.`,
       priority: 'NORMAL',
       actionLink: '/applications'

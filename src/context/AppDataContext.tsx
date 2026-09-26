@@ -15,6 +15,7 @@ interface AppDataContextType {
   setActiveSchemeId: (id: string) => void;
   setActivePartnerId: (id: string) => void;
   submitApplication: (app: Application) => void;
+  updateApplication: (id: string, updates: Partial<Application>) => Application | null;
   updateApplicationStatus: (id: string, status: ApplicationStatus, remarks?: string) => void;
   updatePartner: (partner: ChannelPartner) => void;
   addScheme: (scheme: Scheme) => void;
@@ -22,7 +23,7 @@ interface AppDataContextType {
   deleteScheme: (id: string) => void;
   markNotificationsAsRead: () => void;
   resetDemoData: () => void;
-  refreshAppData: () => void;
+  refreshAppData: () => Promise<void>;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -53,6 +54,12 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     StorageService.createApplication(app);
     setApplications(StorageService.getApplications());
     setNotifications(StorageService.getNotifications());
+  };
+
+  const updateApplication = (id: string, updates: Partial<Application>) => {
+    const updated = StorageService.updateApplication(id, updates);
+    setApplications(StorageService.getApplications());
+    return updated;
   };
 
   const updateApplicationStatus = (id: string, status: ApplicationStatus, remarks?: string) => {
@@ -93,12 +100,38 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setNotifications(StorageService.getNotifications());
   };
 
-  const refreshAppData = () => {
+  const refreshAppData = async () => {
+    // 1. Immediately refresh from local cache
     setSchemes(StorageService.getSchemes());
     setPartners(StorageService.getPartners());
     setApplications(StorageService.getApplications());
     setNotifications(StorageService.getNotifications());
+
+    // 2. Sync with backend API
+    try {
+      const res = await fetch('/api/applications');
+      if (res.ok) {
+        const backendApps: Application[] = await res.json();
+        if (Array.isArray(backendApps) && backendApps.length > 0) {
+          const localApps = StorageService.getApplications();
+          const map = new Map<string, Application>();
+          backendApps.forEach(a => map.set(a.id, a));
+          localApps.forEach(a => {
+            if (!map.has(a.id)) map.set(a.id, a);
+          });
+          const merged = Array.from(map.values());
+          localStorage.setItem('sahayak_real_applications_v2', JSON.stringify(merged));
+          setApplications(merged);
+        }
+      }
+    } catch {
+      // offline fallback
+    }
   };
+
+  React.useEffect(() => {
+    refreshAppData();
+  }, []);
 
   return (
     <AppDataContext.Provider
@@ -112,6 +145,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setActiveSchemeId,
         setActivePartnerId,
         submitApplication,
+        updateApplication,
         updateApplicationStatus,
         updatePartner,
         addScheme,

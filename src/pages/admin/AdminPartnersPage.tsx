@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { ChannelPartner, PartnerType } from '../../types/partner';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const AdminPartnersPage: React.FC = () => {
   const { partners, updatePartner } = useAppData();
@@ -39,43 +38,42 @@ export const AdminPartnersPage: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
               Channel Partner Network Management
             </h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-sm bg-slate-100 text-slate-700 border border-slate-200">
               {partners.length} Authorized Partners
             </span>
-            <DemoBadge />
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Adjust branch capacities and application backlog. Updates immediately recalculate citizen routing rankings.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            Maintain branch capacities and active load. Real-time updates immediately calibrate routing suitability scores.
           </p>
         </div>
       </div>
 
       {/* Search Filter */}
-      <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
         <div className="relative">
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search partners by branch name, city, district, state..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-md focus:outline-hidden focus:border-emerald-800"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
         </div>
       </div>
 
       {/* Partners Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
                 <th className="py-3 px-4">Partner Name & Branch</th>
                 <th className="py-3 px-4">Type</th>
                 <th className="py-3 px-4">Location</th>
@@ -148,7 +146,7 @@ export const AdminPartnersPage: React.FC = () => {
       {/* Edit Partner Modal */}
       {editingPartner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
+          <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-bold text-sm text-slate-900">
                 Update Partner Capacity & Load
@@ -166,7 +164,7 @@ export const AdminPartnersPage: React.FC = () => {
                   required
                   value={editingPartner.name}
                   onChange={e => setEditingPartner({ ...editingPartner, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-md"
                 />
               </div>
 
@@ -178,7 +176,7 @@ export const AdminPartnersPage: React.FC = () => {
                     required
                     value={editingPartner.capacity}
                     onChange={e => setEditingPartner({ ...editingPartner, capacity: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold font-mono"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md font-bold font-mono"
                   />
                 </div>
                 <div>
@@ -188,7 +186,7 @@ export const AdminPartnersPage: React.FC = () => {
                     required
                     value={editingPartner.currentLoad}
                     onChange={e => setEditingPartner({ ...editingPartner, currentLoad: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold font-mono text-amber-700"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md font-bold font-mono text-amber-700"
                   />
                 </div>
               </div>
@@ -201,7 +199,7 @@ export const AdminPartnersPage: React.FC = () => {
                     required
                     value={editingPartner.processingDays}
                     onChange={e => setEditingPartner({ ...editingPartner, processingDays: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold font-mono"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md font-bold font-mono"
                   />
                 </div>
                 <div>
@@ -209,7 +207,7 @@ export const AdminPartnersPage: React.FC = () => {
                   <select
                     value={editingPartner.available ? 'yes' : 'no'}
                     onChange={e => setEditingPartner({ ...editingPartner, available: e.target.value === 'yes' })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md"
                   >
                     <option value="yes">Available & Accepting Applications</option>
                     <option value="no">Unavailable / Suspended</option>
@@ -221,13 +219,13 @@ export const AdminPartnersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setEditingPartner(null)}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-md"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-xs"
+                  className="px-5 py-2 font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-md shadow-xs"
                 >
                   Save & Update Routing
                 </button>

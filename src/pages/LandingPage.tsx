@@ -1,263 +1,473 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
+  Search,
   ArrowRight,
   ShieldCheck,
-  MapPin,
-  Calculator,
-  Globe2,
-  Volume2,
-  UserPlus,
-  LogIn
+  Building2,
+  CheckCircle2,
+  FileText,
+  ExternalLink,
+  Landmark,
+  Briefcase,
+  Sprout,
+  GraduationCap,
+  Home,
+  Sun,
+  Users,
+  CreditCard,
+  Scale
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { AUTHORITATIVE_SCHEMES } from '../data/authoritativeSchemes';
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/schemes?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/schemes');
+    }
+  };
+
+  const handlePopularSearch = (term: string) => {
+    navigate(`/schemes?q=${encodeURIComponent(term)}`);
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
+    <div className="bg-[#F8FAFC] text-slate-900 min-h-screen">
       
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-slate-900 to-slate-900 text-white pt-16 pb-20 px-4 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
-        
-        <div className="max-w-6xl mx-auto relative z-10 text-center space-y-6">
+      {/* 1. Hero Section — Editorial Composition */}
+      <section className="border-b border-slate-200 bg-white pt-10 sm:pt-14 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-xs font-semibold shadow-xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Authoritative Government Scheme Assistance Platform • Verified Guidelines & Direct Gateways</span>
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            
+            {/* Left 7 Columns: Core Value & Search */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#065F46] bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 inline-block">
+                  Public Scheme Discovery
+                </span>
+                <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+                  Find the government support you may be entitled to.
+                </h1>
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl pt-1">
+                  Sahayak AI connects citizens, farmers, and entrepreneurs with verified Central and State welfare programs, credit subsidies, and livelihood schemes using deterministic eligibility criteria.
+                </p>
+              </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            Connecting Citizens to Real Government Benefits & Schemes
-          </h1>
+              {/* Product-Grade Search Component */}
+              <div className="space-y-2.5 pt-1">
+                <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Search schemes, benefits, departments (e.g. MSME, solar, farming, women)..."
+                    className="w-full pl-10 pr-28 py-3.5 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#065F46] focus:bg-white text-slate-900 placeholder:text-slate-400 transition-colors shadow-2xs"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-2 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs"
+                  >
+                    Search
+                  </button>
+                </form>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
-            Discover verified Central and State government welfare, subsidy, and credit programs with explainable, deterministic eligibility criteria.
-          </p>
-
-          {/* Primary & Secondary Call to Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-            <Link
-              to={isAuthenticated ? "/find-scheme" : "/signup"}
-              className="w-full sm:w-auto px-8 py-3.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-700/25 transition-all flex items-center justify-center gap-2 group"
-            >
-              <span>{isAuthenticated ? 'Find Eligible Schemes' : 'Register Citizen Profile'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              to="/schemes"
-              className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold text-sm rounded-xl transition-all"
-            >
-              Explore Scheme Directory
-            </Link>
-
-            {!isAuthenticated && (
-              <Link
-                to="/login"
-                className="w-full sm:w-auto px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <LogIn className="w-4 h-4 text-slate-400" />
-                <span>{t('Portal Login')}</span>
-              </Link>
-            )}
-          </div>
-
-          {/* Hero Visual Stepper */}
-          <div className="pt-10 max-w-4xl mx-auto">
-            <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-3">
-              {t('The Intelligent Citizen Journey')}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-              {[
-                { title: t('1. Your Goal'), desc: t('Text or Voice Input') },
-                { title: t('2. AI Matching'), desc: t('100-pt Explainable Engine') },
-                { title: t('3. Affordability'), desc: t('Cashflow Simulator') },
-                { title: t('4. Best Partner'), desc: t('Geo-Spatial Routing') },
-                { title: t('5. Application'), desc: t('Live Real-Time Tracking') }
-              ].map((step, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white/5 border border-white/10 p-3 rounded-xl text-left backdrop-blur-xs"
-                >
-                  <span className="font-bold text-blue-400 block text-xs">{step.title}</span>
-                  <span className="text-[11px] text-slate-300 block mt-0.5">{step.desc}</span>
+                {/* Popular Search Text Links */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 pt-1">
+                  <span className="font-medium text-slate-400">Popular searches:</span>
+                  {['PM-KISAN', 'PMEGP Subsidy', 'MUDRA Loan', 'PM Surya Ghar Solar', 'Stand-Up India'].map(term => (
+                    <button
+                      key={term}
+                      onClick={() => handlePopularSearch(term)}
+                      className="text-slate-600 hover:text-[#065F46] hover:underline"
+                    >
+                      {term},
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Account Onboarding Bar */}
-          <div className="pt-6 border-t border-slate-800/80 max-w-3xl mx-auto">
-            <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
-              <span className="text-slate-400 font-medium">{t('Quick Access:')}</span>
-              <Link
-                to="/find-scheme"
-                className="px-3.5 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-200 font-semibold transition-all flex items-center gap-1.5"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-blue-300" />
-                <span>{t('AI Scheme Eligibility Tool')}</span>
-              </Link>
-              <Link
-                to="/signup"
-                className="px-3.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/30 text-teal-200 font-semibold transition-all flex items-center gap-1.5"
-              >
-                <UserPlus className="w-3.5 h-3.5 text-teal-300" />
-                <span>{t('Create Citizen Account')}</span>
-              </Link>
-              <Link
-                to="/login"
-                className="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-300 font-semibold transition-all flex items-center gap-1.5"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                <span>{t('Admin / Citizen Sign In')}</span>
-              </Link>
-            </div>
-          </div>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  to="/schemes"
+                  className="px-5 py-2.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs flex items-center gap-1.5"
+                >
+                  <span>Explore Schemes Directory</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  to="/find-scheme"
+                  className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition-colors"
+                >
+                  Check Eligibility Checklist
+                </Link>
+              </div>
 
+            </div>
+
+            {/* Right 4 Columns: Official Repository Notice */}
+            <div className="lg:col-span-4 bg-slate-50 border border-slate-200 rounded-lg p-5 space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+                <Landmark className="w-4 h-4 text-[#065F46]" />
+                <span className="font-bold text-xs text-slate-900 uppercase tracking-wider">
+                  Authoritative Repository
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="space-y-0.5">
+                  <span className="font-semibold text-slate-900 block">Verified Flagship Programs</span>
+                  <p className="text-slate-600 text-[11px] leading-relaxed">
+                    15 Central & State flagship schemes cross-referenced with official gazettes and ministry portals.
+                  </p>
+                </div>
+
+                <div className="space-y-0.5 border-t border-slate-200 pt-2.5">
+                  <span className="font-semibold text-slate-900 block">Deterministic Eligibility</span>
+                  <p className="text-slate-600 text-[11px] leading-relaxed">
+                    Clear rule-by-rule evaluation without arbitrary confidence scores or AI hallucination.
+                  </p>
+                </div>
+
+                <div className="space-y-0.5 border-t border-slate-200 pt-2.5">
+                  <span className="font-semibold text-slate-900 block">Waiting Period Tracking</span>
+                  <p className="text-slate-600 text-[11px] leading-relaxed">
+                    Dossier tracking distinguishing citizen-reported milestones from official system integrations.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200">
+                <Link
+                  to="/schemes"
+                  className="text-xs font-semibold text-[#065F46] hover:underline flex items-center gap-1"
+                >
+                  <span>Browse full scheme index</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+          </div>
 
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-16 px-4 sm:px-6 max-w-6xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-            {t('End-to-End Workflow')}
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-            {t('How Sahayak AI Guides You')}
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
-            {t('From your business idea to loan disbursement, without complex jargon.')}
-          </p>
+      {/* 2. "Explore Support by Need" — Structured Editorial Grid */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Taxonomy & Categorization
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+              Explore support by need
+            </h2>
+          </div>
+          <Link
+            to="/schemes"
+            className="text-xs font-semibold text-[#065F46] hover:underline flex items-center gap-1"
+          >
+            <span>View all categories</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              step: '01',
-              title: t('Tell Us Your Goal'),
-              desc: t('Speak or type in your language. Tell us what business you want to start or expand.'),
-              icon: Volume2
-            },
-            {
-              step: '02',
-              title: t('AI Understands & Matches'),
-              desc: t('Our transparent 100-point algorithm matches your income, loan size, and category against 50+ schemes.'),
-              icon: Sparkles
-            },
-            {
-              step: '03',
-              title: t('Simulate Affordability'),
-              desc: t('Check your reducing-balance monthly EMI and verify if your remaining surplus keeps your family safe.'),
-              icon: Calculator
-            },
-            {
-              step: '04',
-              title: t('Smart Partner Routing'),
-              desc: t('Our geo-spatial router navigates you to the nearest partner with verified spare processing capacity.'),
-              icon: MapPin
-            }
-          ].map((item, idx) => {
-            const Icon = item.icon;
+        {/* Asymmetric 12-Column Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          
+          {/* Featured Large Item: Business & Micro Enterprise (Col 7) */}
+          <div
+            onClick={() => navigate('/schemes?category=Micro Enterprise')}
+            className="md:col-span-7 bg-white p-5 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors space-y-3 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded bg-emerald-50 text-[#065F46] flex items-center justify-center font-bold">
+                <Briefcase className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                High Allocation
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900 group-hover:text-[#065F46] transition-colors">
+                Business & Micro-Enterprise
+              </h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Credit subsidies, capital grants, and collateral-free loan programs for starting or expanding micro-manufacturing, trade, and service units.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] text-slate-500">
+              <span className="px-2 py-0.5 bg-slate-100 rounded">PMEGP (Up to ₹50 Lakh)</span>
+              <span className="px-2 py-0.5 bg-slate-100 rounded">MUDRA Tarun (Up to ₹20 Lakh)</span>
+              <span className="px-2 py-0.5 bg-slate-100 rounded">PM SVANidhi</span>
+            </div>
+          </div>
+
+          {/* Featured Large Item: Agriculture & Rural (Col 5) */}
+          <div
+            onClick={() => navigate('/schemes?category=Agriculture & Allied')}
+            className="md:col-span-5 bg-white p-5 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors space-y-3 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded bg-emerald-50 text-[#065F46] flex items-center justify-center font-bold">
+                <Sprout className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Direct Transfers
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900 group-hover:text-[#065F46] transition-colors">
+                Agriculture & Allied
+              </h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Income support, farm machinery subsidies, and post-harvest infrastructure loans for farmers and primary producers.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] text-slate-500">
+              <span className="px-2 py-0.5 bg-slate-100 rounded">PM-KISAN (₹6,000/yr)</span>
+              <span className="px-2 py-0.5 bg-slate-100 rounded">Agri Infra Fund</span>
+            </div>
+          </div>
+
+          {/* Compact Item: Clean Energy & Solar (Col 4) */}
+          <div
+            onClick={() => navigate('/schemes?category=Green & Renewable')}
+            className="md:col-span-4 bg-white p-4 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors space-y-2 group"
+          >
+            <div className="w-7 h-7 rounded bg-amber-50 text-amber-700 flex items-center justify-center">
+              <Sun className="w-3.5 h-3.5" />
+            </div>
+            <h4 className="font-bold text-xs text-slate-900 group-hover:text-[#065F46] transition-colors">
+              Clean Energy & Rooftop Solar
+            </h4>
+            <p className="text-[11px] text-slate-600 leading-normal">
+              Direct subsidies up to ₹78,000 for residential rooftop solar installations under PM Surya Ghar.
+            </p>
+          </div>
+
+          {/* Compact Item: Women & Special Categories (Col 4) */}
+          <div
+            onClick={() => navigate('/schemes?category=Women Entrepreneurship')}
+            className="md:col-span-4 bg-white p-4 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors space-y-2 group"
+          >
+            <div className="w-7 h-7 rounded bg-purple-50 text-purple-700 flex items-center justify-center">
+              <Users className="w-3.5 h-3.5" />
+            </div>
+            <h4 className="font-bold text-xs text-slate-900 group-hover:text-[#065F46] transition-colors">
+              Women & Special Categories
+            </h4>
+            <p className="text-[11px] text-slate-600 leading-normal">
+              Preferential margin money (up to 35%) and composite bank credit under Stand-Up India and state programs.
+            </p>
+          </div>
+
+          {/* Compact Item: Education & Apprenticeship (Col 4) */}
+          <div
+            onClick={() => navigate('/schemes?category=Education & Skill')}
+            className="md:col-span-4 bg-white p-4 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors space-y-2 group"
+          >
+            <div className="w-7 h-7 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
+              <GraduationCap className="w-3.5 h-3.5" />
+            </div>
+            <h4 className="font-bold text-xs text-slate-900 group-hover:text-[#065F46] transition-colors">
+              Education & Apprenticeships
+            </h4>
+            <p className="text-[11px] text-slate-600 leading-normal">
+              National apprenticeship stipends (NAPS-2) and subsidized educational term credit.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 3. Publication-Grade Trust & Source Methodology Section */}
+      <section className="bg-white border-y border-slate-200 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          
+          <div className="max-w-3xl space-y-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#065F46]">
+              Verification Standards
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+              Government information, carefully sourced.
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Every scheme profile on Sahayak AI includes explicit source attribution, field-level verification metadata, and direct gateways to official Government of India or State department portals.
+            </p>
+          </div>
+
+          {/* 3 Source Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+            
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+              <div className="w-7 h-7 rounded bg-emerald-100/70 text-[#065F46] flex items-center justify-center font-bold">
+                1
+              </div>
+              <h3 className="font-bold text-xs text-slate-900">Official Government Gazette & Portals</h3>
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                Rules, eligibility conditions, and benefit tables are extracted directly from official ministry directives (e.g. Ministry of MSME, Ministry of Agriculture, Ministry of Finance).
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+              <div className="w-7 h-7 rounded bg-emerald-100/70 text-[#065F46] flex items-center justify-center font-bold">
+                2
+              </div>
+              <h3 className="font-bold text-xs text-slate-900">Absence Handling Integrity</h3>
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                If an official directive does not publish an exact application deadline or processing duration, Sahayak AI records "Not specified in official source". No synthetic numbers are invented.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+              <div className="w-7 h-7 rounded bg-emerald-100/70 text-[#065F46] flex items-center justify-center font-bold">
+                3
+              </div>
+              <h3 className="font-bold text-xs text-slate-900">Direct Application Gateways</h3>
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                Sahayak AI provides authenticated links to official online application portals (such as pmegp.msme.gov.in and udyamimitra.in), never routing citizens through third-party intermediaries.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 4. Featured Flagship Schemes Spotlight */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Verified Profiles
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+              Featured national flagship programs
+            </h2>
+          </div>
+          <Link
+            to="/schemes"
+            className="text-xs font-semibold text-[#065F46] hover:underline flex items-center gap-1"
+          >
+            <span>View all 15 programs</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {/* 3 Editorial Feature Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {AUTHORITATIVE_SCHEMES.slice(0, 3).map(scheme => {
+            const maxLoan = scheme.benefits?.maxLoanAmount ?? scheme.maxLoan;
+            const subsidy = scheme.benefits?.subsidyPercentage ?? scheme.subsidyPercentage;
             return (
               <div
-                key={idx}
-                className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-shadow relative"
+                key={scheme.id}
+                className="bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors p-5 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                    <Icon className="w-5 h-5" />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                      {scheme.state === 'Central' ? 'Central' : scheme.state}
+                    </span>
+                    <span className="text-[11px] font-medium text-[#065F46] flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Verified Source</span>
+                    </span>
                   </div>
-                  <span className="text-xs font-black text-slate-300 font-mono">{item.step}</span>
+
+                  <div>
+                    <Link
+                      to={`/schemes/${scheme.id}`}
+                      className="font-bold text-sm text-slate-900 hover:text-[#065F46] transition-colors leading-snug block"
+                    >
+                      {scheme.officialName}
+                    </Link>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {scheme.ministry}
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                    {scheme.description}
+                  </p>
+
+                  <div className="p-2.5 bg-slate-50 rounded border border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[9px] uppercase tracking-wider font-semibold text-slate-400 block">Benefit</span>
+                      <span className="font-bold text-slate-800 text-xs">
+                        {maxLoan ? `Up to ₹${(maxLoan / 100000).toFixed(1)}L` : 'Direct Transfer'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] uppercase tracking-wider font-semibold text-slate-400 block">Subsidy</span>
+                      <span className="font-bold text-[#065F46] text-xs">
+                        {subsidy && subsidy > 0 ? `${subsidy}% Margin` : 'Welfare'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-bold text-sm text-slate-900 mb-1">{item.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{item.desc}</p>
+
+                <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between gap-2">
+                  <Link
+                    to={`/schemes/${scheme.id}`}
+                    className="flex-1 text-center px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded border border-slate-200 transition-colors"
+                  >
+                    View Guidelines
+                  </Link>
+                  {scheme.officialApplicationUrl && (
+                    <a
+                      href={scheme.officialApplicationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 text-slate-500 hover:text-slate-800 border border-slate-200 rounded hover:bg-slate-50 transition-colors"
+                      title="Open Official Portal"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* Why Sahayak AI? (Key Innovations) */}
-      <section className="bg-slate-100/70 py-16 px-4 sm:px-6 border-y border-slate-200">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="text-center max-w-2xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
-              {t('Why Sahayak AI?')}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-              {t('Designed for Marginalized Entrepreneurs')}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
-              {t('Solving information asymmetry, bureaucratic confusion, and predatory informal lending.')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900">{t('Explainable Recommendations')}</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {t('No opaque decisions. Every match shows an itemized score across income, project, location, and tips to improve qualification.')}
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <Globe2 className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900">{t('Voice & Regional Languages')}</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {t('Built-in speech input and full translations for English, Malayalam, Tamil, and Hindi, making institutional credit accessible to all.')}
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-900">{t('Dynamic Partner Routing')}</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {t('If the closest bank has an 85% application backlog, Sahayak reroutes you to an authorized partner with faster processing speed.')}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Financial Inclusion & Final Call to Action */}
-      <section className="py-16 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-6">
-        <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white p-8 sm:p-12 rounded-3xl shadow-xl space-y-4 relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 translate-x-10 translate-y-10 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-          
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            {t('Ready to Take Your Dream to Opportunity?')}
-          </h2>
-          <p className="text-xs sm:text-sm text-blue-100 max-w-xl mx-auto leading-relaxed">
-            {t('Join thousands of small business owners, women artisans, and farmers navigating government concessional finance with clarity.')}
+      {/* 5. Prompt Banner */}
+      <section className="border-t border-slate-200 bg-slate-100 py-10 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+            Know which schemes apply to you before submitting documents
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+            Evaluate your eligibility against real government criteria including age, state domicile, trade classification, and income limits.
           </p>
-
-          <div className="pt-3">
+          <div className="flex justify-center gap-3 pt-1">
             <Link
               to="/find-scheme"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-blue-900 hover:bg-blue-50 font-extrabold text-sm rounded-xl shadow-lg transition-all"
+              className="px-5 py-2.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs"
             >
-              <span>{t('Start Your Financial Journey')}</span>
-              <ArrowRight className="w-4 h-4" />
+              Start Eligibility Check
             </Link>
           </div>
         </div>
       </section>
-
 
     </div>
   );

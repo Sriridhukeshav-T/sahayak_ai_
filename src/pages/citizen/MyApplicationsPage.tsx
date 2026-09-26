@@ -6,8 +6,6 @@ import {
   ArrowRight,
   Building2,
   Calendar,
-  Layers,
-  IndianRupee,
   ShieldCheck,
   AlertCircle,
   Plus,
@@ -19,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Application, ApplicationStatus, StatusOrigin } from '../../types/application';
+import { StorageService } from '../../services/storageService';
 
 export const MyApplicationsPage: React.FC = () => {
   const { user } = useAuth();
@@ -34,7 +33,7 @@ export const MyApplicationsPage: React.FC = () => {
   const [newRefNumber, setNewRefNumber] = useState('');
   const [newSchemeName, setNewSchemeName] = useState('Prime Minister’s Employment Generation Programme (PMEGP)');
   const [newSchemeId, setNewSchemeId] = useState('SCH-PMEGP-001');
-  const [newPortalUrl, setNewPortalUrl] = useState('https://www.kviconline.gov.in/pmegpeportal/');
+  const [newPortalUrl, setNewPortalUrl] = useState('https://pmegp.msme.gov.in/');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Status update modal state
@@ -44,7 +43,6 @@ export const MyApplicationsPage: React.FC = () => {
     if (userApps.length > 0 && !selectedApp) {
       setSelectedApp(userApps[0]);
     } else if (selectedApp) {
-      // Keep selected app fresh
       const updated = userApps.find(a => a.id === selectedApp.id);
       if (updated) setSelectedApp(updated);
     }
@@ -81,7 +79,7 @@ export const MyApplicationsPage: React.FC = () => {
       timeline: [
         {
           status: 'SUBMITTED',
-          title: 'Application Recorded in SSahayaka',
+          title: 'Application Recorded in Sahayak AI',
           description: 'Reference number recorded as user-reported on platform.',
           timestamp: nowIso,
           completed: true,
@@ -99,12 +97,12 @@ export const MyApplicationsPage: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         await refreshAppData();
-        setSelectedApp(data.application || newApp as Application);
+        setSelectedApp(data);
         setShowTrackModal(false);
         setNewRefNumber('');
       }
-    } catch (err) {
-      console.error('Failed to create application:', err);
+    } catch {
+      alert('Could not record application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -114,324 +112,325 @@ export const MyApplicationsPage: React.FC = () => {
     if (!selectedApp) return;
     setIsSubmitting(true);
 
-    const nowIso = new Date().toISOString();
-    const updatedTimeline = [
-      ...selectedApp.timeline,
-      {
-        status: targetStatus,
-        title: targetStatus === 'APPROVED' ? 'Marked Approved (User-reported)' : `Status Updated to ${targetStatus}`,
-        description: targetStatus === 'APPROVED'
-          ? 'You reported that your application was approved. Please verify through the official government portal.'
-          : `Citizen recorded status change to ${targetStatus}.`,
-        timestamp: nowIso,
-        completed: true,
-        statusOrigin: 'USER_REPORTED' as StatusOrigin
-      }
-    ];
+    const remarks = `Citizen updated status to ${targetStatus}.`;
+    const updates: Partial<Application> = {
+      status: targetStatus,
+      statusOrigin: 'USER_REPORTED' as StatusOrigin,
+      remarks,
+      updatedAt: new Date().toISOString()
+    };
+
+    // 1. Immediately update local storage / context synchronously so UI is instant & robust
+    StorageService.updateApplicationStatus(selectedApp.id, targetStatus, remarks);
+    const locallyUpdated = StorageService.updateApplication(selectedApp.id, updates);
+    if (locallyUpdated) {
+      setSelectedApp(locallyUpdated);
+    }
 
     try {
       const res = await fetch(`/api/applications/${selectedApp.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: targetStatus,
-          statusOrigin: 'USER_REPORTED',
-          timeline: updatedTimeline
-        })
+        body: JSON.stringify(updates)
       });
+
       if (res.ok) {
-        await refreshAppData();
-        setShowStatusUpdateModal(false);
+        const updated = await res.json();
+        setSelectedApp(updated);
       }
-    } catch (err) {
-      console.error('Failed to update status:', err);
+      await refreshAppData();
+      setShowStatusUpdateModal(false);
+    } catch {
+      // Even if network fails or in offline/mock mode, local state is preserved
+      await refreshAppData();
+      setShowStatusUpdateModal(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getStatusBadge = (status: ApplicationStatus) => {
+  const stages: { key: ApplicationStatus; label: string }[] = [
+    { key: 'SUBMITTED', label: 'Submitted' },
+    { key: 'UNDER_REVIEW', label: 'Under Review' },
+    { key: 'APPROVED', label: 'Decision / Approval' },
+    { key: 'DISBURSED', label: 'Disbursement' }
+  ];
+
+  const getStageIndex = (status: ApplicationStatus) => {
     switch (status) {
-      case 'SUBMITTED':
-        return 'bg-blue-50 text-blue-800 border-blue-200';
-      case 'UNDER_REVIEW':
+      case 'DRAFT': return -1;
+      case 'SUBMITTED': return 0;
+      case 'DOCUMENT_CHECK':
+      case 'FORWARDED_TO_PARTNER':
       case 'PARTNER_REVIEW':
-        return 'bg-amber-50 text-amber-800 border-amber-200';
-      case 'APPROVED':
+      case 'UNDER_REVIEW': return 1;
       case 'SANCTIONED':
-        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
-      case 'REJECTED':
-        return 'bg-rose-50 text-rose-800 border-rose-200';
-      default:
-        return 'bg-slate-100 text-slate-800 border-slate-200';
+      case 'APPROVED': return 2;
+      case 'DISBURSED': return 3;
+      case 'REJECTED': return 2;
+      default: return 0;
     }
   };
 
-  const getWaitingPeriodBadge = (waitingStatus?: string, expectedDate?: string) => {
-    if (!expectedDate) return null;
-    const now = new Date();
-    const target = new Date(expectedDate);
-    const diffDays = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays <= 0 || waitingStatus === 'WAITING_PERIOD_COMPLETED') {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-          <Clock className="w-3.5 h-3.5 text-slate-500" />
-          Waiting Period Concluded ({expectedDate ? new Date(expectedDate).toLocaleDateString('en-IN') : 'Passed'})
-        </span>
-      );
-    }
-
-    if (diffDays <= 5 || waitingStatus === 'WAITING_PERIOD_ENDING') {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-          <Clock className="w-3.5 h-3.5 text-amber-600" />
-          Decision Expected Soon (~{diffDays} days remaining)
-        </span>
-      );
-    }
-
-    return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-        <Clock className="w-3.5 h-3.5 text-emerald-700" />
-        In Waiting Period (~{diffDays} days to {new Date(expectedDate).toLocaleDateString('en-IN')})
-      </span>
-    );
-  };
+  const currentStageIdx = selectedApp ? getStageIndex(selectedApp.status) : 0;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
+    <div className="bg-[#F8FAFC] min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-5">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Case Management
+              </span>
+              <span className="text-[11px] font-medium text-slate-600">
+                Waiting Period Tracking
+              </span>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Application Tracker & Dossiers
+              Application Tracker
             </h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-              {userApps.length} Tracked
-            </span>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Monitor milestones, record status changes, and track official government reference numbers.
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Monitor waiting periods, record status changes, and track application references against official portals.
-          </p>
-        </div>
 
-        <button
-          onClick={() => setShowTrackModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Track New Application</span>
-        </button>
-      </div>
-
-      {userApps.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-4">
-          <FileText className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="font-bold text-base text-slate-800">No applications tracked yet</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            You can enter your government reference number to track waiting periods, or apply through verified scheme guidelines.
-          </p>
           <button
             onClick={() => setShowTrackModal(true)}
-            className="px-4 py-2 bg-emerald-700 text-white text-xs font-bold rounded-xl hover:bg-emerald-800 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs"
           >
-            Track Existing Government Application
+            <Plus className="w-3.5 h-3.5" />
+            <span>Track New Application</span>
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Applications List (5 cols) */}
-          <div className="lg:col-span-5 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block px-1">
-              Your Tracked Applications
-            </span>
 
-            {userApps.map(app => {
-              const isSelected = selectedApp?.id === app.id;
-              return (
-                <div
-                  key={app.id}
-                  onClick={() => setSelectedApp(app)}
-                  className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-2.5 ${
-                    isSelected
-                      ? 'bg-emerald-50/40 border-emerald-600 shadow-sm ring-2 ring-emerald-500/20'
-                      : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-slate-800">{app.id}</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(app.status)}`}>
-                        {app.status.replace(/_/g, ' ')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-xs text-slate-900 line-clamp-1">{app.schemeName}</h4>
-                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
-                      <span className="px-1.5 py-0.2 bg-slate-100 rounded text-[10px] font-medium border border-slate-200">
-                        {app.statusOrigin === 'OFFICIAL_INTEGRATION' ? 'Official Gate' : 'User-reported'}
-                      </span>
-                      <span>•</span>
-                      <span>{new Date(app.submittedAt).toLocaleDateString('en-IN')}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+        {userApps.length === 0 ? (
+          <div className="bg-white rounded-lg border border-slate-200 p-10 text-center space-y-3">
+            <FileText className="w-10 h-10 text-slate-300 mx-auto" />
+            <h3 className="font-bold text-sm text-slate-800">No applications recorded yet</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Enter your official government application reference number to track waiting periods and milestones.
+            </p>
+            <button
+              onClick={() => setShowTrackModal(true)}
+              className="px-4 py-2 bg-[#065F46] text-white text-xs font-semibold rounded hover:bg-[#064E3B] transition-colors"
+            >
+              Track Government Application
+            </button>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left 4 Columns: Applications Selector */}
+            <aside className="lg:col-span-4 space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-1">
+                Your Recorded Applications ({userApps.length})
+              </span>
 
-          {/* Right: Selected Application Detailed Dossier (7 cols) */}
-          {selectedApp && (
-            <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
-              {/* Header Box */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-slate-100">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-sm font-extrabold text-slate-900">{selectedApp.id}</span>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusBadge(selectedApp.status)}`}>
-                      Status: {selectedApp.status.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-base text-slate-900 leading-snug">{selectedApp.schemeName}</h3>
-                </div>
-
-                <div className="shrink-0 flex items-center gap-2">
-                  <button
-                    onClick={() => setShowStatusUpdateModal(true)}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
-                  >
-                    Update Status
-                  </button>
-                  {selectedApp.officialPortalUrl && (
-                    <a
-                      href={selectedApp.officialPortalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors"
-                      title="Open Official Portal"
+              <div className="space-y-2">
+                {userApps.map(app => {
+                  const isSelected = selectedApp?.id === app.id;
+                  return (
+                    <div
+                      key={app.id}
+                      onClick={() => setSelectedApp(app)}
+                      className={`p-3.5 rounded-lg border cursor-pointer transition-colors space-y-1.5 ${
+                        isSelected
+                          ? 'bg-white border-[#065F46] ring-1 ring-[#065F46] shadow-2xs'
+                          : 'bg-white border-slate-200 hover:border-slate-300'
+                      }`}
                     >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-xs font-bold text-slate-900">{app.id}</span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                          {app.status.replace(/_/g, ' ')}
+                        </span>
+                      </div>
 
-              {/* Status Origin Notice Banner */}
-              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-2.5 text-xs">
-                <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <div className="font-semibold text-slate-800">
-                    Status Source: {selectedApp.statusOrigin === 'OFFICIAL_INTEGRATION' ? 'Official Integration' : 'User-reported'}
+                      <h4 className="font-semibold text-xs text-slate-800 line-clamp-1">{app.schemeName}</h4>
+
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                        <span className="text-[10px] text-slate-600 font-medium">
+                          {app.statusOrigin === 'OFFICIAL_INTEGRATION' ? 'Official Gate' : 'Reported by you'}
+                        </span>
+                        <span>•</span>
+                        <span>{new Date(app.submittedAt).toLocaleDateString('en-IN')}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </aside>
+
+            {/* Right 8 Columns: Case Management Dossier */}
+            {selectedApp && (
+              <main className="lg:col-span-8 bg-white rounded-lg border border-slate-200 p-6 space-y-6">
+                
+                {/* Dossier Header */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-100 pb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-extrabold text-slate-900">{selectedApp.id}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-[#065F46] border border-emerald-200">
+                        {selectedApp.status.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-base text-slate-900 leading-snug">{selectedApp.schemeName}</h3>
                   </div>
-                  <p className="text-slate-600 leading-relaxed text-[11px]">
-                    {selectedApp.statusOrigin === 'OFFICIAL_INTEGRATION'
-                      ? 'Status confirmed via official government gateway.'
-                      : 'This status was recorded by the citizen. SSahayaka does not claim direct sanction authority. Please verify on the official government portal.'}
-                  </p>
-                </div>
-              </div>
 
-              {/* Waiting Period Indicator */}
-              <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-700">Waiting Period Timeline</span>
-                  {getWaitingPeriodBadge(selectedApp.waitingPeriodStatus, selectedApp.expectedDecisionDate)}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setShowStatusUpdateModal(true)}
+                      className="px-3 py-1.5 text-xs font-semibold rounded border border-slate-300 hover:bg-slate-50 text-slate-700 transition-colors"
+                    >
+                      Update Status
+                    </button>
+                    {selectedApp.officialPortalUrl && (
+                      <a
+                        href={selectedApp.officialPortalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded border border-slate-300 hover:bg-slate-50 text-slate-700 transition-colors"
+                        title="Open Official Portal"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-xs pt-1">
+
+                {/* Horizontal Progress Timeline (Desktop) & Vertical (Mobile) */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Case Progression Timeline
+                  </span>
+
+                  <div className="hidden sm:grid grid-cols-4 gap-2 pt-2">
+                    {stages.map((stage, idx) => {
+                      const isPast = idx < currentStageIdx;
+                      const isCurrent = idx === currentStageIdx;
+                      return (
+                        <div key={stage.key} className="space-y-1.5 text-center">
+                          <div className="relative flex items-center justify-center">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold z-10 ${
+                              isPast
+                                ? 'bg-[#065F46] text-white'
+                                : isCurrent
+                                ? 'bg-[#065F46] text-white ring-4 ring-emerald-100'
+                                : 'bg-slate-100 text-slate-400 border border-slate-300'
+                            }`}>
+                              {isPast ? '✓' : idx + 1}
+                            </div>
+                            {idx < stages.length - 1 && (
+                              <div className={`absolute left-1/2 right-[-50%] top-1/2 -translate-y-1/2 h-0.5 ${
+                                idx < currentStageIdx ? 'bg-[#065F46]' : 'bg-slate-200'
+                              }`} />
+                            )}
+                          </div>
+                          <span className={`block text-xs ${isCurrent ? 'font-bold text-slate-900' : 'text-slate-500'}`}>
+                            {stage.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Mobile Vertical Fallback */}
+                  <div className="sm:hidden space-y-2 pt-1">
+                    {stages.map((stage, idx) => {
+                      const isPast = idx < currentStageIdx;
+                      const isCurrent = idx === currentStageIdx;
+                      return (
+                        <div key={stage.key} className="flex items-center gap-2.5 text-xs">
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                            isPast || isCurrent ? 'bg-[#065F46] text-white' : 'bg-slate-100 text-slate-400'
+                          }`}>
+                            {isPast ? '✓' : idx + 1}
+                          </div>
+                          <span className={isCurrent ? 'font-bold text-slate-900' : 'text-slate-600'}>
+                            {stage.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Status Origin Notice Banner */}
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded flex items-start gap-2.5 text-xs">
+                  <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <span className="font-semibold text-slate-800 block">
+                      Status Origin: {selectedApp.statusOrigin === 'OFFICIAL_INTEGRATION' ? 'Verified Government Gateway' : 'Reported by Citizen'}
+                    </span>
+                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                      {selectedApp.statusOrigin === 'OFFICIAL_INTEGRATION'
+                        ? 'Confirmed through authoritative portal integration.'
+                        : 'This status was recorded by the citizen. Sahayak AI does not claim direct sanction authority. Please verify official approval on the designated government portal.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Waiting Period & Schedule Strip */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded border border-slate-100">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Submitted On</span>
-                    <span className="font-medium text-slate-800">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">Submission Timestamp</span>
+                    <span className="font-semibold text-slate-800">
                       {new Date(selectedApp.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Expected Decision Date</span>
-                    <span className="font-medium text-slate-800">
-                      {selectedApp.expectedDecisionDate
-                        ? new Date(selectedApp.expectedDecisionDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-                        : 'Not specified in official source'}
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">Expected Decision Timeline</span>
+                    <span className="font-semibold text-slate-800">
+                      {selectedApp.expectedDecisionDate ? new Date(selectedApp.expectedDecisionDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Standard Administrative Schedule'}
                     </span>
                   </div>
                 </div>
-              </div>
 
-              {/* Lifecycle Progress Timeline */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Recorded Timeline History
-                </h4>
+                {/* Recorded Timeline History */}
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Recorded Milestone Log
+                  </h4>
 
-                <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-                  {selectedApp.timeline?.map((item, idx) => (
-                    <div key={idx} className="relative">
-                      <div
-                        className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shadow-xs ${
-                          item.completed
-                            ? 'bg-emerald-700 text-white'
-                            : 'bg-white border-2 border-slate-300 text-slate-400'
-                        }`}
-                      >
-                        {item.completed ? '✓' : idx + 1}
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between text-xs">
-                          <p className="font-bold text-slate-900">
-                            {item.title}
-                          </p>
+                  <div className="space-y-3 pl-3 border-l-2 border-slate-200">
+                    {selectedApp.timeline?.map((item, idx) => (
+                      <div key={idx} className="relative pl-3 space-y-0.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900">{item.title}</span>
                           {item.timestamp && (
                             <span className="text-[10px] text-slate-400 font-mono">
                               {new Date(item.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-600 leading-relaxed">
-                          {item.description}
-                        </p>
-                        <span className="inline-block text-[9px] font-medium text-slate-400 uppercase tracking-wider">
+                        <p className="text-[11px] text-slate-600">{item.description}</p>
+                        <span className="text-[9px] uppercase tracking-wider text-slate-400 font-medium">
                           Origin: {item.statusOrigin || 'USER_REPORTED'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Documents Checklist */}
-              {selectedApp.documents && selectedApp.documents.length > 0 && (
-                <div className="space-y-2 pt-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Uploaded / Linked Documents
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    {selectedApp.documents.map((doc, i) => (
-                      <div key={i} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span className="text-slate-700 font-medium truncate">{doc.name}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
-                          {doc.status}
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+
+              </main>
+            )}
+
+          </div>
+        )}
+
+      </div>
 
       {/* Modal: Track New Application */}
       {showTrackModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200">
-            <h3 className="font-bold text-base text-slate-900">Track Government Application</h3>
-            <p className="text-xs text-slate-500">
-              Enter the application reference number generated on the official government portal.
-            </p>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-4 border border-slate-200 shadow-xl">
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">Track Government Application</h3>
+              <p className="text-xs text-slate-500">Record a reference number issued by an official government portal.</p>
+            </div>
 
             <form onSubmit={handleCreateApplication} className="space-y-3.5 text-xs">
               <div>
@@ -439,10 +438,10 @@ export const MyApplicationsPage: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. APP-2026-901 or PMEGP-UP-2026-92841"
+                  placeholder="e.g. PMEGP-UP-2026-92841"
                   value={newRefNumber}
                   onChange={e => setNewRefNumber(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
               </div>
 
@@ -453,7 +452,7 @@ export const MyApplicationsPage: React.FC = () => {
                   required
                   value={newSchemeName}
                   onChange={e => setNewSchemeName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
               </div>
 
@@ -463,22 +462,22 @@ export const MyApplicationsPage: React.FC = () => {
                   type="url"
                   value={newPortalUrl}
                   onChange={e => setNewPortalUrl(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowTrackModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="px-3 py-1.5 text-slate-600 hover:text-slate-800 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors disabled:opacity-50"
+                  className="px-4 py-1.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded disabled:opacity-50"
                 >
                   {isSubmitting ? 'Recording...' : 'Record Application'}
                 </button>
@@ -489,45 +488,37 @@ export const MyApplicationsPage: React.FC = () => {
       )}
 
       {/* Modal: Update Status */}
-      {showStatusUpdateModal && selectedApp && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200 text-xs">
-            <h3 className="font-bold text-base text-slate-900">Update Application Status</h3>
-            <p className="text-slate-500">
-              Record a new status update for application <span className="font-mono font-bold text-slate-800">{selectedApp.id}</span>.
-            </p>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-slate-700 font-semibold mb-1">New Status</label>
-                <select
-                  value={targetStatus}
-                  onChange={e => setTargetStatus(e.target.value as ApplicationStatus)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
-                >
-                  <option value="SUBMITTED">SUBMITTED</option>
-                  <option value="UNDER_REVIEW">UNDER REVIEW</option>
-                  <option value="ADDITIONAL_INFORMATION_REQUIRED">ADDITIONAL INFO REQUIRED</option>
-                  <option value="APPROVED">APPROVED (User-reported)</option>
-                  <option value="REJECTED">REJECTED</option>
-                </select>
-              </div>
-
-              {targetStatus === 'APPROVED' && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 space-y-1">
-                  <span className="font-bold block">User-Reported Status Notice</span>
-                  <p className="text-[11px] leading-relaxed">
-                    This status will be tagged as <strong>User-reported</strong>. SSahayaka does not claim official government integration. You will receive a reminder to verify your sanction letter on the official portal.
-                  </p>
-                </div>
-              )}
+      {showStatusUpdateModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6 space-y-4 border border-slate-200 shadow-xl text-xs">
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">Update Application Status</h3>
+              <p className="text-[11px] text-slate-500">Record a milestone reported on the official portal.</p>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="space-y-2">
+              <label className="block text-slate-700 font-semibold">New Status</label>
+              <select
+                value={targetStatus}
+                onChange={e => setTargetStatus(e.target.value as ApplicationStatus)}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800"
+              >
+                <option value="UNDER_REVIEW">Under Review / Scrutiny</option>
+                <option value="APPROVED">Approved / Sanctioned</option>
+                <option value="DISBURSED">Disbursed / Credited</option>
+                <option value="REJECTED">Clarification Required / Rejected</option>
+              </select>
+            </div>
+
+            <div className="p-2.5 bg-amber-50 border border-amber-200 rounded text-[11px] text-amber-900">
+              Status will be flagged as <strong>Citizen-reported</strong> and dispatches a verification notice.
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setShowStatusUpdateModal(false)}
-                className="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                className="px-3 py-1.5 text-slate-600 hover:text-slate-800 text-xs font-semibold"
               >
                 Cancel
               </button>
@@ -535,14 +526,15 @@ export const MyApplicationsPage: React.FC = () => {
                 type="button"
                 onClick={handleUpdateStatus}
                 disabled={isSubmitting}
-                className="px-4 py-2 font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors disabled:opacity-50"
+                className="px-4 py-1.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded disabled:opacity-50"
               >
-                {isSubmitting ? 'Saving...' : 'Confirm Update'}
+                {isSubmitting ? 'Updating...' : 'Confirm Update'}
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };
