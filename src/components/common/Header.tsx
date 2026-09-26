@@ -1,24 +1,29 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Sparkles,
   Search,
   Globe,
   Bell,
   Eye,
-  ShieldCheck,
   ChevronDown,
   LogOut,
   User,
   Sliders,
-  CheckCircle2,
   LogIn,
-  UserPlus
+  UserPlus,
+  Landmark,
+  Menu,
+  X,
+  FileText,
+  Compass,
+  CheckCircle,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { useAppData } from '../../context/AppDataContext';
+import { NotificationCenterDrawer } from './NotificationCenterDrawer';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -28,276 +33,306 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
   const { user, isAuthenticated, userRole, logout } = useAuth();
   const { language, setLanguage, t, availableLanguages } = useLanguage();
   const { isAccessibilityMode, toggleAccessibilityMode } = useAccessibility();
-  const { notifications, markNotificationsAsRead } = useAppData();
+  const { notifications } = useAppData();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showLangMenu, setShowLangMenu] = useState(false);
-  const [showNotifMenu, setShowNotifMenu] = useState(false);
+  const [isNotifDrawerOpen, setIsNotifDrawerOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const navLinks = [
+    { to: '/schemes', label: 'Discover Schemes' },
+    { to: '/find-scheme', label: 'Eligibility' },
+    { to: '/applications', label: 'Applications' }
+  ];
+
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 px-4 lg:px-6 py-2.5 transition-all">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        
-        {/* Left: Brand Logo & Tagline */}
-        <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 via-blue-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-xl tracking-tight text-slate-900 font-sans">
-                  SAHAYAK <span className="text-blue-600">AI</span>
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
-                  SIH26092
-                </span>
+    <>
+      <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 py-2.5 transition-all">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          
+          {/* Left: Brand Identity */}
+          <div className="flex items-center gap-3 shrink-0">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-md bg-[#065F46] flex items-center justify-center text-white shadow-2xs group-hover:bg-[#064E3B] transition-colors">
+                <Landmark className="w-4 h-4 text-emerald-100" />
               </div>
-              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
-                {t('tagline')}
-              </p>
-            </div>
-          </Link>
-        </div>
-
-        {/* Center: Global Search Trigger */}
-        <div className="hidden md:flex flex-1 max-w-md mx-2">
-          <button
-            onClick={onOpenSearch}
-            className="w-full flex items-center justify-between px-3.5 py-1.5 text-sm text-slate-400 bg-slate-100 hover:bg-slate-200/70 border border-slate-200 rounded-lg transition-colors group"
-          >
-            <span className="flex items-center gap-2 text-slate-500">
-              <Search className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
-              <span>{t('Search schemes, partners, applications...')}</span>
-            </span>
-            <kbd className="hidden lg:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white border border-slate-300 rounded text-slate-500 shadow-2xs">
-              Ctrl + K
-            </kbd>
-          </button>
-        </div>
-
-        {/* Right Action Icons & Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-
-          {/* Quick Search on Mobile */}
-          <button
-            onClick={onOpenSearch}
-            className="md:hidden p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg"
-            title={t('Search schemes, partners, applications...')}
-          >
-            <Search className="w-5 h-5" />
-          </button>
-
-          {/* Multilingual Selector */}
-          <div className="relative">
-            <button
-              onClick={() => setShowLangMenu(!showLangMenu)}
-              className="px-2.5 py-1.5 text-slate-700 hover:text-blue-700 hover:bg-slate-100 rounded-lg flex items-center gap-1.5 text-xs font-semibold border border-slate-200 shadow-2xs"
-              title="Change Language"
-            >
-              <Globe className="w-3.5 h-3.5 text-blue-600" />
-              <span>{availableLanguages.find(l => l.code === language)?.nativeName || 'English'}</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
-            </button>
-
-            {showLangMenu && (
-              <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in">
-                {availableLanguages.map(item => (
-                  <button
-                    key={item.code}
-                    onClick={() => {
-                      setLanguage(item.code);
-                      setShowLangMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-xs rounded-lg flex items-center justify-between ${
-                      language === item.code ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <span>{item.nativeName}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">({item.code})</span>
-                  </button>
-                ))}
+              <div>
+                <div className="flex items-center gap-1.5 leading-none">
+                  <span className="font-extrabold text-base tracking-tight text-slate-900">
+                    Sahayak AI
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                    Civic Portal
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium hidden sm:block mt-0.5">
+                  National Scheme Assistance Platform
+                </p>
               </div>
-            )}
+            </Link>
           </div>
 
-          {/* Accessibility Mode Toggle */}
-          <button
-            onClick={toggleAccessibilityMode}
-            className={`p-2 rounded-lg transition-colors ${
-              isAccessibilityMode
-                ? 'bg-amber-100 text-amber-900 font-bold ring-2 ring-amber-400'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-            title="Toggle Accessibility Mode (larger text, clear contrast)"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
-
-          {/* If NOT Authenticated: Show Log In & Register buttons */}
-          {!isAuthenticated ? (
-            <div className="flex items-center gap-1.5 sm:gap-2 ml-1">
-              <Link
-                to="/login"
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
-              >
-                <LogIn className="w-3.5 h-3.5 text-slate-500" />
-                <span>{t('Log In')}</span>
-              </Link>
-              <Link
-                to="/signup"
-                className="flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-xs"
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>{t('Register')}</span>
-              </Link>
-            </div>
-          ) : (
-
-            /* If Authenticated: Show Notifications Bell & User Menu */
-            <>
-              {/* Notifications Center Bell */}
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setShowNotifMenu(!showNotifMenu);
-                    if (!showNotifMenu && unreadCount > 0) {
-                      markNotificationsAsRead();
-                    }
-                  }}
-                  className="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg relative"
-                  title="Notifications"
+          {/* Center: Primary Navigation (Desktop) */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            {navLinks.map(link => {
+              const isActive = location.pathname.startsWith(link.to);
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors relative ${
+                    isActive
+                      ? 'text-[#065F46] bg-emerald-50/70 border border-emerald-200/80'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  }`}
                 >
-                  <Bell className="w-4 h-4" />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
-                      {unreadCount}
-                    </span>
+                  {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#065F46] rounded-full" />
                   )}
-                </button>
+                </NavLink>
+              );
+            })}
 
-                {showNotifMenu && (
-                  <div className="absolute right-0 mt-1.5 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 p-3 z-50 animate-in fade-in">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
-                      <span className="font-bold text-sm text-slate-900">{t('Notifications')}</span>
-                      <span className="text-xs text-blue-600 font-medium cursor-pointer hover:underline" onClick={markNotificationsAsRead}>
-                        {t('Mark all read')}
-                      </span>
-                    </div>
+            {/* Notifications Trigger as Nav Item */}
+            <button
+              onClick={() => setIsNotifDrawerOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+            >
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.2 bg-[#065F46] text-white text-[10px] font-bold rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          </nav>
 
-                    <div className="max-h-72 overflow-y-auto space-y-2">
-                      {notifications.length === 0 ? (
-                        <p className="text-xs text-slate-400 text-center py-4">{t('No notifications')}</p>
-                      ) : (
-                        notifications.map(n => (
-                          <div
-                            key={n.id}
-                            className={`p-2.5 rounded-lg border transition-colors ${
-                              n.read ? 'bg-white border-slate-100' : 'bg-blue-50/60 border-blue-200/80'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="text-xs font-bold text-slate-900">{t(n.title)}</p>
-                              <span className="text-[10px] text-slate-400 whitespace-nowrap">{n.timestamp}</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">{t(n.message)}</p>
-                            {n.actionLink && (
-                              <Link
-                                to={n.actionLink}
-                                onClick={() => setShowNotifMenu(false)}
-                                className="text-[11px] text-blue-600 font-semibold mt-1.5 inline-block hover:underline"
-                              >
-                                {t('View details →')}
-                              </Link>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
+          {/* Right Action Icons & Controls */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+
+            {/* Search Trigger */}
+            <button
+              onClick={onOpenSearch}
+              className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md transition-colors"
+              title="Search schemes, benefits, departments (Ctrl + K)"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-400" />
+              <span className="hidden xl:inline text-slate-400">Search schemes...</span>
+              <kbd className="hidden lg:inline-block px-1 py-0.2 text-[9px] font-mono bg-white border border-slate-300 rounded text-slate-500">
+                Ctrl K
+              </kbd>
+            </button>
+
+            {/* Multilingual Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setShowLangMenu(!showLangMenu)}
+                className="px-2 py-1.5 text-slate-700 hover:bg-slate-100 rounded-md flex items-center gap-1 text-xs font-medium border border-slate-200"
+                title="Change Language"
+              >
+                <Globe className="w-3.5 h-3.5 text-slate-500" />
+                <span className="hidden sm:inline">{availableLanguages.find(l => l.code === language)?.nativeName || 'English'}</span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+
+              {showLangMenu && (
+                <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-lg shadow-lg border border-slate-200 p-1 z-50 animate-in fade-in text-xs">
+                  {availableLanguages.map(item => (
+                    <button
+                      key={item.code}
+                      onClick={() => {
+                        setLanguage(item.code);
+                        setShowLangMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 rounded-md flex items-center justify-between ${
+                        language === item.code ? 'bg-emerald-50 text-[#065F46] font-semibold' : 'hover:bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <span>{item.nativeName}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">({item.code})</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Accessibility Mode Toggle */}
+            <button
+              onClick={toggleAccessibilityMode}
+              className={`p-1.5 rounded-md transition-colors border ${
+                isAccessibilityMode
+                  ? 'bg-amber-100 text-amber-900 border-amber-300 font-bold'
+                  : 'text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-100'
+              }`}
+              title="Toggle Accessibility Mode"
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </button>
+
+            {/* If NOT Authenticated: Show Log In & Register */}
+            {!isAuthenticated ? (
+              <div className="flex items-center gap-1.5 ml-1">
+                <Link
+                  to="/login"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors border border-slate-200"
+                >
+                  {t('Log In')}
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-3 py-1.5 text-xs font-semibold text-white bg-[#065F46] hover:bg-[#064E3B] rounded-md transition-colors shadow-2xs"
+                >
+                  {t('Register')}
+                </Link>
               </div>
-
-              {/* User Profile Avatar / Menu */}
+            ) : (
+              /* If Authenticated: User Avatar & Dropdown */
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 pl-1.5 pr-1 py-1 rounded-full hover:bg-slate-100 border border-slate-200 transition-colors"
+                  className="flex items-center gap-2 p-1 pl-2 rounded-md hover:bg-slate-100 border border-slate-200 transition-colors"
                 >
-                  <div className="w-7 h-7 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                    {user.name.charAt(0)}
+                  <div className="w-6 h-6 rounded bg-emerald-100 text-[#065F46] flex items-center justify-center font-bold text-xs">
+                    {user?.name ? user.name[0] : 'U'}
                   </div>
-                  <span className="text-xs font-semibold text-slate-800 hidden lg:inline max-w-[100px] truncate">
-                    {user.name}
+                  <span className="hidden sm:inline font-semibold text-xs text-slate-800 truncate max-w-[100px]">
+                    {user?.name ? user.name.split(' ')[0] : 'Citizen'}
                   </span>
                   <ChevronDown className="w-3 h-3 text-slate-400" />
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-slate-200 p-2 z-50">
-                    <div className="px-2.5 py-2 border-b border-slate-100 mb-1">
-                      <p className="text-xs font-bold text-slate-900">{user.name}</p>
-                      <p className="text-[11px] text-slate-500 truncate">{user.email || user.mobile}</p>
-                      <span className="inline-block mt-1 text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">
-                        {userRole === 'admin' ? t('Administrator') : t('Citizen Applicant')}
-                      </span>
+                  <div className="absolute right-0 mt-1.5 w-48 bg-white rounded-lg shadow-lg border border-slate-200 p-1 z-50 animate-in fade-in text-xs space-y-1">
+                    <div className="px-3 py-2 border-b border-slate-100">
+                      <p className="font-bold text-slate-900 truncate">{user?.name}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
                     </div>
 
                     <Link
-                      to="/profile"
+                      to="/dashboard"
                       onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 rounded-lg"
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
                     >
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span>{t('My Financial Profile')}</span>
+                      <Compass className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Citizen Dashboard</span>
                     </Link>
 
                     <Link
                       to="/applications"
                       onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 rounded-lg"
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-slate-400" />
-                      <span>{t('My Applications')}</span>
+                      <FileText className="w-3.5 h-3.5 text-slate-400" />
+                      <span>My Applications</span>
+                    </Link>
+
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowUserMenu(false)}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Citizen Profile</span>
                     </Link>
 
                     {userRole === 'admin' && (
                       <Link
                         to="/admin"
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-medium"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-[#065F46] font-semibold hover:bg-emerald-50 transition-colors"
                       >
-                        <Sliders className="w-4 h-4 text-blue-600" />
-                        <span>{t('Admin Dashboard')}</span>
+                        <Sliders className="w-3.5 h-3.5 text-[#065F46]" />
+                        <span>Admin Console</span>
                       </Link>
                     )}
 
-                    <div className="border-t border-slate-100 my-1 pt-1">
-                      <button
-                        onClick={() => {
-                          logout();
-                          setShowUserMenu(false);
-                          navigate('/login');
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg font-medium"
-                      >
-                        <LogOut className="w-4 h-4 text-red-500" />
-                        <span>{t('Log Out')}</span>
-                      </button>
-                    </div>
+                    <div className="border-t border-slate-100 my-1"></div>
 
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        logout();
+                        navigate('/');
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-rose-600 hover:bg-rose-50 transition-colors text-left font-medium"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-rose-500" />
+                      <span>Log Out</span>
+                    </button>
                   </div>
                 )}
               </div>
-            </>
-          )}
+            )}
+
+            {/* Mobile Menu Hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 text-slate-600 hover:text-slate-900 rounded-md border border-slate-200"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+
+          </div>
 
         </div>
-      </div>
-    </header>
+
+        {/* Mobile Navigation Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-2 pt-2 border-t border-slate-200 pb-3 space-y-1 text-xs">
+            {navLinks.map(link => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-md font-medium ${
+                  location.pathname.startsWith(link.to)
+                    ? 'bg-emerald-50 text-[#065F46] font-semibold'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setIsNotifDrawerOpen(true);
+              }}
+              className="w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+            >
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.2 bg-[#065F46] text-white text-[10px] font-bold rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenSearch();
+              }}
+              className="w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-400" />
+              <span>Search schemes & portals</span>
+            </button>
+          </div>
+        )}
+      </header>
+
+      {/* Notification Center Drawer */}
+      <NotificationCenterDrawer
+        isOpen={isNotifDrawerOpen}
+        onClose={() => setIsNotifDrawerOpen(false)}
+      />
+    </>
   );
 };
-

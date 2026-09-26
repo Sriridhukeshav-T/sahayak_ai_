@@ -1,12 +1,25 @@
 export type ApplicationStatus =
+  | 'NOT_STARTED'
   | 'DRAFT'
   | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'ADDITIONAL_INFORMATION_REQUIRED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'EXPIRED'
   | 'DOCUMENT_CHECK'
   | 'FORWARDED_TO_PARTNER'
   | 'PARTNER_REVIEW'
   | 'SANCTIONED'
-  | 'DISBURSED'
-  | 'REJECTED';
+  | 'DISBURSED';
+
+export type StatusOrigin = 'USER_REPORTED' | 'OFFICIAL_INTEGRATION';
+
+export type WaitingPeriodStatus =
+  | 'WAITING_PERIOD'
+  | 'WAITING_PERIOD_ENDING'
+  | 'WAITING_PERIOD_COMPLETED'
+  | 'NOT_APPLICABLE';
 
 export interface ApplicationTimelineItem {
   status: ApplicationStatus;
@@ -15,6 +28,7 @@ export interface ApplicationTimelineItem {
   timestamp: string;
   completed: boolean;
   current?: boolean;
+  statusOrigin?: StatusOrigin;
 }
 
 export interface Application {
@@ -40,8 +54,18 @@ export interface Application {
   estimatedEMI: number;
   matchScore: number;
   status: ApplicationStatus;
+  statusOrigin: StatusOrigin; // Clearly marks user-entered vs official integration
+  officialApplicationRefNumber?: string;
+  officialPortalUrl?: string;
   submittedAt: string;
   updatedAt: string;
+
+  // Waiting period and decision tracking
+  waitingPeriodStart?: string;
+  expectedDecisionDate?: string;
+  waitingPeriodEnd?: string;
+  waitingPeriodStatus?: WaitingPeriodStatus;
+
   documents: { name: string; status: 'Verified' | 'Pending' | 'Uploaded' }[];
   timeline: ApplicationTimelineItem[];
   remarks?: string;

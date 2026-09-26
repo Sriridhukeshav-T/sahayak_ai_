@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, Sparkles, X } from 'lucide-react';
+import { Mic, MicOff, Volume2, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SAMPLE_VOICE_PROMPTS_BY_LANG } from '../../services/naturalLanguageService';
 
@@ -142,14 +142,14 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
           onClick={toggleVoice}
           className={`relative flex items-center justify-center transition-all ${
             isListening
-              ? 'bg-red-600 text-white shadow-md shadow-red-500/30 ring-4 ring-red-200 animate-pulse'
-              : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 shadow-xs'
+              ? 'bg-red-600 text-white shadow-xs ring-2 ring-red-200 animate-pulse'
+              : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-xs'
           } ${
             size === 'icon'
-              ? 'p-2 rounded-xl'
+              ? 'p-2 rounded-md'
               : size === 'sm'
-              ? 'px-2.5 py-1.5 rounded-lg text-xs font-semibold gap-1.5'
-              : 'px-3 py-2 rounded-xl text-xs font-semibold gap-1.5'
+              ? 'px-2.5 py-1.5 rounded-md text-xs font-medium gap-1.5'
+              : 'px-3 py-1.5 rounded-md text-xs font-medium gap-1.5'
           } ${className}`}
           title={title || (isListening ? t('listeningPrompt') : t('speakPrompt'))}
         >
@@ -166,7 +166,7 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
             </>
           ) : (
             <>
-              <Mic className={size === 'sm' || size === 'icon' ? 'w-3.5 h-3.5 text-blue-600' : 'w-4 h-4 text-blue-600'} />
+              <Mic className={size === 'sm' || size === 'icon' ? 'w-3.5 h-3.5 text-slate-600' : 'w-4 h-4 text-slate-600'} />
               {size !== 'icon' && <span>{t('speakPrompt')}</span>}
             </>
           )}
@@ -174,32 +174,32 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
 
         {/* Listening Floating Tooltip */}
         {isListening && (
-          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap bg-slate-900 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg shadow-lg border border-slate-700 flex items-center gap-1.5 pointer-events-none animate-in fade-in slide-in-from-bottom-1">
+          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap bg-slate-900 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg border border-slate-700 flex items-center gap-1.5 pointer-events-none">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
             <span>{listeningStatus || t('Listening...')}</span>
           </div>
         )}
       </div>
 
-      {/* Voice Fallback / Demo Prompts Modal */}
+      {/* Voice Fallback / Sample Prompts Modal */}
       {showFallbackModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 max-w-md w-full">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <div className="bg-white rounded-lg shadow-xl border border-slate-200 p-5 max-w-md w-full">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
-                  <Volume2 className="w-4 h-4" />
+                <div className="w-7 h-7 rounded-sm bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center">
+                  <Volume2 className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900">{t('voiceFallbackNotice')}</h4>
+                  <h4 className="font-semibold text-sm text-slate-900">{t('voiceFallbackNotice')}</h4>
                   <p className="text-[11px] text-slate-500">
-                    {language === 'hi' ? 'हिन्दी वॉयस इनपुट सिम्युलेटर' : language === 'ta' ? 'தமிழ் குரல் உள்ளீட்டு இயக்கி' : language === 'ml' ? 'മലയാളം വോയ്‌സ് ഇൻപുട്ട് സിമുലേറ്റർ' : 'Indian multilingual voice recognition'}
+                    {language === 'hi' ? 'हिन्दी वॉयस इनपुट' : language === 'ta' ? 'தமிழ் குரல் உள்ளீடு' : language === 'ml' ? 'മലയാളം വോയ്‌സ് ഇൻപുട്ട്' : 'Indian multilingual voice recognition'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowFallbackModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+                className="p-1 rounded-sm text-slate-400 hover:text-slate-700"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -207,8 +207,8 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
 
             <p className="text-xs text-slate-600 leading-relaxed mb-3">
               {isSupported
-                ? 'Microphone permissions may be restricted in your current browser session. You can click any localized sample voice statement below to test the AI natural language parser:'
-                : 'Your current browser environment does not enable Web Speech API. Click any sample prompt below to simulate spoken voice input:'}
+                ? 'Microphone access may be restricted in this browser session. You can select any sample natural language statement below to evaluate eligibility matching:'
+                : 'Web Speech API is unavailable in this environment. Select a sample query below to test voice search queries:'}
             </p>
 
             <div className="space-y-2">
@@ -219,18 +219,18 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
                     onTranscript(prompt);
                     setShowFallbackModal(false);
                   }}
-                  className="w-full text-left p-2.5 rounded-xl text-xs bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-800 border border-slate-200/80 hover:border-blue-200 transition-all flex items-start gap-2 group"
+                  className="w-full text-left p-2.5 rounded-md text-xs bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 transition-all flex items-start gap-2"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
+                  <span className="font-mono text-slate-400 text-[10px] mt-0.5">•</span>
                   <span className="font-medium leading-relaxed">"{prompt}"</span>
                 </button>
               ))}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+            <div className="mt-4 pt-3 border-t border-slate-200 flex justify-end">
               <button
                 onClick={() => setShowFallbackModal(false)}
-                className="px-4 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg"
+                className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-md"
               >
                 {t('close')}
               </button>

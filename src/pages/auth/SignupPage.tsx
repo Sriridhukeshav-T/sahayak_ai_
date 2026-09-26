@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, User, Mail, Phone, Lock, MapPin, Globe } from 'lucide-react';
+import { Landmark, ArrowRight, User, Mail, Phone, Lock, MapPin, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const SignupPage: React.FC = () => {
@@ -10,8 +10,8 @@ export const SignupPage: React.FC = () => {
     mobile: '',
     password: '',
     confirmPassword: '',
-    state: 'Kerala',
-    district: 'Palakkad',
+    state: 'Tamil Nadu',
+    district: 'Chennai',
     preferredLanguage: 'en' as const
   });
   const [error, setError] = useState('');
@@ -45,186 +45,165 @@ export const SignupPage: React.FC = () => {
       return;
     }
 
-    // After signup, direct to onboarding wizard
-    navigate('/onboarding');
+    navigate('/dashboard');
   };
 
-
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="max-w-lg w-full bg-white rounded-3xl shadow-xl border border-slate-200/90 overflow-hidden p-6 sm:p-8 space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 sm:p-6">
+      <div className="max-w-lg w-full bg-white rounded-lg border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
         
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-1.5">
           <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-md">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-md bg-[#065F46] text-white flex items-center justify-center shadow-2xs">
+              <Landmark className="w-4 h-4 text-emerald-100" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight text-slate-900">
-              SAHAYAK <span className="text-blue-600">AI</span>
+            <span className="font-extrabold text-xl tracking-tight text-slate-900">
+              Sahayak AI
             </span>
           </Link>
-          <h2 className="text-lg font-bold text-slate-900 pt-1">Create Citizen Account</h2>
+          <h2 className="text-sm font-bold text-slate-900 pt-1">Register Citizen Profile</h2>
           <p className="text-xs text-slate-500">
-            Get personalized concessional scheme matches & verified partner guidance
+            Create your account to save eligibility checks, track government dossiers, and receive scheme deadline alerts.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
           {error && (
-            <div className="p-2.5 bg-red-50 text-red-700 rounded-xl text-xs border border-red-200">
-              {error}
+            <div className="p-3 bg-rose-50 text-rose-800 rounded border border-rose-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+            <label className="block font-semibold text-slate-700 mb-1">Full Legal Name *</label>
             <div className="relative">
               <input
                 type="text"
                 required
-                placeholder="e.g. Anjali Nair"
+                placeholder="e.g. Ramesh Kumar"
                 value={formData.name}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
               />
-              <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+              <label className="block font-semibold text-slate-700 mb-1">Email Address *</label>
               <div className="relative">
                 <input
                   type="email"
                   required
-                  placeholder="name@example.com"
+                  placeholder="ramesh@example.com"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile Number</label>
+              <label className="block font-semibold text-slate-700 mb-1">Mobile Number (10 Digits)</label>
               <div className="relative">
                 <input
                   type="tel"
-                  required
-                  placeholder="+91 98000 00000"
+                  placeholder="9876543210"
                   value={formData.mobile}
                   onChange={e => setFormData({ ...formData, mobile: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">State</label>
+              <label className="block font-semibold text-slate-700 mb-1">State / UT *</label>
               <select
                 value={formData.state}
                 onChange={e => setFormData({ ...formData, state: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
               >
-                <option value="Kerala">Kerala</option>
                 <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Delhi">Delhi</option>
                 <option value="Karnataka">Karnataka</option>
                 <option value="Maharashtra">Maharashtra</option>
-                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                <option value="Andhra Pradesh">Andhra Pradesh</option>
-                <option value="Telangana">Telangana</option>
-                <option value="West Bengal">West Bengal</option>
-                <option value="Rajasthan">Rajasthan</option>
-                <option value="Madhya Pradesh">Madhya Pradesh</option>
-                <option value="Gujarat">Gujarat</option>
-                <option value="Bihar">Bihar</option>
-                <option value="Punjab">Punjab</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">District</label>
+              <label className="block font-semibold text-slate-700 mb-1">District *</label>
               <input
                 type="text"
                 required
-                placeholder="District Name"
+                placeholder="District / City"
                 value={formData.district}
                 onChange={e => setFormData({ ...formData, district: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+              <label className="block font-semibold text-slate-700 mb-1">Password (Min 6 Characters) *</label>
               <div className="relative">
                 <input
                   type="password"
                   required
-                  placeholder="Min. 6 chars"
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Confirm Password</label>
+              <label className="block font-semibold text-slate-700 mb-1">Confirm Password *</label>
               <div className="relative">
                 <input
                   type="password"
                   required
-                  placeholder="Confirm password"
+                  placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#065F46]"
                 />
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
               </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Language</label>
-            <select
-              value={formData.preferredLanguage}
-              onChange={e => setFormData({ ...formData, preferredLanguage: e.target.value as any })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs flex items-center justify-center gap-1.5"
             >
-              <option value="en">English</option>
-              <option value="ml">Malayalam (മലയാളം)</option>
-              <option value="ta">Tamil (தமிழ்)</option>
-              <option value="hi">Hindi (हिन्दी)</option>
-            </select>
+              <span>Create Citizen Profile</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 px-4 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl transition-all shadow-md shadow-blue-700/20 flex items-center justify-center gap-2 mt-2"
-          >
-            <span>Create Account & Start Onboarding</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </form>
 
-        <div className="text-center pt-2 border-t border-slate-100">
-          <p className="text-xs text-slate-500">
-            Already have an account?{' '}
-            <Link to="/login" className="text-blue-700 font-bold hover:underline">
-              Log In here
-            </Link>
-          </p>
+        <div className="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+          <span>Already registered? </span>
+          <Link to="/login" className="text-[#065F46] font-semibold hover:underline">
+            Sign in here
+          </Link>
         </div>
 
       </div>
     </div>
   );
 };
+
+export default SignupPage;

@@ -55,12 +55,39 @@ export interface AffordabilityResult {
   }[];
 }
 
+export type NotificationType =
+  | 'SCHEME_OPENED'
+  | 'SCHEME_DEADLINE_APPROACHING'
+  | 'SCHEME_EXPIRED'
+  | 'SCHEME_UPDATED'
+  | 'APPLICATION_SUBMITTED'
+  | 'APPLICATION_STATUS_CHANGED'
+  | 'APPLICATION_APPROVED'
+  | 'APPLICATION_REJECTED'
+  | 'WAITING_PERIOD_STARTED'
+  | 'WAITING_PERIOD_ENDING'
+  | 'WAITING_PERIOD_COMPLETED'
+  | 'info'
+  | 'success'
+  | 'warning'
+  | 'alert';
+
+export type NotificationPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
+
 export interface AppNotification {
   id: string;
+  notificationId?: string;
+  idempotencyKey?: string; // Key for deduplication: userId + schemeId + type + dateKey
+  userId?: string;
+  schemeId?: string;
+  applicationId?: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'alert';
+  type: NotificationType;
+  priority?: NotificationPriority;
   timestamp: string;
+  createdAt?: string;
+  readAt?: string;
   read: boolean;
   actionLink?: string;
 }

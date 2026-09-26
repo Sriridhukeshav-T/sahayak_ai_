@@ -330,6 +330,23 @@ export class DbService {
     });
   }
 
+  static updateApplication(id: string, updates: Partial<Application>): Application | null {
+    this.init();
+    const list = this.getApplications();
+    const idx = list.findIndex(a => a.id === id);
+    if (idx >= 0) {
+      list[idx] = {
+        ...list[idx],
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(list));
+      syncWithBackend(`/applications/${encodeURIComponent(id)}`, 'PUT', updates);
+      return list[idx];
+    }
+    return null;
+  }
+
   static updateApplicationStatus(id: string, status: ApplicationStatus, remarks?: string): void {
     this.init();
     const list = this.getApplications();
@@ -348,12 +365,21 @@ export class DbService {
             t.timestamp = new Date().toISOString();
           }
         });
+      } else {
+        list[idx].timeline.push({
+          status,
+          title: status === 'APPROVED' ? 'Marked Approved (User-reported)' : `Status Updated to ${status}`,
+          description: status === 'APPROVED' ? 'Reported as approved by citizen.' : `Status changed to ${status}.`,
+          timestamp: new Date().toISOString(),
+          completed: true,
+          statusOrigin: 'USER_REPORTED'
+        });
       }
 
       localStorage.setItem(DB_KEYS.APPLICATIONS, JSON.stringify(list));
 
       // Asynchronously update on real disk file
-      syncWithBackend(`/applications/${id}`, 'PUT', { status, remarks });
+      syncWithBackend(`/applications/${encodeURIComponent(id)}`, 'PUT', { status, remarks });
     }
   }
 

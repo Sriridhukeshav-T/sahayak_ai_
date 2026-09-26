@@ -41,6 +41,10 @@ export class StorageService {
     DbService.createApplication(app);
   }
 
+  static updateApplication(id: string, updates: Partial<Application>): Application | null {
+    return DbService.updateApplication(id, updates);
+  }
+
   static updateApplicationStatus(id: string, status: ApplicationStatus, remarks?: string): void {
     DbService.updateApplicationStatus(id, status, remarks);
   }

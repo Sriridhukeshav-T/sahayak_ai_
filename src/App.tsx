@@ -20,6 +20,7 @@ import { OnboardingWizard } from './pages/onboarding/OnboardingWizard';
 import { DashboardPage } from './pages/citizen/DashboardPage';
 import { FindMySchemePage } from './pages/citizen/FindMySchemePage';
 import { SchemeExplorerPage } from './pages/citizen/SchemeExplorerPage';
+import { SchemeDetailPage } from './pages/citizen/SchemeDetailPage';
 import { AffordabilityPage } from './pages/citizen/AffordabilityPage';
 import { DocumentReadinessPage } from './pages/citizen/DocumentReadinessPage';
 import { FindPartnerPage } from './pages/citizen/FindPartnerPage';
@@ -108,6 +109,7 @@ export function App() {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/schemes" element={<SchemeExplorerPage />} />
+                  <Route path="/schemes/:id" element={<SchemeDetailPage />} />
                   <Route path="/literacy" element={<FinancialLiteracyPage />} />
 
                   {/* Protected Citizen Portal Routes */}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
+  Building2,
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
@@ -98,28 +98,28 @@ export const OnboardingWizard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl border border-slate-200/90 overflow-hidden flex flex-col">
+      <div className="max-w-2xl w-full bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col">
         
         {/* Wizard Top Progress */}
-        <div className="bg-slate-900 text-white p-6">
+        <div className="bg-slate-900 text-white p-5 border-b border-slate-800">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-                <Sparkles className="w-4 h-4" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-sm bg-emerald-800 flex items-center justify-center text-white font-bold">
+                <Building2 className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white">Financial Profile Wizard</h2>
+                <h2 className="text-sm font-semibold text-white">Citizen Profile Setup</h2>
                 <p className="text-[11px] text-slate-400">Step {step} of {totalSteps}</p>
               </div>
             </div>
-            <span className="text-xs font-mono font-bold bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-full border border-blue-400/30">
+            <span className="text-xs font-mono font-medium bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-sm border border-slate-700">
               {Math.round((step / totalSteps) * 100)}% Complete
             </span>
           </div>
 
-          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-teal-400 rounded-full transition-all duration-300"
+              className="h-full bg-emerald-600 rounded-full transition-all duration-300"
               style={{ width: `${(step / totalSteps) * 100}%` }}
             />
           </div>
@@ -143,7 +143,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="text"
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -153,7 +153,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.age}
                     onChange={e => setFormData({ ...formData, age: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -162,7 +162,7 @@ export const OnboardingWizard: React.FC = () => {
                   <select
                     value={formData.gender}
                     onChange={e => setFormData({ ...formData, gender: e.target.value as any })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   >
                     <option value="Female">Female (Priority for women-empowerment schemes)</option>
                     <option value="Male">Male</option>
@@ -175,7 +175,7 @@ export const OnboardingWizard: React.FC = () => {
                   <select
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value as any })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   >
                     <option value="OBC">OBC (Other Backward Classes)</option>
                     <option value="SC">SC (Scheduled Caste)</option>
@@ -212,10 +212,10 @@ export const OnboardingWizard: React.FC = () => {
                     key={goalOpt}
                     type="button"
                     onClick={() => setFormData({ ...formData, goal: goalOpt })}
-                    className={`p-3 rounded-2xl border text-xs font-bold text-left transition-all ${
+                    className={`p-3 rounded-md border text-xs font-semibold text-left transition-all ${
                       formData.goal === goalOpt
-                        ? 'bg-blue-50 border-blue-600 text-blue-800 ring-2 ring-blue-500/20 shadow-xs'
-                        : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
+                        ? 'bg-emerald-50/60 border-emerald-700 text-emerald-950 ring-1 ring-emerald-700/30 shadow-xs'
+                        : 'bg-white border-slate-300 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     {goalOpt}
@@ -242,7 +242,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.income}
                     onChange={e => setFormData({ ...formData, income: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                   <span className="text-[10px] text-slate-400 mt-1 block">
                     ₹{(formData.income / 100000).toFixed(2)} Lakh per year
@@ -257,7 +257,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.monthlyExpenses}
                     onChange={e => setFormData({ ...formData, monthlyExpenses: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -268,7 +268,7 @@ export const OnboardingWizard: React.FC = () => {
                   <select
                     value={formData.existingLoans ? 'yes' : 'no'}
                     onChange={e => setFormData({ ...formData, existingLoans: e.target.value === 'yes' })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   >
                     <option value="no">No existing loans</option>
                     <option value="yes">Yes, have existing loans</option>
@@ -284,7 +284,7 @@ export const OnboardingWizard: React.FC = () => {
                       type="number"
                       value={formData.existingEMI}
                       onChange={e => setFormData({ ...formData, existingEMI: Number(e.target.value) })}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                     />
                   </div>
                 )}
@@ -308,7 +308,7 @@ export const OnboardingWizard: React.FC = () => {
                     value={formData.projectType}
                     onChange={e => setFormData({ ...formData, projectType: e.target.value })}
                     placeholder="e.g. Tailoring, Dairy, Agro Machinery"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -320,7 +320,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.experienceYears}
                     onChange={e => setFormData({ ...formData, experienceYears: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -341,7 +341,7 @@ export const OnboardingWizard: React.FC = () => {
                         loanRequirement: cost - own
                       });
                     }}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -353,7 +353,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.loanRequirement}
                     onChange={e => setFormData({ ...formData, loanRequirement: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -365,7 +365,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.ownContribution}
                     onChange={e => setFormData({ ...formData, ownContribution: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -377,7 +377,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="number"
                     value={formData.expectedBusinessIncome}
                     onChange={e => setFormData({ ...formData, expectedBusinessIncome: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
               </div>
@@ -398,7 +398,7 @@ export const OnboardingWizard: React.FC = () => {
                   <select
                     value={formData.state}
                     onChange={e => setFormData({ ...formData, state: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   >
                     <option value="Kerala">Kerala</option>
                     <option value="Tamil Nadu">Tamil Nadu</option>
@@ -422,7 +422,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="text"
                     value={formData.district}
                     onChange={e => setFormData({ ...formData, district: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -432,7 +432,7 @@ export const OnboardingWizard: React.FC = () => {
                     type="text"
                     value={formData.pinCode}
                     onChange={e => setFormData({ ...formData, pinCode: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md"
                   />
                 </div>
 
@@ -440,7 +440,7 @@ export const OnboardingWizard: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleUseCurrentLocation}
-                    className="py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs rounded-xl border border-blue-200 flex items-center justify-center gap-1.5 transition-colors"
+                    className="py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs rounded-md border border-blue-200 flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Compass className="w-4 h-4 text-blue-600" />
                     <span>Use My Current GPS Location</span>
@@ -458,7 +458,7 @@ export const OnboardingWizard: React.FC = () => {
             type="button"
             onClick={handlePrev}
             disabled={step === 1}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1.5"
+            className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -467,9 +467,9 @@ export const OnboardingWizard: React.FC = () => {
           <button
             type="button"
             onClick={handleNext}
-            className="px-6 py-2.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl transition-all shadow-md shadow-blue-700/20 flex items-center gap-2"
+            className="px-5 py-2.5 text-xs font-semibold text-white bg-emerald-800 hover:bg-emerald-900 rounded-md transition-all shadow-xs flex items-center gap-2"
           >
-            <span>{step === totalSteps ? 'Build My Financial Profile' : 'Next Step'}</span>
+            <span>{step === totalSteps ? 'Complete Profile' : 'Next Step'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

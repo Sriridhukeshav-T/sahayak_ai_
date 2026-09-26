@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { Scheme, SchemeCategory } from '../../types/scheme';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const AdminSchemesPage: React.FC = () => {
   const { schemes, addScheme, updateScheme, deleteScheme } = useAppData();
@@ -28,12 +27,28 @@ export const AdminSchemesPage: React.FC = () => {
   );
 
   const handleCreateNew = () => {
+    const id = `SCH-CUST-${Date.now()}`;
     const newScheme: Scheme = {
-      id: `SCH-CUST-${Date.now()}`,
+      id,
+      schemeId: id,
       code: `SCH-NEW-${Date.now().toString().slice(-4)}`,
       name: '',
+      officialName: '',
+      shortName: '',
       category: 'Micro Enterprise',
+      governmentDepartment: 'State Nodal Agency',
+      ministry: 'State Government',
+      state: 'Central',
       description: '',
+      benefits: {
+        summary: 'Concessional credit facility',
+        minLoanAmount: 30000,
+        maxLoanAmount: 200000,
+        interestRateAnnual: 4.5,
+        moratoriumMonths: 6,
+        tenureMonths: 36
+      },
+      structuredEligibility: [],
       minIncome: 30000,
       maxIncome: 350000,
       minLoan: 30000,
@@ -48,6 +63,34 @@ export const AdminSchemesPage: React.FC = () => {
       requiredDocuments: ['Aadhaar Card', 'Income Certificate', 'Bank Passbook'],
       partnerTypes: ['State Channelizing Agency', 'Public Sector Bank'],
       eligibilityRules: ['Standard credit verification'],
+      applicationProcess: ['Submit application to local DIC or authorized nodal agency'],
+      applicationStartDate: null,
+      applicationEndDate: null,
+      schemeExpiryDate: null,
+      isOngoing: true,
+      processingPeriod: 'Not specified in the available official source.',
+      processingPeriodDays: null,
+      renewalPeriod: 'Not specified in the available official source.',
+      officialWebsite: '',
+      officialApplicationUrl: '',
+      sourceUrl: '',
+      sourceName: 'User Entry',
+      verificationStatus: 'NEEDS_VERIFICATION',
+      schemeStatus: 'OPEN',
+      fieldVerificationStatus: {
+        officialName: false,
+        ministry: false,
+        department: false,
+        description: false,
+        benefits: false,
+        eligibility: false,
+        documents: false,
+        applicationUrl: false,
+        applicationDates: false
+      },
+      lastVerifiedAt: new Date().toISOString(),
+      lastUpdatedAt: new Date().toISOString(),
+      version: '1.0',
       sourceType: 'demo',
       verified: false
     };
@@ -71,25 +114,24 @@ export const AdminSchemesPage: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tracking-tight">
               Scheme Registry Management
             </h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-              {schemes.length} Schemes Seeded
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-sm bg-slate-100 text-slate-700 border border-slate-200">
+              {schemes.length} Schemes Registered
             </span>
-            <DemoBadge />
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Configure eligibility ceilings, interest subventions, and authorized channel partners.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            Configure eligibility ceilings, interest subventions, and official source parameters.
           </p>
         </div>
 
         <button
           onClick={handleCreateNew}
-          className="px-4 py-2.5 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-xs transition-all flex items-center gap-2 self-start"
+          className="px-4 py-2 text-xs font-semibold text-white bg-emerald-800 hover:bg-emerald-900 rounded-md shadow-xs transition-all flex items-center gap-2 self-start"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Government Scheme</span>
@@ -97,25 +139,25 @@ export const AdminSchemesPage: React.FC = () => {
       </div>
 
       {/* Search Filter */}
-      <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
         <div className="relative">
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search schemes by title, sector, code..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-md focus:outline-hidden focus:border-emerald-800"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
         </div>
       </div>
 
       {/* Schemes Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
                 <th className="py-3 px-4">Scheme Name & Code</th>
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Max Loan Limit</th>
@@ -187,7 +229,7 @@ export const AdminSchemesPage: React.FC = () => {
       {/* Edit/Add Scheme Modal */}
       {editingScheme && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-bold text-sm text-slate-900">
                 {isNew ? 'Add New Scheme to Catalog' : `Edit Scheme: ${editingScheme.name}`}
@@ -205,7 +247,7 @@ export const AdminSchemesPage: React.FC = () => {
                   required
                   value={editingScheme.name}
                   onChange={e => setEditingScheme({ ...editingScheme, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-md"
                 />
               </div>
 
@@ -215,7 +257,7 @@ export const AdminSchemesPage: React.FC = () => {
                   <select
                     value={editingScheme.category}
                     onChange={e => setEditingScheme({ ...editingScheme, category: e.target.value as SchemeCategory })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md"
                   >
                     <option value="Micro Enterprise">Micro Enterprise</option>
                     <option value="Small Business">Small Business</option>
@@ -237,7 +279,7 @@ export const AdminSchemesPage: React.FC = () => {
                     required
                     value={editingScheme.interestRate}
                     onChange={e => setEditingScheme({ ...editingScheme, interestRate: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl font-bold font-mono"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md font-bold font-mono"
                   />
                 </div>
               </div>
@@ -248,7 +290,7 @@ export const AdminSchemesPage: React.FC = () => {
                   rows={2}
                   value={editingScheme.description}
                   onChange={e => setEditingScheme({ ...editingScheme, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-md"
                 />
               </div>
 
@@ -260,7 +302,7 @@ export const AdminSchemesPage: React.FC = () => {
                     required
                     value={editingScheme.maxLoan}
                     onChange={e => setEditingScheme({ ...editingScheme, maxLoan: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md"
                   />
                 </div>
                 <div>
@@ -270,7 +312,7 @@ export const AdminSchemesPage: React.FC = () => {
                     required
                     value={editingScheme.maxIncome}
                     onChange={e => setEditingScheme({ ...editingScheme, maxIncome: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md"
                   />
                 </div>
               </div>
@@ -283,7 +325,7 @@ export const AdminSchemesPage: React.FC = () => {
                     required
                     value={editingScheme.tenureMonths}
                     onChange={e => setEditingScheme({ ...editingScheme, tenureMonths: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md"
                   />
                 </div>
                 <div>
@@ -293,7 +335,7 @@ export const AdminSchemesPage: React.FC = () => {
                     required
                     value={editingScheme.moratoriumMonths}
                     onChange={e => setEditingScheme({ ...editingScheme, moratoriumMonths: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-md"
                   />
                 </div>
               </div>
@@ -313,13 +355,13 @@ export const AdminSchemesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEditingScheme(null)}
-                    className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl"
+                    className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-md"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-xs"
+                    className="px-5 py-2 font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-md shadow-xs"
                   >
                     Save Scheme
                   </button>

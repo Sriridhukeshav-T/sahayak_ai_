@@ -68,6 +68,7 @@ function generateSyntheticApplications(): Application[] {
     estimatedEMI: 3570,
     matchScore: 94,
     status: 'PARTNER_REVIEW',
+    statusOrigin: 'USER_REPORTED',
     submittedAt: '2026-08-22T09:30:00Z',
     updatedAt: '2026-09-02T14:20:00Z',
     documents: [
@@ -106,6 +107,7 @@ function generateSyntheticApplications(): Application[] {
     estimatedEMI: 11322,
     matchScore: 92,
     status: 'FORWARDED_TO_PARTNER',
+    statusOrigin: 'USER_REPORTED',
     submittedAt: '2026-08-31T11:00:00Z',
     updatedAt: '2026-09-03T16:00:00Z',
     documents: [
@@ -142,6 +144,7 @@ function generateSyntheticApplications(): Application[] {
     estimatedEMI: 8060,
     matchScore: 96,
     status: 'SANCTIONED',
+    statusOrigin: 'USER_REPORTED',
     submittedAt: '2026-08-10T10:00:00Z',
     updatedAt: '2026-08-28T12:00:00Z',
     documents: [
@@ -186,14 +189,15 @@ function generateSyntheticApplications(): Application[] {
       projectCost: cost,
       ownContribution: own,
       loanAmount: loan,
-      interestRate: scheme.interestRate,
-      tenureMonths: scheme.tenureMonths,
-      estimatedEMI: Math.round((loan * (1 + (scheme.interestRate / 100) * (scheme.tenureMonths / 12))) / scheme.tenureMonths),
+      interestRate: scheme.interestRate || 8.0,
+      tenureMonths: scheme.tenureMonths || 36,
+      estimatedEMI: Math.round((loan * (1 + ((scheme.interestRate || 8.0) / 100) * ((scheme.tenureMonths || 36) / 12))) / (scheme.tenureMonths || 36)),
       matchScore,
       status,
+      statusOrigin: 'USER_REPORTED' as const,
       submittedAt: submittedDate,
       updatedAt: new Date(new Date(submittedDate).getTime() + 86400000 * 2).toISOString(),
-      documents: scheme.requiredDocuments.map(d => ({ name: d, status: 'Verified' as const })),
+      documents: (scheme.requiredDocuments || []).map(d => ({ name: d, status: 'Verified' as const })),
       timeline: buildTimeline(status, submittedDate),
       remarks: status === 'REJECTED' ? 'Applicant annual family income exceeded scheme eligibility threshold.' : 'Processed through standard AI routing protocol.',
       demoData: true

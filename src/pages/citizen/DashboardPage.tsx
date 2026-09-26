@@ -1,40 +1,33 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
-  ArrowRight,
-  TrendingUp,
-  FileCheck2,
-  MapPin,
-  Clock,
   ShieldCheck,
-  CheckCircle2,
-  Calculator,
-  Compass,
+  ArrowRight,
+  Clock,
   FileText,
-  HelpCircle,
-  PiggyBank
+  Building2,
+  Calendar,
+  AlertCircle,
+  ExternalLink,
+  Layers,
+  FileCheck2,
+  Calculator,
+  Compass
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { rankSchemesForUser } from '../../services/schemeMatcherService';
-import { rankPartnersForUser } from '../../services/partnerRoutingService';
-import { evaluateDocumentReadiness } from '../../services/documentService';
 import { SchemeCard } from '../../components/schemes/SchemeCard';
-import { ExplainableModal } from '../../components/schemes/ExplainableModal';
 import { SchemeCompareModal } from '../../components/schemes/SchemeCompareModal';
 import { Scheme } from '../../types/scheme';
-import { MatchBreakdown } from '../../types/common';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const { schemes, partners, applications, activeScheme } = useAppData();
+  const { schemes, partners, applications, notifications } = useAppData();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const [explainScheme, setExplainScheme] = useState<{ scheme: Scheme; match: MatchBreakdown } | null>(null);
   const [comparedSchemes, setComparedSchemes] = useState<Scheme[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
 
@@ -42,19 +35,17 @@ export const DashboardPage: React.FC = () => {
   const rankedSchemes = rankSchemesForUser(user, schemes, partners);
   const topSchemes = rankedSchemes.slice(0, 3);
 
-  const rankedPartners = rankPartnersForUser(user, activeScheme, partners);
-  const bestPartner = rankedPartners[0];
+  const userApplications = applications.filter(a => !user?.id || a.userId === user.id || a.userId === 'USR-CITIZEN-001');
 
-  const docReport = evaluateDocumentReadiness(activeScheme, user.uploadedDocuments);
-  const userApplications = applications.filter(a => a.userId === user.id);
-  const activeApp = userApplications[0];
+  // Filter deadlines or urgent notifications
+  const deadlineNotifs = notifications.filter(n => n.type?.includes('DEADLINE') || n.priority === 'CRITICAL' || n.priority === 'HIGH').slice(0, 2);
 
   const handleToggleCompare = (scheme: Scheme) => {
     if (comparedSchemes.find(s => s.id === scheme.id)) {
       setComparedSchemes(comparedSchemes.filter(s => s.id !== scheme.id));
     } else {
       if (comparedSchemes.length >= 3) {
-        alert('You can compare a maximum of 3 schemes simultaneously.');
+        alert('You can compare a maximum of 3 schemes.');
         return;
       }
       const updated = [...comparedSchemes, scheme];
@@ -64,300 +55,238 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
-      
-      {/* Greeting Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
-        <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-64 h-64 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="bg-[#F8FAFC] min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         
-        <div className="relative z-10 space-y-2 max-w-2xl">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
-              {t('dashboard')}
+        {/* Welcome Banner */}
+        <div className="bg-white rounded-lg border border-slate-200 p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Citizen Service Hub
             </span>
-            <DemoBadge />
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            {new Date().getHours() < 12 ? t('greetingMorning') : new Date().getHours() < 17 ? t('greetingAfternoon') : t('greetingEvening')}, {user.name} 👋
-          </h1>
-          <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal">
-            {t('dashboardSubtitle')}
-          </p>
-        </div>
-
-        {/* Quick Action Button inside Banner */}
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link
-            to="/find-scheme"
-            className="px-5 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-blue-50 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
-          >
-            <Sparkles className="w-4 h-4 text-blue-600" />
-            <span>{t('findMyScheme')}</span>
-          </Link>
-          <Link
-            to="/affordability"
-            className="px-4 py-2.5 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all flex items-center gap-1.5"
-          >
-            <Calculator className="w-4 h-4" />
-            <span>{t('affordability')}</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* 5 Core Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-        
-        {/* Profile Readiness */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">{t('Profile Completion')}</span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-slate-900">85%</span>
-            <span className="text-[10px] text-teal-600 font-bold">{t('Strong')}</span>
-          </div>
-          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-teal-500 rounded-full w-[85%]" />
-          </div>
-        </div>
-
-        {/* Recommended Schemes */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">{t('Recommended Schemes')}</span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-blue-700">{topSchemes.length}</span>
-            <span className="text-[10px] text-blue-600 font-bold">{t('Matched')}</span>
-          </div>
-          <p className="text-[10px] text-slate-400 truncate">
-            Top: {topSchemes[0]?.match.totalScore}% {t('compatibility') || 'compatibility'}
-          </p>
-        </div>
-
-        {/* Application Status */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">{t('Application Status')}</span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-slate-900">
-              {activeApp ? `1 ${t('Active') || 'Active'}` : `0 ${t('Pending')}`}
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-400 truncate">
-            {activeApp ? t(activeApp.status) || activeApp.status.replace(/_/g, ' ') : t('Ready to apply') || 'Ready to apply'}
-          </p>
-        </div>
-
-        {/* Documents Ready */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
-          <span className="text-[11px] font-semibold text-slate-500 block">{t('Documents Ready')}</span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-emerald-700">
-              {docReport.completedRequired} / {docReport.totalRequired}
-            </span>
-            <span className="text-[10px] text-emerald-600 font-bold">{docReport.readinessPercentage}%</span>
-          </div>
-          <p className="text-[10px] text-slate-400 truncate">
-            {docReport.canSubmit ? `✓ ${t('Eligible to submit')}` : t('Upload missing docs')}
-          </p>
-        </div>
-
-        {/* Best Partner */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs space-y-2 col-span-2 lg:col-span-1">
-          <span className="text-[11px] font-semibold text-slate-500 block">{t('Best Channel Partner')}</span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-purple-700">
-              {bestPartner ? `${bestPartner.suitability.distanceKm} km` : 'Local'}
-            </span>
-            <span className="text-[10px] text-purple-600 font-bold">{t('Fastest')}</span>
-          </div>
-          <p className="text-[10px] text-slate-400 truncate" title={bestPartner?.partner.name}>
-            {bestPartner ? bestPartner.partner.name : 'Channelizing Agency'}
-          </p>
-        </div>
-
-      </div>
-
-      {/* Your Financial Journey Interactive Stepper */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">{t('Your Financial Journey')}</h3>
-            <p className="text-xs text-slate-500">{t('Track your step-by-step path from dream to disbursement')}</p>
-          </div>
-          <span className="text-xs font-bold text-blue-700">{t('Step 4 of 7')}</span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 text-xs">
-          {[
-            { step: t('1. Profile') || '1. Profile', status: 'done', link: '/profile' },
-            { step: t('2. AI Match') || '2. AI Match', status: 'done', link: '/find-scheme' },
-            { step: t('3. Affordability') || '3. Affordability', status: 'done', link: '/affordability' },
-            { step: t('4. Documents') || '4. Documents', status: 'current', link: '/documents' },
-            { step: t('5. Partner') || '5. Partner', status: 'upcoming', link: '/partners' },
-            { step: t('6. Application') || '6. Application', status: 'upcoming', link: '/apply' },
-            { step: t('7. Tracking') || '7. Tracking', status: 'upcoming', link: '/applications' }
-          ].map((item, i) => (
-            <Link
-              key={i}
-              to={item.link}
-              className={`p-2.5 rounded-xl border text-center transition-all ${
-                item.status === 'done'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : item.status === 'current'
-                  ? 'bg-blue-600 text-white font-bold border-blue-600 shadow-xs'
-                  : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
-              }`}
-            >
-              <span className="block text-[11px] leading-tight">{item.step}</span>
-              <span className="block text-[9px] uppercase tracking-wider opacity-80 mt-0.5">
-                {item.status === 'done' ? `✓ ${t('Verified')}` : item.status === 'current' ? t('Pending') : t('Pending')}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Top Scheme Recommendations Section */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-slate-900">{t('Top Matched Schemes for You')}</h2>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                {t('AI Ranked')}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              {t('Transparently matched based on your income') || 'Matched based on your profile'}: ₹{(user.income / 100000).toFixed(1)}L, {user.projectType}, {user.district}
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+              Welcome back, {user?.name ? user.name.split(' ')[0] : 'Citizen'}
+            </h1>
+            <p className="text-xs text-slate-600 max-w-xl">
+              Profile: {user.projectType || 'Micro Enterprise'} • {user.district ? `${user.district}, ` : ''}{user.state || 'India'}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {comparedSchemes.length > 0 && (
-              <button
-                onClick={() => setShowCompareModal(true)}
-                className="px-3.5 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 transition-colors"
-              >
-                {t('Compare Selected')} ({comparedSchemes.length}/3)
-              </button>
-            )}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <Link
+              to="/find-scheme"
+              className="px-4 py-2 bg-[#065F46] hover:bg-[#064E3B] text-white text-xs font-semibold rounded transition-colors shadow-2xs flex items-center gap-1.5"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Check Eligibility</span>
+            </Link>
             <Link
               to="/schemes"
-              className="text-xs font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 hover:underline"
+              className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded border border-slate-200 transition-colors"
             >
-              <span>{t('View All 50+ Schemes')}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              Explore Directory
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {topSchemes.map(({ scheme, match }) => (
-            <SchemeCard
-              key={scheme.id}
-              scheme={scheme}
-              match={match}
-              onOpenExplain={(s, m) => setExplainScheme({ scheme: s, match: m })}
-              onSelectForCompare={handleToggleCompare}
-              isCompared={Boolean(comparedSchemes.find(c => c.id === scheme.id))}
-            />
-          ))}
-        </div>
+        {/* 1. Your Applications */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Your Applications</h2>
+              <p className="text-xs text-slate-500">Track recorded government application reference numbers and waiting periods</p>
+            </div>
+            <Link
+              to="/applications"
+              className="text-xs font-semibold text-[#065F46] hover:underline flex items-center gap-1"
+            >
+              <span>View all applications</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {userApplications.length === 0 ? (
+            <div className="bg-white p-6 rounded-lg border border-slate-200 text-center space-y-2">
+              <FileText className="w-8 h-8 text-slate-300 mx-auto" />
+              <p className="text-xs font-semibold text-slate-800">No applications currently tracked</p>
+              <p className="text-[11px] text-slate-500">
+                You can record an application reference number from an official government portal to monitor its waiting period.
+              </p>
+              <Link
+                to="/applications"
+                className="inline-block px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded mt-1"
+              >
+                Track Government Reference Number
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {userApplications.slice(0, 2).map(app => (
+                <div
+                  key={app.id}
+                  className="bg-white rounded-lg border border-slate-200 p-4 space-y-3 hover:border-slate-300 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-slate-800">{app.id}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-[#065F46] border border-emerald-200">
+                      {app.status.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-xs text-slate-900 leading-snug">{app.schemeName}</h3>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                      <span className="px-1.5 py-0.2 bg-slate-100 rounded text-[10px]">
+                        {app.statusOrigin === 'OFFICIAL_INTEGRATION' ? 'Official Integration' : 'User-Reported'}
+                      </span>
+                      <span>•</span>
+                      <span>Submitted: {new Date(app.submittedAt).toLocaleDateString('en-IN')}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-50 rounded border border-slate-100 text-xs flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-medium">Expected Decision Date</span>
+                      <span className="font-semibold text-slate-800">
+                        {app.expectedDecisionDate ? new Date(app.expectedDecisionDate).toLocaleDateString('en-IN') : 'Standard Waiting Period'}
+                      </span>
+                    </div>
+                    <Link
+                      to="/applications"
+                      className="text-xs font-semibold text-[#065F46] hover:underline"
+                    >
+                      View Dossier →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* 2. Schemes You May Qualify For */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Schemes you may qualify for</h2>
+              <p className="text-xs text-slate-500">Evaluated against your trade, income, and state profile</p>
+            </div>
+            <Link
+              to="/schemes"
+              className="text-xs font-semibold text-[#065F46] hover:underline flex items-center gap-1"
+            >
+              <span>Explore full repository</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {topSchemes.map(({ scheme, match }) => (
+              <SchemeCard
+                key={scheme.id}
+                scheme={scheme}
+                match={match}
+                onSelectForCompare={handleToggleCompare}
+                isCompared={Boolean(comparedSchemes.find(s => s.id === scheme.id))}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* 3. Upcoming Deadlines & Important Notices */}
+        <section className="space-y-3">
+          <div className="border-b border-slate-200 pb-2">
+            <h2 className="text-base font-bold text-slate-900">Upcoming deadlines & notices</h2>
+            <p className="text-xs text-slate-500">Timely administrative announcements from official gazettes</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <span>Ongoing Central Programs</span>
+              </div>
+              <p className="text-xs text-slate-700">
+                Flagship schemes (PMEGP, MUDRA, PM-KISAN, PM Surya Ghar) operate on ongoing mission schedules with no immediate window closure.
+              </p>
+              <div className="pt-1">
+                <Link to="/schemes" className="text-xs font-semibold text-[#065F46] hover:underline">
+                  Review mission guidelines →
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
+                <ShieldCheck className="w-4 h-4 text-[#065F46]" />
+                <span>Document Readiness</span>
+              </div>
+              <p className="text-xs text-slate-700">
+                Keep primary documents (Aadhaar, PAN, Bank Statements, Project Report) up to date to expedite portal verification.
+              </p>
+              <div className="pt-1">
+                <Link to="/documents" className="text-xs font-semibold text-[#065F46] hover:underline">
+                  Check required documents →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. Quick Civic Services */}
+        <section className="pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <Link
+              to="/find-scheme"
+              className="p-3.5 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors space-y-1 block"
+            >
+              <ShieldCheck className="w-4 h-4 text-[#065F46]" />
+              <span className="font-bold text-slate-900 block">Eligibility Check</span>
+              <span className="text-[11px] text-slate-500 block">Deterministic rule testing</span>
+            </Link>
+
+            <Link
+              to="/documents"
+              className="p-3.5 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors space-y-1 block"
+            >
+              <FileCheck2 className="w-4 h-4 text-slate-600" />
+              <span className="font-bold text-slate-900 block">Document Guide</span>
+              <span className="text-[11px] text-slate-500 block">Checklist by scheme</span>
+            </Link>
+
+            <Link
+              to="/affordability"
+              className="p-3.5 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors space-y-1 block"
+            >
+              <Calculator className="w-4 h-4 text-slate-600" />
+              <span className="font-bold text-slate-900 block">EMI Simulator</span>
+              <span className="text-[11px] text-slate-500 block">Cashflow & subsidy impact</span>
+            </Link>
+
+            <Link
+              to="/partners"
+              className="p-3.5 bg-white rounded-lg border border-slate-200 hover:border-slate-300 transition-colors space-y-1 block"
+            >
+              <Building2 className="w-4 h-4 text-slate-600" />
+              <span className="font-bold text-slate-900 block">Channel Partners</span>
+              <span className="text-[11px] text-slate-500 block">Public sector banks & DICs</span>
+            </Link>
+          </div>
+        </section>
+
       </div>
 
-      {/* Quick Action Cards */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-          {t('Quick Tools & Guidance')}
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link
-            to="/affordability"
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all flex items-start gap-3 group"
-          >
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <Calculator className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-slate-900 group-hover:text-blue-700 transition-colors">
-                {t('Can I Afford This?')}
-              </h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                {t('Simulate your EMI and remaining disposable monthly cash surplus.')}
-              </p>
-            </div>
-          </Link>
-
-          <Link
-            to="/documents"
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-teal-300 hover:shadow-md transition-all flex items-start gap-3 group"
-          >
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <FileCheck2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-slate-900 group-hover:text-teal-700 transition-colors">
-                {t('Prepare Documents')}
-              </h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                {t('AI readiness checklist tailored to your target scheme.')}
-              </p>
-            </div>
-          </Link>
-
-          <Link
-            to="/partners"
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all flex items-start gap-3 group"
-          >
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-slate-900 group-hover:text-purple-700 transition-colors">
-                {t('Find a Partner')}
-              </h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                {t('Geo-spatial router avoids congested bank branches.')}
-              </p>
-            </div>
-          </Link>
-
-          <Link
-            to="/literacy"
-            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-amber-300 hover:shadow-md transition-all flex items-start gap-3 group"
-          >
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <PiggyBank className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-bold text-xs text-slate-900 group-hover:text-amber-700 transition-colors">
-                {t('Learn Before Borrowing')}
-              </h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                {t('Understand reducing interest, moratorium, and test your knowledge.')}
-              </p>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Explainable Modal */}
-      {explainScheme && (
-        <ExplainableModal
-          scheme={explainScheme.scheme}
-          match={explainScheme.match}
-          onClose={() => setExplainScheme(null)}
-        />
-      )}
-
-      {/* Scheme Comparison Modal */}
+      {/* Compare Modal */}
       {showCompareModal && (
         <SchemeCompareModal
           schemes={comparedSchemes}
           onClose={() => setShowCompareModal(false)}
-          onRemoveScheme={id => setComparedSchemes(comparedSchemes.filter(s => s.id !== id))}
+          onRemoveScheme={id => setComparedSchemes(prev => prev.filter(s => s.id !== id))}
         />
       )}
 
     </div>
   );
 };
+
+export default DashboardPage;
