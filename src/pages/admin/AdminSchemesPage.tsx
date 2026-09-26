@@ -28,12 +28,28 @@ export const AdminSchemesPage: React.FC = () => {
   );
 
   const handleCreateNew = () => {
+    const id = `SCH-CUST-${Date.now()}`;
     const newScheme: Scheme = {
-      id: `SCH-CUST-${Date.now()}`,
+      id,
+      schemeId: id,
       code: `SCH-NEW-${Date.now().toString().slice(-4)}`,
       name: '',
+      officialName: '',
+      shortName: '',
       category: 'Micro Enterprise',
+      governmentDepartment: 'State Nodal Agency',
+      ministry: 'State Government',
+      state: 'Central',
       description: '',
+      benefits: {
+        summary: 'Concessional credit facility',
+        minLoanAmount: 30000,
+        maxLoanAmount: 200000,
+        interestRateAnnual: 4.5,
+        moratoriumMonths: 6,
+        tenureMonths: 36
+      },
+      structuredEligibility: [],
       minIncome: 30000,
       maxIncome: 350000,
       minLoan: 30000,
@@ -48,6 +64,34 @@ export const AdminSchemesPage: React.FC = () => {
       requiredDocuments: ['Aadhaar Card', 'Income Certificate', 'Bank Passbook'],
       partnerTypes: ['State Channelizing Agency', 'Public Sector Bank'],
       eligibilityRules: ['Standard credit verification'],
+      applicationProcess: ['Submit application to local DIC or authorized nodal agency'],
+      applicationStartDate: null,
+      applicationEndDate: null,
+      schemeExpiryDate: null,
+      isOngoing: true,
+      processingPeriod: 'Not specified in the available official source.',
+      processingPeriodDays: null,
+      renewalPeriod: 'Not specified in the available official source.',
+      officialWebsite: '',
+      officialApplicationUrl: '',
+      sourceUrl: '',
+      sourceName: 'User Entry',
+      verificationStatus: 'NEEDS_VERIFICATION',
+      schemeStatus: 'OPEN',
+      fieldVerificationStatus: {
+        officialName: false,
+        ministry: false,
+        department: false,
+        description: false,
+        benefits: false,
+        eligibility: false,
+        documents: false,
+        applicationUrl: false,
+        applicationDates: false
+      },
+      lastVerifiedAt: new Date().toISOString(),
+      lastUpdatedAt: new Date().toISOString(),
+      version: '1.0',
       sourceType: 'demo',
       verified: false
     };

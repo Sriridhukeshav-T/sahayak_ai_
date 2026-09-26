@@ -67,22 +67,21 @@ export const DashboardPage: React.FC = () => {
     <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
       
       {/* Greeting Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
-        <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-64 h-64 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-md">
+        <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-64 h-64 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
         
         <div className="relative z-10 space-y-2 max-w-2xl">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
-              {t('dashboard')}
+            <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">
+              Civic Dashboard
             </span>
-            <DemoBadge />
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            {new Date().getHours() < 12 ? t('greetingMorning') : new Date().getHours() < 17 ? t('greetingAfternoon') : t('greetingEvening')}, {user.name} 👋
+            {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'}, {user.name} 👋
           </h1>
-          <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal">
-            {t('dashboardSubtitle')}
+          <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal">
+            Welcome to SSahayaka. Explore authoritative government schemes, evaluate deterministic eligibility criteria, and track your application waiting periods.
           </p>
         </div>
 
@@ -90,17 +89,17 @@ export const DashboardPage: React.FC = () => {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
             to="/find-scheme"
-            className="px-5 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-blue-50 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+            className="px-5 py-2.5 text-xs font-bold text-slate-900 bg-white hover:bg-emerald-50 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
           >
-            <Sparkles className="w-4 h-4 text-blue-600" />
-            <span>{t('findMyScheme')}</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-700" />
+            <span>Discover Verified Schemes</span>
           </Link>
           <Link
-            to="/affordability"
+            to="/schemes"
             className="px-4 py-2.5 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all flex items-center gap-1.5"
           >
-            <Calculator className="w-4 h-4" />
-            <span>{t('affordability')}</span>
+            <Compass className="w-4 h-4" />
+            <span>Explore Repository</span>
           </Link>
         </div>
       </div>

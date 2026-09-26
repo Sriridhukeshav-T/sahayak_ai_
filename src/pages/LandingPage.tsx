@@ -22,31 +22,31 @@ export const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-blue-950 via-slate-900 to-slate-900 text-white pt-16 pb-20 px-4 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-slate-900 to-slate-900 text-white pt-16 pb-20 px-4 sm:px-6">
+        <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
         
         <div className="max-w-6xl mx-auto relative z-10 text-center space-y-6">
           
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>{t('National Credit Enablement Platform • Scheme Discovery & Concessional Lending')}</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-300 text-xs font-semibold shadow-xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Authoritative Government Scheme Assistance Platform • Verified Guidelines & Direct Gateways</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            {t('heroTitle')}
+            Connecting Citizens to Real Government Benefits & Schemes
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
-            “{t('heroSubtitle')}”
+            Discover verified Central and State government welfare, subsidy, and credit programs with explainable, deterministic eligibility criteria.
           </p>
 
           {/* Primary & Secondary Call to Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
               to={isAuthenticated ? "/find-scheme" : "/signup"}
-              className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-8 py-3.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-700/25 transition-all flex items-center justify-center gap-2 group"
             >
-              <span>{isAuthenticated ? t('findMyScheme') : t('Register as Entrepreneur')}</span>
+              <span>{isAuthenticated ? 'Find Eligible Schemes' : 'Register Citizen Profile'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
@@ -54,7 +54,7 @@ export const LandingPage: React.FC = () => {
               to="/schemes"
               className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold text-sm rounded-xl transition-all"
             >
-              {t('exploreSchemes')}
+              Explore Scheme Directory
             </Link>
 
             {!isAuthenticated && (

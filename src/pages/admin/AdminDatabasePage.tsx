@@ -138,6 +138,7 @@ export const AdminDatabasePage: React.FC = () => {
       estimatedEMI: 4760,
       matchScore: 95,
       status: 'SUBMITTED',
+      statusOrigin: 'USER_REPORTED',
       submittedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       documents: [

@@ -4,11 +4,9 @@ import {
   Filter,
   Layers,
   ArrowRight,
-  SlidersHorizontal,
-  X,
-  Coins,
-  CheckCircle2,
-  Percent
+  ShieldCheck,
+  Building2,
+  CheckCircle2
 } from 'lucide-react';
 import { useAppData } from '../../context/AppDataContext';
 import { useAuth } from '../../context/AuthContext';
@@ -19,7 +17,6 @@ import { SchemeCompareModal } from '../../components/schemes/SchemeCompareModal'
 import { Scheme, SchemeCategory } from '../../types/scheme';
 import { calculateSchemeMatch } from '../../services/schemeMatcherService';
 import { MatchBreakdown } from '../../types/common';
-import { DemoBadge } from '../../components/common/DemoBadge';
 
 const CATEGORIES: (SchemeCategory | 'ALL')[] = [
   'ALL',
@@ -41,43 +38,53 @@ export const SchemeExplorerPage: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<SchemeCategory | 'ALL'>('ALL');
-  const [maxInterest, setMaxInterest] = useState<number>(8.0);
-  const [minLoanCap, setMinLoanCap] = useState<number>(0);
+  const [selectedJurisdiction, setSelectedJurisdiction] = useState<'ALL' | 'Central' | 'State'>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'OPEN' | 'CLOSING_SOON' | 'CLOSED'>('ALL');
   const [selectedState, setSelectedState] = useState<string>('ALL');
 
   const [comparedSchemes, setComparedSchemes] = useState<Scheme[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [explainScheme, setExplainScheme] = useState<{ scheme: Scheme; match: MatchBreakdown } | null>(null);
 
-  // Filter schemes
+  // Dynamic filter evaluation
   const filteredSchemes = useMemo(() => {
     return schemes.filter(s => {
-      // Category
+      // 1. Category
       if (selectedCategory !== 'ALL' && s.category !== selectedCategory) return false;
 
-      // State
-      if (selectedState !== 'ALL' && !s.supportedStates.includes('ALL') && !s.supportedStates.includes(selectedState)) {
-        return false;
+      // 2. Jurisdiction Filter (Central vs State)
+      if (selectedJurisdiction === 'Central' && s.state !== 'Central') return false;
+      if (selectedJurisdiction === 'State' && s.state === 'Central') return false;
+
+      // 3. State Location
+      if (selectedState !== 'ALL') {
+        const supported = s.supportedStates || ['ALL'];
+        const isSupported = s.state === selectedState || supported.includes('ALL') || supported.includes(selectedState);
+        if (!isSupported) return false;
       }
 
-      // Interest
-      if (s.interestRate > maxInterest) return false;
+      // 4. Scheme Status Filter
+      if (selectedStatus === 'OPEN') {
+        if (s.schemeStatus !== 'OPEN' && s.schemeStatus !== 'ONGOING') return false;
+      } else if (selectedStatus === 'CLOSING_SOON') {
+        if (s.schemeStatus !== 'CLOSING_SOON') return false;
+      } else if (selectedStatus === 'CLOSED') {
+        if (s.schemeStatus !== 'APPLICATION_WINDOW_CLOSED' && s.schemeStatus !== 'EXPIRED') return false;
+      }
 
-      // Min loan cap
-      if (s.maxLoan < minLoanCap) return false;
-
-      // Search term
+      // 5. Search term
       if (searchTerm.trim()) {
         const q = searchTerm.toLowerCase();
-        const matchesName = s.name.toLowerCase().includes(q);
-        const matchesDesc = s.description.toLowerCase().includes(q);
-        const matchesProjects = s.projectTypes.some(p => p.toLowerCase().includes(q));
-        if (!matchesName && !matchesDesc && !matchesProjects) return false;
+        const matchesName = (s.officialName || s.name || '').toLowerCase().includes(q);
+        const matchesDesc = (s.description || '').toLowerCase().includes(q);
+        const matchesMinistry = (s.ministry || s.governmentDepartment || '').toLowerCase().includes(q);
+        const matchesProjects = (s.projectTypes || []).some(p => p.toLowerCase().includes(q));
+        if (!matchesName && !matchesDesc && !matchesMinistry && !matchesProjects) return false;
       }
 
       return true;
     });
-  }, [schemes, selectedCategory, selectedState, maxInterest, minLoanCap, searchTerm]);
+  }, [schemes, selectedCategory, selectedJurisdiction, selectedStatus, selectedState, searchTerm]);
 
   const handleToggleCompare = (scheme: Scheme) => {
     if (comparedSchemes.find(s => s.id === scheme.id)) {
@@ -95,46 +102,47 @@ export const SchemeExplorerPage: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      
-      {/* Header */}
+      {/* Civic Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {t('Scheme Explorer')}
+              Authoritative Scheme Repository
             </h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
-              {filteredSchemes.length} {t('Schemes Available')}
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+              {filteredSchemes.length} Schemes Available
             </span>
-            <DemoBadge />
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 flex items-center gap-1 border border-slate-200">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+              Field-Verified Records
+            </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            {t('Search, filter, and compare verified concessional credit facilities across central & state departments.')}
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
+            Verified Government of India and State government schemes with authoritative guidelines, deterministic eligibility criteria, and direct application portal gateways.
           </p>
         </div>
 
         {comparedSchemes.length > 0 && (
           <button
             onClick={() => setShowCompareModal(true)}
-            className="px-4 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-xl shadow-xs transition-all flex items-center gap-2"
+            className="px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-xs transition-all flex items-center gap-2"
           >
-            <span>{t('Compare Selected')} ({comparedSchemes.length}/3)</span>
+            <span>Compare Selected ({comparedSchemes.length}/3)</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         )}
       </div>
 
       {/* Filter Controls Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-        
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         {/* Search input */}
         <div className="relative">
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            placeholder={t('Search by scheme name, keyword (e.g. tailoring, tractor, solar, boutique, mudra)...')}
-            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+            placeholder="Search by official scheme name, ministry, category, or trade keywords (e.g. MSME, KVIC, solar, farmer)..."
+            className="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white transition-all text-slate-800"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           {searchTerm && (
@@ -142,7 +150,7 @@ export const SchemeExplorerPage: React.FC = () => {
               onClick={() => setSearchTerm('')}
               className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-semibold"
             >
-              {t('Clear')}
+              Clear
             </button>
           )}
         </div>
@@ -155,101 +163,87 @@ export const SchemeExplorerPage: React.FC = () => {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
                 selectedCategory === cat
-                  ? 'bg-blue-700 text-white shadow-xs'
-                  : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700'
+                  ? 'bg-emerald-800 text-white shadow-xs'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
             >
-              {t(cat)}
+              {cat === 'ALL' ? 'All Categories' : cat}
             </button>
           ))}
         </div>
 
-        {/* Sliders and Dropdown for Fine-tuning */}
+        {/* Jurisdiction, Status, and State Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100 text-xs">
-          
-          {/* Max Interest Slider */}
+          {/* Jurisdiction Filter */}
           <div>
-            <div className="flex items-center justify-between mb-1 text-slate-700 font-medium">
-              <span>{t('Max Interest Rate:')}</span>
-              <span className="font-bold text-emerald-700">{maxInterest}% p.a.</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="10"
-              step="0.5"
-              value={maxInterest}
-              onChange={e => setMaxInterest(parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-            />
+            <label className="block text-slate-700 font-semibold mb-1">Government Jurisdiction</label>
+            <select
+              value={selectedJurisdiction}
+              onChange={e => setSelectedJurisdiction(e.target.value as any)}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+            >
+              <option value="ALL">All Jurisdictions (Central & States)</option>
+              <option value="Central">Central Government</option>
+              <option value="State">State Government Programs</option>
+            </select>
           </div>
 
-          {/* Min Loan Limit */}
+          {/* Scheme Status Filter */}
           <div>
-            <div className="flex items-center justify-between mb-1 text-slate-700 font-medium">
-              <span>{t('Minimum Capacity Needed:')}</span>
-              <span className="font-bold text-blue-700">₹{(minLoanCap / 100000).toFixed(1)}L+</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="2000000"
-              step="100000"
-              value={minLoanCap}
-              onChange={e => setMinLoanCap(parseInt(e.target.value, 10))}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-            />
+            <label className="block text-slate-700 font-semibold mb-1">Application Window Status</label>
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value as any)}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+            >
+              <option value="ALL">All Application Windows</option>
+              <option value="OPEN">Currently Open / Ongoing Missions</option>
+              <option value="CLOSING_SOON">Closing Soon (&lt;= 7 Days)</option>
+              <option value="CLOSED">Application Window Closed / Expired</option>
+            </select>
           </div>
 
           {/* State Filter */}
           <div>
-            <label className="block text-slate-700 font-medium mb-1">{t('State Coverage')}</label>
+            <label className="block text-slate-700 font-semibold mb-1">State / Union Territory</label>
             <select
               value={selectedState}
               onChange={e => setSelectedState(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
             >
-              <option value="ALL">{t('All States (Nationwide & State-specific)')}</option>
-              <option value="Kerala">Kerala</option>
+              <option value="ALL">All States (Nationwide Coverage)</option>
               <option value="Tamil Nadu">Tamil Nadu</option>
-              <option value="Karnataka">Karnataka</option>
-              <option value="Maharashtra">Maharashtra</option>
               <option value="Uttar Pradesh">Uttar Pradesh</option>
-              <option value="Telangana">Telangana</option>
-              <option value="Andhra Pradesh">Andhra Pradesh</option>
-              <option value="West Bengal">West Bengal</option>
-              <option value="Rajasthan">Rajasthan</option>
-              <option value="Madhya Pradesh">Madhya Pradesh</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Karnataka">Karnataka</option>
               <option value="Gujarat">Gujarat</option>
-              <option value="Bihar">Bihar</option>
-              <option value="Punjab">Punjab</option>
-              <option value="Assam">Assam</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="West Bengal">West Bengal</option>
             </select>
           </div>
-
         </div>
-
       </div>
 
       {/* Schemes Grid */}
       {filteredSchemes.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
+        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-3">
           <Layers className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="font-bold text-base text-slate-800">{t('No matching schemes found')}</h3>
+          <h3 className="font-bold text-base text-slate-800">No matching verified schemes found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            {t('Try broadening your interest rate cap or removing category filters.')}
+            Try resetting your jurisdiction, status, or category filters.
           </p>
           <button
             onClick={() => {
               setSearchTerm('');
               setSelectedCategory('ALL');
-              setMaxInterest(8.0);
-              setMinLoanCap(0);
+              setSelectedJurisdiction('ALL');
+              setSelectedStatus('ALL');
               setSelectedState('ALL');
             }}
-            className="px-4 py-2 text-xs font-bold text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+            className="px-4 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors"
           >
-            {t('Reset All Filters')}
+            Reset All Filters
           </button>
         </div>
       ) : (
@@ -258,41 +252,15 @@ export const SchemeExplorerPage: React.FC = () => {
             const match = calculateSchemeMatch(user, scheme, partners);
             return (
               <SchemeCard
-                key={scheme.id}
+                key={scheme.id || scheme.schemeId}
                 scheme={scheme}
                 match={match}
                 onOpenExplain={(s, m) => setExplainScheme({ scheme: s, match: m })}
                 onSelectForCompare={handleToggleCompare}
-                isCompared={Boolean(comparedSchemes.find(c => c.id === scheme.id))}
+                isCompared={Boolean(comparedSchemes.find(s => s.id === scheme.id))}
               />
             );
           })}
-        </div>
-      )}
-
-      {/* Floating Compare Tray if items selected */}
-      {comparedSchemes.length > 0 && !showCompareModal && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs font-bold">{comparedSchemes.length}/3 {t('Schemes Available')}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowCompareModal(true)}
-              className="px-3.5 py-1.5 text-xs font-bold text-slate-900 bg-white hover:bg-blue-50 rounded-xl transition-colors"
-            >
-              {t('Compare Now')}
-            </button>
-            <button
-              onClick={() => setComparedSchemes([])}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg"
-              title={t('Clear')}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       )}
 
@@ -305,15 +273,16 @@ export const SchemeExplorerPage: React.FC = () => {
         />
       )}
 
-      {/* Scheme Comparison Modal */}
+      {/* Compare Modal */}
       {showCompareModal && (
         <SchemeCompareModal
           schemes={comparedSchemes}
           onClose={() => setShowCompareModal(false)}
-          onRemoveScheme={id => setComparedSchemes(comparedSchemes.filter(s => s.id !== id))}
+          onRemoveScheme={(id) => setComparedSchemes(prev => prev.filter(s => s.id !== id))}
         />
       )}
-
     </div>
   );
 };
+
+export default SchemeExplorerPage;

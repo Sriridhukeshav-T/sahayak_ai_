@@ -42,7 +42,7 @@ export const AdminApplicationsPage: React.FC = () => {
         a.id.toLowerCase().includes(q) ||
         a.applicantName.toLowerCase().includes(q) ||
         a.schemeName.toLowerCase().includes(q) ||
-        a.partnerName.toLowerCase().includes(q)
+        (a.partnerName || '').toLowerCase().includes(q)
       );
     }
     return true;

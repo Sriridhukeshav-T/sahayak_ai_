@@ -3,6 +3,7 @@
 import 'dotenv/config';
 import http from 'http';
 import { dbService } from './backend/db.js';
+import { runScheduledAutomation } from './backend/automationService.js';
 
 const PORT = process.env.PORT || 5001;
 
@@ -68,7 +69,42 @@ const server = http.createServer(async (req, res) => {
       return sendJson(result.success ? 200 : 401, result);
     }
 
-    // 3. Applications
+    // 3. Schemes
+    if (pathname === '/api/schemes' && req.method === 'GET') {
+      const state = parsedUrl.searchParams.get('state');
+      const category = parsedUrl.searchParams.get('category');
+      const schemeStatus = parsedUrl.searchParams.get('schemeStatus');
+      const verificationStatus = parsedUrl.searchParams.get('verificationStatus');
+      const filters = {};
+      if (state) filters.state = state;
+      if (category) filters.category = category;
+      if (schemeStatus) filters.schemeStatus = schemeStatus;
+      if (verificationStatus) filters.verificationStatus = verificationStatus;
+
+      const schemes = await dbService.getSchemes(filters);
+      return sendJson(200, schemes);
+    }
+
+    if (pathname.startsWith('/api/schemes/') && pathname.endsWith('/audit-update') && req.method === 'POST') {
+      const parts = pathname.split('/');
+      const schemeId = parts[3];
+      const body = await parseBody(req);
+      const result = await dbService.updateSchemeWithAuditDiff(
+        schemeId,
+        body.updates || body,
+        body.source || 'Official Notification Ingest'
+      );
+      return sendJson(result.success ? 200 : 400, result);
+    }
+
+    if (pathname.startsWith('/api/schemes/') && req.method === 'GET') {
+      const schemeId = pathname.split('/')[3];
+      const scheme = await dbService.getSchemeById(schemeId);
+      if (!scheme) return sendJson(404, { error: 'Scheme not found' });
+      return sendJson(200, scheme);
+    }
+
+    // 4. Applications
     if (pathname === '/api/applications' && req.method === 'GET') {
       const userId = parsedUrl.searchParams.get('userId');
       const apps = await dbService.getApplications(userId);
@@ -94,13 +130,39 @@ const server = http.createServer(async (req, res) => {
       return sendJson(200, result);
     }
 
-    // 4. Notifications
+    // 5. Notifications
     if (pathname === '/api/notifications' && req.method === 'GET') {
-      const notifs = await dbService.getNotifications();
+      const userId = parsedUrl.searchParams.get('userId');
+      const notifs = await dbService.getNotifications(userId);
       return sendJson(200, notifs);
     }
 
-    // 5. Reset to clean defaults
+    if (pathname === '/api/notifications' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const result = await dbService.createNotification(body);
+      return sendJson(result.success ? 201 : 409, result);
+    }
+
+    // 6. Audit History
+    if (pathname === '/api/audit-history' && req.method === 'GET') {
+      const schemeId = parsedUrl.searchParams.get('schemeId');
+      const history = await dbService.getAuditHistory(schemeId);
+      return sendJson(200, history);
+    }
+
+    // 7. Scheduled Automation & Cron
+    if ((pathname === '/api/automation/run' || pathname === '/api/cron') && (req.method === 'POST' || req.method === 'GET')) {
+      const authHeader = req.headers['authorization'];
+      if (process.env.CRON_SECRET && pathname === '/api/cron') {
+        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+          return sendJson(401, { error: 'Unauthorized: invalid cron authorization' });
+        }
+      }
+      const report = await runScheduledAutomation();
+      return sendJson(200, report);
+    }
+
+    // 8. Reset to clean defaults
     if (pathname === '/api/reset' && req.method === 'POST') {
       const result = await dbService.resetDatabase();
       return sendJson(200, result);
